@@ -456,8 +456,11 @@ html.port .rz-house{width:110px;left:auto;right:0}html.port .rz-house svg{width:
 .rz-node.gate b{background:radial-gradient(circle at 50% 30%,#FFF3C4,#E9C36A 60%,#C99A3A);-webkit-text-stroke:0;color:#7A4A10;box-shadow:0 5px 0 #8A6420,0 0 0 4px rgba(255,255,255,.6)}.rz-node.gate b .fi{width:24px;height:24px}
 .rz-need{font-style:normal;font-size:11px;font-weight:700;color:#FFE07A;padding:0 3px;white-space:nowrap}
 .rz-b.gemb .rz-gem path:first-child{fill:#F6E6FF}
-.rz-card.intro{width:min(720px,96%);padding-bottom:0}.rz-card.intro h2{font-size:24px}.rz-card.intro .rz-new{margin:4px 0}.rz-card.intro .rz-goal{margin-top:6px}
-.rz-card.intro>.rz-row{position:sticky;bottom:0;margin:6px -22px 0;padding:10px 22px 16px;background:linear-gradient(180deg,rgba(255,240,220,0),#FFF0DC 35%);z-index:2}
+.rz-card.intro{width:min(720px,96%);padding:0;display:flex;flex-direction:column;overflow:hidden}.rz-card.intro h2{font-size:24px}.rz-card.intro .rz-new{margin:4px 0}.rz-card.intro .rz-goal{margin-top:6px}
+/* intro: scrolling body + fixed footer (no position:sticky; Safari misplaces sticky inside the scaled #app) */
+.rz-card.intro>.rz-ib{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 22px 6px}
+.rz-card.intro>.rz-row{flex:none;position:relative;margin:0;padding:8px 22px 16px}
+.rz-card.intro>.rz-row::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:16px;background:linear-gradient(180deg,rgba(255,240,220,0),#FFF0DC);pointer-events:none}
 .rz-maph .rz-pill.bump{animation:rzpop .35s cubic-bezier(.3,1.8,.5,1)}
 .rz-toast.map{top:auto;bottom:90px;z-index:9;max-width:90%;white-space:normal;text-align:center}
 .rz-staff{position:absolute!important;z-index:4!important;display:flex;flex-direction:column;align-items:center;pointer-events:none}
@@ -510,6 +513,23 @@ html.port .rz-node b{width:48px;height:48px;font-size:20px}html.port .rz-node.bo
 html.port .rz-ups{grid-template-columns:1fr}
 html.port .rz-res{grid-template-columns:repeat(3,minmax(0,1fr))}
 html.port .rz-top{align-self:start;padding-bottom:7px}html.port .rz-scene{height:306px}html.port .rz-floor{top:306px}html.port .rz-counter{top:278px}html.port .rz-top .rz-prog{height:22px}
+/* portrait fit: the 2-line top bar is ~77px, so reserve all of it and keep order bubbles below it (hall still ends at 302px) */
+.rz{grid-template-columns:minmax(0,1fr)}
+html.port .rz{grid-template-rows:78px 224px minmax(0,1fr)}
+html.port .rz-work{grid-template-columns:minmax(0,1fr)}
+html.port .rz-seat{height:224px;min-width:0}
+html.port .rz-who{width:100px;max-width:100%;height:118px}
+html.port .rz-bub{padding:4px 5px 6px;gap:3px}
+html.port .rz-bub.many .rz-oi{width:31px;height:31px}
+html.port .rz-zone.tab .rz-src{flex:1 1 100%;min-width:0}html.port .rz-zone.tab .rz-jar{width:auto}
+/* waiting line moves into the top bar, beside the goal bar, instead of covering the customers */
+html.port .rz-top .rz-prog{flex-basis:calc(100% - 178px);max-width:calc(100% - 178px)}
+html.port .rz-queue{left:auto;right:8px;top:42px;width:170px;height:32px;z-index:5!important}
+html.port .rz-qp{left:calc(var(--i)*25px);top:0;bottom:auto;width:26px;height:30px;transform:none;filter:none}
+html.port .rz-qp:nth-child(n+5){display:none}
+html.port .rz-qp i{left:2px;right:2px;top:auto;bottom:-2px;height:4px}
+html.port .rz-qp .crown{width:16px;top:-6px}
+html.port .rz-qn{left:auto;right:0;top:5px;font-size:11px;padding:1px 8px}
 </style>
 </head>
 <body>
@@ -1790,12 +1810,12 @@ function rzIntro(L){
   {const tr=rzTrialOf(L);if(tr&&L>=RZ_BST_L){const d=rzBstDef(tr);gift+=`<div class="rz-new trial"><span class="rz-newtag">ทดลองใช้ฟรี</span><div class="rz-ni">${d.ic}<div><b>${d.n}</b><small>${d.d}</small></div></div><p>ด่านนี้ใช้ได้ฟรีจนกว่าจะผ่าน ไม่เสียของในกระเป๋า${tr==='more'?' · ตัวช่วยนี้จะเด้งขึ้นมาเองตอนลูกค้าหมด':''}</p></div>`}}
   if(L>=RZ_BST_L&&!RD.seen.staff&&RD.seen.bst===1&&!gift.includes('ระบบตัวช่วยเปิดแล้ว')){RD.seen.staff=1;['aide','ptph'].forEach(id=>RD.bst[id]=(RD.bst[id]||0)+1);rzSave();gift+=`<div class="rz-new"><span class="rz-newtag">ทีมงานใหม่</span><p>จ้างผู้ช่วยเภสัชกรหรือเภสัชกรพาร์ทไทม์มาช่วยในด่านได้แล้ว! พี่แถมให้อย่างละ 1 ครั้ง</p></div>`}
   const ch=RZ_CHC[V.ch%RZ_CHC.length];rzEl.style.setProperty('--wall1',ch[0]);rzEl.style.setProperty('--wall2',ch[1]);
-  rzEl.innerHTML=`<div class="rz-bg">${rzScene()}<div class="rz-floor"></div></div><div class="rz-ov"><div class="rz-card intro"><div class="rz-kick">${RZ_CH[V.ch%RZ_CH.length]} · ด่าน ${L}</div>
+  rzEl.innerHTML=`<div class="rz-bg">${rzScene()}<div class="rz-floor"></div></div><div class="rz-ov"><div class="rz-card intro"><div class="rz-ib"><div class="rz-kick">${RZ_CH[V.ch%RZ_CH.length]} · ด่าน ${L}</div>
    <h2>${L%10===0?'ด่านบอส! ':''}${RZ_GOALTXT(V)}</h2>
    <div class="rz-goalbox"><b>เป้าหมาย · ทำครบแล้วจบด่านทันที</b>${RZ_GOALTXT(V)}${V.goal.t==='nolose'?'':` · มีลูกค้าทั้งหมด ${V.n} คน`}</div>
    ${V.news.length?`<div class="rz-new"><span class="rz-newtag">ของใหม่</span>${V.fresh.map(x=>`<div class="rz-ni">${rzOrderArt(x)}<div><b>${RI[x].n}</b><small>${RI[x].e}</small></div></div>`).join('')}${V.news.map(u=>u.txt?`<p>${u.txt}</p>`:'').join('')}</div>`:''}
    <div class="rz-goal"><span>${czStars(3)} เสร็จภายใน ${rzFmt(V.par[0])}</span><span>${czStars(2)} ภายใน ${rzFmt(V.par[1])}</span><span>${czStars(1)} ทำเป้าหมายสำเร็จ</span></div>
-   ${gift}${L>=RZ_BST_L?rzBstPick(V):''}
+   ${gift}${L>=RZ_BST_L?rzBstPick(V):''}</div>
    <div class="rz-row"><button class="rz-b ghost" data-r="map">แผนที่</button><button class="rz-b big" data-r="go" data-l="${L}">เริ่มเลย!</button></div></div></div>`;
 }
 function rzEnd(pass,why){
