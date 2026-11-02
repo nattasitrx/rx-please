@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="description" content="ร้านยาทันใจ เกมจัดยาน่ารัก ๆ เรียนรู้เรื่องยาไปพร้อมกับการเล่น">
 <meta name="theme-color" content="#FF9636">
 <title>Rx, Please!</title>
@@ -12,7 +12,9 @@
 <style>
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
-html{height:100%}
+html{height:100%;touch-action:manipulation;-webkit-text-size-adjust:100%}
+*{touch-action:manipulation;-webkit-touch-callout:none}
+.rz-slot,.rz-slot *{touch-action:none}
 body{height:100%;margin:0;background:#3A2A33;color:#5A3E4B;font-family:"Mali","Sarabun",system-ui,sans-serif;font-size:15px;line-height:1.5;overflow:hidden;-webkit-tap-highlight-color:transparent}
 button{font:inherit;color:inherit;cursor:pointer;-webkit-user-select:none;user-select:none}
 button:focus-visible{outline:2px solid #FFC93C;outline-offset:2px}
@@ -472,7 +474,11 @@ document.body.insertAdjacentHTML('beforeend',`<svg width="0" height="0" style="p
 </defs></svg>`);
 function layout(){const W=innerWidth,H=innerHeight,sL=Math.min(W/1120,H/630),sP=Math.min(W/480,H/900),land=sL>=sP;
   root.classList.add('stage');root.classList.toggle('land',land);root.classList.toggle('port',!land);root.style.setProperty('--s',(land?sL:sP).toFixed(4))}
-layout();addEventListener('resize',layout);addEventListener('orientationchange',()=>setTimeout(layout,250));
+layout();addEventListener('resize',layout);
+/* stop pinch / double-tap zoom on phones (iOS Safari ignores user-scalable=no) */
+['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
+document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
+document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault()},{passive:false});addEventListener('orientationchange',()=>setTimeout(layout,250));
 
 /* ================= CHARACTER ART ================= */
 const CZI={
