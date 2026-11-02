@@ -383,6 +383,48 @@ html.port .rz-house{width:110px;left:auto;right:0}html.port .rz-house svg{width:
 .rz-trash{background:linear-gradient(180deg,#9BE0BF,#5FBF95);border:2.5px solid #fff;color:#fff;text-shadow:0 1px 0 rgba(0,60,40,.4);box-shadow:0 4px 0 #3E9A72,0 6px 8px rgba(0,0,0,.2)}
 .rz-door{background:#B9703F;box-shadow:inset 4px 0 0 #E3A877}
 .rz-door i{background:linear-gradient(180deg,#8FDCC0,#5FBF95)}
+/* ===== shared game UI skin: glossy buttons, framed panels, coin-like map nodes ===== */
+.rz-out{position:absolute;inset:0;width:100%;height:100%;display:block}
+.rz-ov{background:rgba(50,22,10,.48)}
+.rz-card{background:linear-gradient(180deg,#FFFCF5,#FFF0DC);border:4px solid #fff;border-radius:28px;box-shadow:0 0 0 4px #F59A3C,0 8px 0 4px #B8561A,0 26px 50px -10px rgba(40,15,5,.55)}
+.rz-card h2{color:#8A3E10;text-shadow:0 2px 0 #fff}
+.rz-card .rz-sub{color:#A07A62}
+.rz-b{background:linear-gradient(180deg,#FFA9C0,#F0507A 85%);border:2.5px solid #fff;text-shadow:0 1.5px 0 rgba(140,30,60,.55);box-shadow:inset 0 3px 0 rgba(255,255,255,.4),0 4px 0 #B8355A,0 6px 8px rgba(60,20,10,.22)}
+.rz-b.big{background:linear-gradient(180deg,#9BEA7E,#3FB65A 85%);text-shadow:0 1.5px 0 rgba(20,90,40,.6);box-shadow:inset 0 3px 0 rgba(255,255,255,.45),0 5px 0 #2A8A43,0 7px 10px rgba(60,20,10,.25)}
+.rz-b.ghost{background:linear-gradient(180deg,#fff,#FFEFD9);text-shadow:none;box-shadow:inset 0 2px 0 #fff,0 4px 0 #D9A877,0 6px 8px rgba(60,20,10,.15);border-color:#fff}
+.rz-b.shopb{background:linear-gradient(180deg,#8FE6C4,#3DB88C 85%);box-shadow:inset 0 3px 0 rgba(255,255,255,.4),0 4px 0 #2A8A66}
+.rz-b:active{transform:translateY(3px);box-shadow:inset 0 3px 0 rgba(255,255,255,.4),0 1px 0 rgba(0,0,0,.25)}
+.rz-set,.rz-qrow,.rz-up,.rz-tip,.rz-res div,.rz-goalbox,.rz-new,.rz-chat p,.rz-goal span{border:2px solid #F2D6C2;box-shadow:0 3px 0 #E6C2A8}
+.rz-qrow.ready{box-shadow:0 0 0 3px #FFD84D,0 3px 0 #E6C2A8}
+.rz-tabs{gap:4px;background:#E9C9A8;border-radius:14px;padding:4px;box-shadow:inset 0 2px 3px rgba(90,40,15,.25)}
+.rz-tabs button{flex:1;border-radius:11px;background:transparent;box-shadow:none;color:#8A5A3A}
+.rz-tabs button.on{background:linear-gradient(180deg,#FFC067,#F07A1E);color:#fff!important;text-shadow:0 1.5px 0 rgba(120,50,10,.6);box-shadow:inset 0 2px 0 rgba(255,255,255,.45),0 2px 0 #B8561A}
+.rz-tg{background:#D9C3B5;box-shadow:inset 0 2px 3px rgba(90,40,15,.3)}.rz-tg.on{background:linear-gradient(180deg,#8FE08A,#3FB65A)}
+.rz-ic{background:radial-gradient(circle at 50% 30%,#FFD08A,#FF8A2A 70%);color:#fff;border:2.5px solid #fff;box-shadow:0 3px 0 #B8561A,0 4px 6px rgba(0,0,0,.25)}
+.rz-ic:disabled{opacity:.4}
+.rz-maph .rz-pill,.rz-card .rz-pill.coin{background:linear-gradient(180deg,#B85A1C,#9C4813);color:#fff;border:2.5px solid #FFB45C;text-shadow:0 1.5px 0 rgba(80,30,5,.7);box-shadow:inset 0 2px 3px rgba(0,0,0,.3),0 3px 0 #8A3E10}
+.rz-maph .rz-pill.coin b,.rz-card .rz-pill.coin b{color:#FFE07A}
+.rz-maph .rz-coin,.rz-card .rz-pill .rz-coin{box-shadow:0 0 0 2px #fff}
+.rz-logo{color:#FF6F95;-webkit-text-stroke:0;text-shadow:0 3px 0 #fff,3px 0 0 #fff,-3px 0 0 #fff,0 -3px 0 #fff,2px 2px 0 #fff,-2px 2px 0 #fff,2px -2px 0 #fff,-2px -2px 0 #fff,0 7px 0 #B8355A,0 10px 12px rgba(0,0,0,.25)}.rz-logo span{color:#3FB65A}
+.rz-chap b{background:linear-gradient(180deg,#D99A62,#B56B3D);color:#fff;border:2.5px solid #F6C795;text-shadow:0 1.5px 0 rgba(80,30,5,.6);box-shadow:0 4px 0 #7A4428,0 6px 8px rgba(0,0,0,.2)}
+.rz-node b{background:radial-gradient(circle at 50% 30%,#FFE98A,#FFC23C 55%,#F29A1A);color:#fff;-webkit-text-stroke:1.2px #B8661A;paint-order:stroke;text-shadow:0 2px 0 #B8661A;border:3px solid #FFF3C4;box-shadow:0 5px 0 #C27416,0 8px 10px rgba(60,30,5,.3)}
+.rz-node.done b{background:radial-gradient(circle at 50% 30%,#FFE98A,#FFC23C 55%,#F29A1A);box-shadow:0 5px 0 #C27416,0 8px 10px rgba(60,30,5,.3)}
+.rz-node.cur b{background:radial-gradient(circle at 50% 30%,#FFC3D3,#FF6F95 60%,#E2456F);-webkit-text-stroke-color:#A8264D;text-shadow:0 2px 0 #A8264D;box-shadow:0 5px 0 #A8264D,0 0 0 6px rgba(255,255,255,.6),0 0 22px 6px rgba(255,140,170,.7)}
+.rz-node.boss b{background:radial-gradient(circle at 50% 30%,#E3D3FF,#A27CF2 60%,#7E57D8);-webkit-text-stroke-color:#5A36A8;text-shadow:0 2px 0 #5A36A8;border-color:#F1E9FF;box-shadow:0 5px 0 #5A36A8,0 8px 10px rgba(30,10,60,.3)}
+.rz-node.lock b{background:radial-gradient(circle at 50% 30%,#F4EEEA,#D8CCC4 60%,#BCAEA4);-webkit-text-stroke-color:#8F8077;text-shadow:0 2px 0 #8F8077;border-color:#fff;box-shadow:0 5px 0 #9A8A80,0 8px 10px rgba(0,0,0,.2)}
+.rz-node span{background:linear-gradient(180deg,#B85A1C,#9C4813);border:2px solid #FFB45C;box-shadow:0 2px 0 #7A3410}
+.rz-node span svg{fill:#7A3E1C}
+.rz-node.cur::after{background:linear-gradient(180deg,#FFF3B0,#FFC93C);border:2px solid #fff;color:#8A4A10;box-shadow:0 3px 0 #C27416}
+.rz-fb{background:radial-gradient(circle at 50% 30%,#fff 0 50%,#FFEFD9);border:3px solid #fff;border-radius:20px;box-shadow:0 0 0 3px #F59A3C,0 6px 0 3px #B8561A,0 8px 12px rgba(0,0,0,.25);color:#8A3E10}
+.rz-fb.lock{opacity:.7;filter:grayscale(.6)}
+.rz-house span{background:linear-gradient(180deg,#D99A62,#B56B3D);color:#fff;border:2px solid #F6C795;text-shadow:0 1px 0 rgba(80,30,5,.6)}
+.rz-sp-logo b{color:#FF6F95;text-shadow:0 4px 0 #fff,4px 0 0 #fff,-4px 0 0 #fff,0 -4px 0 #fff,3px 3px 0 #fff,-3px 3px 0 #fff,3px -3px 0 #fff,-3px -3px 0 #fff,0 10px 0 #B8355A,0 16px 18px rgba(0,0,0,.3)}.rz-sp-logo span{color:#3FB65A}
+.rz-sp-logo small{display:inline-block;background:linear-gradient(180deg,#FFC067,#F07A1E);color:#fff;border:2.5px solid #fff;border-radius:999px;padding:1px 14px;text-shadow:0 1.5px 0 rgba(120,50,10,.6);box-shadow:0 3px 0 #B8561A;margin-bottom:6px}
+.rz-sp-tap{background:linear-gradient(180deg,#9BEA7E,#3FB65A 85%);border:3px solid #fff;text-shadow:0 2px 0 rgba(20,90,40,.6);box-shadow:inset 0 3px 0 rgba(255,255,255,.45),0 6px 0 #2A8A43,0 9px 14px rgba(0,0,0,.25)}
+.rz-sp-crowd svg{filter:drop-shadow(0 0 1.3px rgba(90,40,30,.55)) drop-shadow(0 5px 4px rgba(60,25,10,.2))}
+.rz-sp-disc{background:rgba(255,255,255,.85);border-radius:999px;padding:3px 14px;color:#8A6A58}
+.rz-splash .rz-sp-crowd{margin-top:20px}
+.rz-cxi,.rz-cxart{border:2px solid #F2D6C2;box-shadow:0 3px 0 #E6C2A8}
 /* portrait */
 html.port .rz{grid-template-rows:52px 250px minmax(0,1fr)}
 html.port .rz-bg{background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.75) 0 3px,transparent 4px) 0 0/44px 44px,linear-gradient(180deg,var(--wall1),var(--wall2) 298px,#FBE1CF 298px,#F7D6C1)}
@@ -752,7 +794,7 @@ function rzBuild(){
   RZ.seats.forEach((_,j)=>rzSeat(j));rzStations();
 }
 /* ---------- gameplay backdrop: wooden medicine shelves, arched window with a sunny town view ---------- */
-function rzScene(){
+function rzScene(noSign){
   const pal=['#FF8FAB','#7FC6F2','#8FDCC0','#FFC94D','#B79CFF','#FF9D5C','#6FCFC2','#F7A1C4'];
   const shelf=(x0,w,seed)=>{let o=`<rect x="${x0-8}" y="58" width="${w+16}" height="190" rx="10" fill="#A8663E"/><rect x="${x0}" y="66" width="${w}" height="176" rx="5" fill="#7A4428"/><rect x="${x0}" y="66" width="${w}" height="176" rx="5" fill="url(#scBack)"/>`;
     [116,176,236].forEach((by,r)=>{let x=x0+8,i=0;
@@ -791,13 +833,31 @@ function rzScene(){
    <rect x="424" y="222" width="272" height="18" rx="5" fill="#B9703F"/><rect x="424" y="222" width="272" height="5" rx="2.5" fill="#E3A877"/>
    ${[440,466,494,522,600,628,656,682].map((x,i)=>`<circle cx="${x}" cy="${216-i%2*4}" r="9" fill="#6CC08F"/><circle cx="${x+(i%2?4:-3)}" cy="${212-i%2*4}" r="5.5" fill="${['#FF7FA3','#FFD84D','#FF9D5C','#B79CFF'][i%4]}"/>`).join('')}
    ${lamp(366)}${lamp(754)}
-   <g transform="translate(560 243)"><rect x="-72" y="-14" width="144" height="30" rx="10" fill="#fff" stroke="#6CC08F" stroke-width="3"/><circle cx="-52" cy="1" r="9" fill="#5CC27A"/><path d="M-52 -5v12M-58 1h12" stroke="#fff" stroke-width="3.4"/><text x="8" y="7" text-anchor="middle" font-family="Mali,sans-serif" font-weight="700" font-size="16" fill="#3E8E5E">ร้านยาทันใจ</text></g>
+   ${noSign?'':`<g transform="translate(560 243)"><rect x="-72" y="-14" width="144" height="30" rx="10" fill="#fff" stroke="#6CC08F" stroke-width="3"/><circle cx="-52" cy="1" r="9" fill="#5CC27A"/><path d="M-52 -5v12M-58 1h12" stroke="#fff" stroke-width="3.4"/><text x="8" y="7" text-anchor="middle" font-family="Mali,sans-serif" font-weight="700" font-size="16" fill="#3E8E5E">ร้านยาทันใจ</text></g>`}
+  </svg>`;
+}
+/* ---------- outdoor scene behind the map: sky, hills, sea, grass, trees ---------- */
+function rzOutdoor(){
+  const R=rzRng(7),tree=(x,y,k)=>`<g transform="translate(${x} ${y}) scale(${k})"><ellipse cx="0" cy="34" rx="26" ry="7" fill="#3E8E4E" opacity=".25"/><rect x="-5" y="4" width="10" height="30" rx="4" fill="#A8663E"/><circle cx="0" cy="-8" r="26" fill="#5CB85C"/><circle cx="-14" cy="2" r="18" fill="#4CAA50"/><circle cx="15" cy="0" r="19" fill="#6CC46A"/><circle cx="-6" cy="-18" r="10" fill="#8FDB82" opacity=".7"/></g>`;
+  const palm=(x,y,k,f)=>`<g transform="translate(${x} ${y}) scale(${f*k} ${k})"><path d="M0 60Q6 20 -4 -20" stroke="#B9824F" stroke-width="9" fill="none" stroke-linecap="round"/>${[-150,-115,-70,-30,10].map(a=>`<path d="M-4 -20q${Math.cos(a*Math.PI/180)*30} ${Math.sin(a*Math.PI/180)*30-6} ${Math.cos(a*Math.PI/180)*56} ${Math.sin(a*Math.PI/180)*44+16}" stroke="#4CAA50" stroke-width="11" fill="none" stroke-linecap="round"/>`).join('')}</g>`;
+  let fl='';for(let i=0;i<60;i++){const x=R()*1120,y=330+R()*300;fl+=`<circle cx="${x}" cy="${y}" r="${2+R()*2.5}" fill="${['#FFF','#FFD84D','#FF9DB8','#CDB4FF'][i%4]}" opacity=".85"/>`}
+  let tufts='';for(let i=0;i<40;i++){const x=R()*1120,y=320+R()*310;tufts+=`<path d="M${x} ${y}l4 -9 3 9 4 -7 2 7" stroke="#5DB65A" stroke-width="2" fill="none" stroke-linecap="round" opacity=".7"/>`}
+  return`<svg class="rz-out" viewBox="0 0 1120 630" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs>
+   <linearGradient id="oSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7CCBF5"/><stop offset=".7" style="stop-color:var(--wall2)"/><stop offset="1" style="stop-color:var(--wall1)"/></linearGradient>
+   <linearGradient id="oGrass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A8E07E"/><stop offset="1" stop-color="#7CC75E"/></linearGradient>
+   <linearGradient id="oSea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5FC0EC"/><stop offset="1" stop-color="#8ED8F5"/></linearGradient></defs>
+   <rect width="1120" height="630" fill="url(#oSky)"/>
+   ${[[150,90,1],[520,60,.8],[880,110,1.1]].map(([x,y,k])=>`<g transform="translate(${x} ${y}) scale(${k})" fill="#fff" opacity=".9"><ellipse cx="0" cy="0" rx="46" ry="18"/><ellipse cx="-26" cy="6" rx="28" ry="14"/><ellipse cx="30" cy="6" rx="32" ry="15"/><ellipse cx="4" cy="-12" rx="26" ry="16"/></g>`).join('')}
+   <path d="M0 250Q160 170 330 230Q520 150 720 220Q900 160 1120 230V330H0Z" fill="#B5DDC6"/>
+   <rect y="250" width="1120" height="70" fill="url(#oSea)"/><path d="M60 270h50M300 290h70M640 276h46M880 296h60M1000 268h40" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/>
+   <path d="M0 312Q280 286 560 304Q840 322 1120 296V630H0Z" fill="#F4DFAE"/>
+   <path d="M0 330Q300 304 560 322Q860 342 1120 314V630H0Z" fill="url(#oGrass)"/>${tufts}${fl}
+   ${palm(70,250,1.1,1)}${palm(1050,240,1.2,-1)}${tree(40,560,1.1)}${tree(1090,580,1.2)}${tree(990,420,.8)}${tree(130,430,.75)}
   </svg>`;
 }
 function rzDeco(play){
   if(play)return`${rzScene()}<div class="rz-floor"></div><div class="rz-door"><i></i></div>`;
-  return`<div class="rz-win"><i></i><i></i></div><div class="rz-shelfdeco l">${['cough','para','eye'].map(x=>`<i>${czIcon(x)}</i>`).join('')}</div><div class="rz-shelfdeco r">${['cream','ors','cet'].map(x=>`<i>${czIcon(x)}</i>`).join('')}</div>
-  <div class="rz-plant"><svg viewBox="0 0 60 80"><path d="M30 46C10 40 8 18 14 10c12 6 16 22 16 36Zm0 0C50 40 52 18 46 10 34 16 30 32 30 46Z" fill="#8FDCB8"/><path d="M30 50C18 34 22 20 30 14c8 6 12 20 0 36Z" fill="#7CCFA8"/><path d="M16 48h28l-4 28H20Z" fill="#FFB3C7"/><path d="M14 46h32v7H14Z" fill="#FF9DB8"/></svg></div>`;
+  return rzOutdoor();
 }
 
 /* ---------- customers ---------- */
@@ -1361,7 +1421,7 @@ function rzSplash(){
   if(RZ){RZ.run=false;RZ=null}rzEl.hidden=false;
   rzEl.style.setProperty('--wall1','#FFE4EC');rzEl.style.setProperty('--wall2','#FFF0F4');
   const kids=[0,1,2,3,4].map(i=>rzLook(rzRng(i*91+5)));
-  rzEl.innerHTML=`<div class="rz-bg">${rzDeco()}</div><div class="rz-splash" data-r="enter">
+  rzEl.innerHTML=`<div class="rz-bg">${rzScene(1)}<div class="rz-floor"></div></div><div class="rz-splash" data-r="enter">
    <div class="rz-sp-logo"><small>Rx, Please!</small><b>ร้านยา<span>ทันใจ</span></b></div>
    <div class="rz-sp-crowd">${kids.map((k,i)=>`<i style="--i:${i}">${czPerson(k,i%2?'happy':'calm')}</i>`).join('')}</div>
    <div class="rz-sp-tap">แตะเพื่อเริ่มเปิดร้าน</div>
@@ -1391,7 +1451,7 @@ function rzMap(page){
    <div class="rz-maph"><div class="rz-logo">ร้านยา<span>ทันใจ</span></div><span class="rz-pill">${czStars(1).split('</svg>')[0]}</svg> ${tot}</span><span class="rz-pill coin"><i class="rz-coin"></i><b>${RD.wallet}</b></span>
     <button class="rz-ic" data-r="settings" aria-label="ตั้งค่า">${RZ_GEAR}</button></div>
    <div class="rz-chap"><button class="rz-ic" data-r="page" data-p="${page-1}" ${page>0?'':'disabled'}>‹</button><b>บทที่ ${page+1} · ${RZ_CH[page%RZ_CH.length]}</b><button class="rz-ic" data-r="page" data-p="${page+1}" ${page<maxP?'':'disabled'}>›</button></div>
-   <div class="rz-path"><svg viewBox="0 0 1000 360" preserveAspectRatio="none"><polyline points="${pts}" fill="none" stroke="#fff" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" opacity=".8"/><polyline points="${pts}" fill="none" stroke="#FFC7D5" stroke-width="5" stroke-dasharray="2 14" stroke-linecap="round"/></svg>
+   <div class="rz-path"><svg viewBox="0 0 1000 360" preserveAspectRatio="none"><g fill="none" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"><polyline points="${pts}" stroke="#C99A5C" stroke-width="34" vector-effect="non-scaling-stroke" opacity=".55" transform="translate(0 4)"/><polyline points="${pts}" stroke="#E9C88E" stroke-width="32" vector-effect="non-scaling-stroke"/><polyline points="${pts}" stroke="#FBE8C2" stroke-width="24" vector-effect="non-scaling-stroke"/><polyline points="${pts}" stroke="#fff" stroke-width="4" stroke-dasharray="10 16" vector-effect="non-scaling-stroke" opacity=".9"/></g></svg>
    ${rzOpen('gpp')?`<button class="rz-house ${!RD.seen.gpp?'':''}" data-r="gpp" data-f="gpp">${rzHouse(1)}</button>`:`<button class="rz-house lock" disabled>${rzHouse()}<span>ต่อเติมร้าน · ด่าน 13</span></button>`}
    ${NODES.map(([x,y],i)=>{const L=page*10+i+1,st=RD.stars[L-1]||0,lock=L>max,cur=L===max;
      return`<button class="rz-node ${lock?'lock':''} ${cur?'cur':''} ${st?'done':''} ${L%10===0?'boss':''}" style="left:${x}%;top:${y}%" data-r="lv" data-l="${L}" ${lock?'disabled':''}><b>${L}</b><span>${czStars(st)}</span></button>`}).join('')}</div>
@@ -1515,7 +1575,7 @@ const RZ_UPI={tray:'<svg viewBox="0 0 40 40"><rect x="4" y="12" width="32" heigh
 function rzIntro(L){
   if(RZ){RZ.run=false;RZ=null}const V=RZ_NEXT=rzLevel(L,(Math.random()*1e9)|0);
   const ch=RZ_CHC[V.ch%RZ_CHC.length];rzEl.style.setProperty('--wall1',ch[0]);rzEl.style.setProperty('--wall2',ch[1]);
-  rzEl.innerHTML=`<div class="rz-bg">${rzDeco()}</div><div class="rz-ov"><div class="rz-card intro"><div class="rz-kick">${RZ_CH[V.ch%RZ_CH.length]} · ด่าน ${L}</div>
+  rzEl.innerHTML=`<div class="rz-bg">${rzScene()}<div class="rz-floor"></div></div><div class="rz-ov"><div class="rz-card intro"><div class="rz-kick">${RZ_CH[V.ch%RZ_CH.length]} · ด่าน ${L}</div>
    <h2>${L%10===0?'ด่านบอส! ':''}${RZ_GOALTXT(V)}</h2>
    <div class="rz-goalbox"><b>เป้าหมาย · ทำครบแล้วจบด่านทันที</b>${RZ_GOALTXT(V)}${V.goal.t==='nolose'?'':` · มีลูกค้าทั้งหมด ${V.n} คน`}</div>
    ${V.news.length?`<div class="rz-new"><span class="rz-newtag">ของใหม่</span>${V.fresh.map(x=>`<div class="rz-ni">${rzOrderArt(x)}<div><b>${RI[x].n}</b><small>${RI[x].e}</small></div></div>`).join('')}${V.news.map(u=>u.txt?`<p>${u.txt}</p>`:'').join('')}</div>`:''}
