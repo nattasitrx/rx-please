@@ -291,7 +291,21 @@ html.port .rz-qn{left:126px;right:auto;top:14px}
 .rz-gear{position:absolute!important;right:14px;top:12px;z-index:3!important}
 .rz-set{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border-radius:16px;padding:10px 14px;margin:6px 0;font-weight:700}
 .rz-set.col{flex-wrap:wrap}.rz-set small{display:block;font-weight:500;font-size:12px;color:#9A8590}
-.rz-steps{margin:8px 0 6px;padding:0;list-style:none;counter-reset:st;display:grid;gap:6px;text-align:left}.rz-steps li{counter-increment:st;display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:8px 12px;font-weight:600}.rz-steps li::before{content:counter(st);flex:none;width:24px;height:24px;border-radius:50%;background:#FF9636;color:#fff;font-weight:700;font-size:13px;display:grid;place-items:center}.rz-card.a2hs .rz-row{justify-content:center}
+/* fullscreen guide + save transfer */
+.rz-card.a2hs .rz-row,.rz-card.xfer>.rz-row{justify-content:center}
+.rz-a2{display:flex;gap:16px;align-items:center;margin:6px 0 2px;text-align:left}
+.rz-a2ph{flex:none;width:136px;filter:drop-shadow(0 8px 10px rgba(60,25,10,.25))}.rz-phsvg{display:block;width:100%;height:auto}
+.rz-a2tx{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.rz-a2tx>b{font-size:17px;line-height:1.35}.rz-a2tx>small{font-size:12.5px;color:#9A8590;line-height:1.45}.rz-a2tx b b{color:#F07A1E}
+.rz-a2n{width:30px;height:30px;border-radius:50%;background:#FF9636;color:#fff;font-weight:700;display:grid;place-items:center;box-shadow:0 3px 0 #C8621C}
+.rz-a2sv{background:#FFF6D8;border-radius:12px;padding:6px 9px;color:#7A6570!important}
+.rz-pw{transform-box:fill-box;transform-origin:center;animation:rzpw 1.4s ease-out infinite}@keyframes rzpw{0%{transform:scale(1);opacity:.9}100%{transform:scale(2.1);opacity:0}}
+.rz-dots{display:flex;justify-content:center;gap:6px;margin:8px 0 2px}.rz-dots i{width:8px;height:8px;border-radius:50%;background:#EBCFBE}.rz-dots i.on{width:22px;border-radius:6px;background:#FF9636}
+.rz-xin{background:#fff;border-radius:16px;padding:10px 14px;margin:6px 0;text-align:left;border:2px solid #F2D6C2;box-shadow:0 3px 0 #E6C2A8}.rz-xin>b{display:block}.rz-xin>small{display:block;font-size:12px;color:#9A8590}
+.rz-xin textarea{display:block;width:100%;margin:6px 0 2px;border:2px solid #EBCFBE;border-radius:12px;padding:8px 10px;font:500 12px/1.4 ui-monospace,Menlo,monospace;color:#5A3E4B;background:#FFFCF8;resize:none;-webkit-user-select:text;user-select:text;-webkit-touch-callout:default;touch-action:auto}
+.rz-xin textarea:focus{outline:none;border-color:#FF9636}.rz-xin .rz-row{justify-content:flex-end;margin-top:6px}
+.rz-xmsg{font-size:13px;margin-top:6px}.rz-xmsg:empty{display:none}.rz-xmsg.bad{color:#D9466B;font-weight:600}.rz-xmsg small{color:#9A8590}
+html.port .rz-a2{flex-direction:column;gap:10px}html.port .rz-a2tx{align-items:center;text-align:center}html.port .rz-a2ph{width:150px}
 .rz-tg{width:52px;height:30px;border-radius:999px;border:0;background:#E4D8DD;position:relative;flex:none}.rz-tg i{position:absolute;left:3px;top:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 2px 0 rgba(90,62,75,.15)}
 .rz-tg.on{background:#6FC8A8}.rz-tg.on i{transform:translateX(22px)}
 .rz-fbs{display:flex;gap:10px}
@@ -543,6 +557,13 @@ html.port .rz-qn{left:auto;right:0;top:5px;font-size:11px;padding:1px 8px}
 <body>
 <div id="app"></div>
 
+<script>
+/* LINE's in-app browser can't go fullscreen or add to home screen: ask LINE to reopen this page in the phone's own browser.
+   Only once (the flag stays in the URL), so there is no loop if an old LINE ignores it; the flag is removed again outside LINE. */
+(()=>{try{const u=new URL(location.href),inLine=/\bLine\//i.test(navigator.userAgent),has=u.searchParams.has('openExternalBrowser');
+  if(inLine&&!has){u.searchParams.set('openExternalBrowser','1');location.replace(u.href);return}
+  if(!inLine&&has){u.searchParams.delete('openExternalBrowser');history.replaceState(null,'',u.pathname+u.search+u.hash)}}catch(e){}})();
+</script>
 <script>
 (()=>{
 const $=s=>document.querySelector(s);
@@ -1264,9 +1285,22 @@ function rzTrapRes(j,v){
 rzEl.addEventListener('click',e=>{
   const b=e.target.closest('[data-r]');if(!b)return;const r=b.dataset.r;SND.init();
   if(r==='title'){rzSplash();return}
-  if(r==='enter'){SND.init();RZS.pop();const touch=matchMedia('(pointer:coarse)').matches;if(touch&&RD.fs!==0)rzFsOn();rzMap();if(touch&&!rzFsCan()&&!rzStandalone()&&!RD.seen.a2hs){RD.seen.a2hs=1;rzSave();setTimeout(rzA2hs,450)}return}
+  if(r==='enter'){SND.init();RZS.pop();const touch=matchMedia('(pointer:coarse)').matches,E=rzEnv();
+    if(touch&&RD.fs!==0&&!E.inapp)rzFsOn();rzMap();
+    let ss=0;try{ss=sessionStorage.getItem('rzia')}catch(e){}
+    if(E.inapp&&!ss){try{sessionStorage.setItem('rzia','1')}catch(e){}setTimeout(rzA2hs,450)}
+    else if(rzStandalone()&&!RD.seen.sa){RD.seen.sa=1;rzSave();if(!(RD.stars||[]).some(x=>x))setTimeout(()=>rzXfer(1),450)}
+    else if(touch&&!rzFsCan()&&!rzStandalone()&&!RD.seen.a2hs){RD.seen.a2hs=1;rzSave();setTimeout(rzA2hs,450)}return}
   if(r==='fs'){if(rzFsEl()){RD.fs=0;rzFsOff()}else{RD.fs=1;rzFsOn()}rzSave();return}
   if(r==='a2hs'){rzA2hs();return}
+  if(r==='a2nx'){RZS.tap();rzA2hs(RZ_A2.i+1);return}
+  if(r==='a2pv'){RZS.tap();rzA2hs(RZ_A2.i-1);return}
+  if(r==='cplink'){rzCopy(location.origin+location.pathname,b);return}
+  if(r==='cpsave'){rzCopy(rzSaveCode(),b);return}
+  if(r==='xfer'){rzXfer();return}
+  if(r==='xpaste'){const t=rzQ('#rzXta');try{navigator.clipboard.readText().then(v=>{if(t){t.value=v;rzXload()}}).catch(()=>rzXmsg('กดค้างในช่องด้านบน แล้วเลือก วาง ได้เลย'))}catch(e){rzXmsg('กดค้างในช่องด้านบน แล้วเลือก วาง ได้เลย')}return}
+  if(r==='xload'){rzXload();return}
+  if(r==='xok'){if(RZ_XD){RD=RZ_XD;rzSave();location.reload()}return}
   if(r==='settings'){rzSettings();return}
   if(r==='tut'){RD.tutOff=!RD.tutOff;rzSave();b.classList.toggle('on',!RD.tutOff);return}
   if(r==='gpp'){rzBuild2();return}
@@ -1598,20 +1632,100 @@ function rzSplash(){
    <button class="rz-ic rz-gear" data-r="settings" aria-label="ตั้งค่า">${RZ_GEAR}</button><div class="rz-spbtns"><button class="rz-b sm rz-supb" data-r="donate">☕ สนับสนุนผู้พัฒนา</button>${RZ_FORM?`<a class="rz-b sm ghost" href="${RZ_FORM}" target="_blank" rel="noopener">💬 ติชมเกม</a>`:''}</div><div class="rz-ov" id="rzOv" hidden></div>`;
 }
 const RZ_GEAR='<svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm8.4 5-1.9-.3a6.8 6.8 0 0 1-.7 1.6l1.1 1.6-1.8 1.8-1.6-1.1a6.8 6.8 0 0 1-1.6.7l-.3 1.9h-2.6l-.3-1.9a6.8 6.8 0 0 1-1.6-.7l-1.6 1.1-1.8-1.8 1.1-1.6a6.8 6.8 0 0 1-.7-1.6l-1.9-.3v-2.6l1.9-.3a6.8 6.8 0 0 1 .7-1.6L5.6 6.9l1.8-1.8 1.6 1.1a6.8 6.8 0 0 1 1.6-.7l.3-1.9h2.6l.3 1.9a6.8 6.8 0 0 1 1.6.7l1.6-1.1 1.8 1.8-1.1 1.6a6.8 6.8 0 0 1 .7 1.6l1.9.3Z" fill="currentColor"/></svg>';
-function rzA2hs(){const o=rzQ('#rzOv');if(!o)return;o.hidden=false;RZS.tap();
-  const share='<svg viewBox="0 0 24 24" width="20" height="20" style="vertical-align:-4px"><path d="M12 3v12M8 7l4-4 4 4M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1" fill="none" stroke="#2F7DF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  o.innerHTML=`<div class="rz-card sm a2hs"><div class="rz-kick">เล่นแบบแอปเกม</div><h2>📱 เปิดร้านแบบเต็มจอ</h2>
-   <p class="rz-sub">บน iPhone เปิดเต็มจอจากเบราว์เซอร์ไม่ได้ แต่เพิ่มเกมไว้ที่หน้าจอโฮมได้ เปิดจากไอคอนแล้วจะเต็มจอ ไม่มีแถบเบราว์เซอร์มากวน</p>
-   <ol class="rz-steps"><li>แตะปุ่มแชร์ ${share} ใน Safari</li><li>เลื่อนลงแล้วเลือก <b>เพิ่มไปยังหน้าจอโฮม</b></li><li>เปิดเกมจากไอคอน <b>ร้านยาทันใจ</b> บนหน้าจอโฮม</li></ol>
-   <p class="rz-sub small">ด่านและเหรียญที่เล่นไว้ในเบราว์เซอร์จะไม่ย้ายไปที่ไอคอน ถ้าเพิ่งเริ่มเล่น ย้ายตอนนี้จะไม่เสียอะไรเลย</p>
-   <div class="rz-row"><button class="rz-b" data-r="closeov">เข้าใจแล้ว</button></div></div>`}
+/* ---------- play fullscreen on iPhone / in-app browsers: illustrated step-by-step guide ---------- */
+function rzEnv(){const ua=navigator.userAgent,ios=/iPhone|iPod|iPad/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  const inapp=/\bLine\//i.test(ua)?'line':/FBAN\/Messenger|MessengerForiOS|FB_IAB\/MESSENGER/i.test(ua)?'msg':/FBAN|FBAV|FB_IAB/i.test(ua)?'fb':/Instagram/i.test(ua)?'ig':/BytedanceWebview|musical_ly|TikTok/i.test(ua)?'tt':null;
+  const v=+((ua.match(/Version\/(\d+)/)||[])[1]||0);
+  const br=inapp?'inapp':/CriOS/.test(ua)?'chrome':/FxiOS|EdgiOS|OPiOS|YaBrowser|GSA\//.test(ua)?'other':ios?(v>=26?'saf26':'saf'):'other';
+  return{ios,inapp,br}}
+const RZ_APPN={line:'LINE',fb:'Facebook',msg:'Messenger',ig:'Instagram',tt:'TikTok'};
+const RZ_A2SHEET=['sheet','เลื่อนลงแล้วเลือก <b>เพิ่มไปยังหน้าจอโฮม</b>','(Add to Home Screen)'];
+const RZ_A2HOME=['home','เปิดเกมจากไอคอนนี้ เล่นเต็มจอได้เลย!','ไม่มีแถบเบราว์เซอร์มากวน เหมือนแอปเกม'];
+const RZ_A2S26=[['s26a','แตะปุ่ม <b>⋯</b> ข้างช่องที่อยู่เว็บ','ถ้าแถบล่างมีปุ่มแชร์ อยู่แล้ว แตะปุ่มนั้นแล้วข้ามไปขั้นถัดไปได้เลย'],['s26b','เลือก <b>แชร์</b>','(Share)'],RZ_A2SHEET,['addw','เปิดสวิตช์ <b>เปิดเป็นเว็บแอป</b> ไว้ แล้วแตะ <b>เพิ่ม</b>','(Open as Web App · Add)'],RZ_A2HOME];
+const RZ_A2F={
+  saf26:RZ_A2S26,
+  saf:[['sold','แตะปุ่ม <b>แชร์</b> ที่แถบล่างของ Safari','รูปสี่เหลี่ยมมีลูกศรชี้ขึ้น'],RZ_A2SHEET,['add','แตะ <b>เพิ่ม</b> ที่มุมขวาบน','(Add)'],RZ_A2HOME],
+  chrome:[['crm','แตะปุ่ม <b>แชร์</b> ที่ช่องที่อยู่เว็บด้านบน','รูปสี่เหลี่ยมมีลูกศรชี้ขึ้น'],RZ_A2SHEET,['add','แตะ <b>เพิ่ม</b> ที่มุมขวาบน','(Add)'],RZ_A2HOME],
+  other:[['oth','เปิดเกมใน <b>Safari</b> ก่อน','กดปุ่มคัดลอกลิงก์ด้านล่าง แล้วเปิด Safari วางในช่องที่อยู่เว็บ'],...RZ_A2S26],
+  inapp:[['iap1','แตะปุ่ม <b>⋯</b> มุมขวาบน',''],['iap2','เลือก <b>เปิดในเบราว์เซอร์</b>','(Open in browser · บางแอปเขียนว่า เปิดใน Safari หรือ เปิดใน Chrome)'],['brw','เกมจะเปิดในเบราว์เซอร์ของเครื่อง','']]};
+let RZ_A2=null;
+function rzA2hs(i){const o=rzQ('#rzOv');if(!o)return;const E=rzEnv();
+  if(i==null){RZ_A2={k:E.inapp?'inapp':E.br==='other'&&!E.ios?'inapp':E.br,i:0};RZS.tap()}
+  const F=RZ_A2F[RZ_A2.k];RZ_A2.i=Math.max(0,Math.min(i==null?0:i,F.length-1));
+  const st=F[RZ_A2.i].slice(),last=RZ_A2.i===F.length-1,out=RZ_A2.k==='inapp'||RZ_A2.k==='other';
+  if(st[0]==='iap1'&&E.inapp)st[2]=`ตอนนี้เปิดเกมอยู่ในแอป ${RZ_APPN[E.inapp]} ซึ่งเล่นเต็มจอไม่ได้`;
+  if(st[0]==='brw')st[2]=E.ios?'จากนั้นกด ⚙️ ตั้งค่า › เล่นเต็มจอ เพื่อดูวิธีเพิ่มเกมไว้ที่หน้าจอโฮม':'แตะเริ่มเกม แล้วเกมจะขยายเต็มจอให้เอง';
+  const prog=(RD.stars||[]).some(x=>x);
+  o.hidden=false;
+  o.innerHTML=`<div class="rz-card sm a2hs"><div class="rz-kick">เล่นเต็มจอ · ขั้นที่ ${RZ_A2.i+1} จาก ${F.length}</div>
+   <h2>${RZ_A2.k==='inapp'?'📲 เปิดในเบราว์เซอร์ก่อนนะ':'📱 เปิดร้านแบบเต็มจอ'}</h2>
+   <div class="rz-a2"><div class="rz-a2ph">${rzPh(st[0])}</div><div class="rz-a2tx"><span class="rz-a2n">${RZ_A2.i+1}</span><b>${st[1]}</b>${st[2]?`<small>${st[2]}</small>`:''}
+    ${out&&RZ_A2.i===0?`<button class="rz-b sm ghost" data-r="cplink">🔗 คัดลอกลิงก์เกม</button>`:''}
+    ${last&&!out&&prog?`<small class="rz-a2sv">เล่นไว้แล้ว? ไอคอนบนหน้าจอโฮมเก็บเซฟแยกจากเบราว์เซอร์ คัดลอกรหัสเซฟไว้ก่อน แล้วไปวางที่ ⚙️ ตั้งค่า › ย้ายเซฟ</small><button class="rz-b sm ghost" data-r="cpsave">💾 คัดลอกรหัสเซฟ</button>`:''}</div></div>
+   <div class="rz-dots">${F.map((_,k)=>`<i class="${k===RZ_A2.i?'on':''}"></i>`).join('')}</div>
+   <div class="rz-row">${RZ_A2.i?`<button class="rz-b ghost" data-r="a2pv">ย้อนกลับ</button>`:`<button class="rz-b ghost" data-r="closeov">ไว้ทีหลัง</button>`}${last?`<button class="rz-b" data-r="closeov">เข้าใจแล้ว</button>`:`<button class="rz-b" data-r="a2nx">ถัดไป</button>`}</div></div>`}
+/* phone mock-ups (inline SVG) with a pulsing ring on the button to tap */
+function rzPh(sc){
+  const ring=(x,y)=>`<g transform="translate(${x} ${y})"><circle r="13" fill="none" stroke="#FF4F7B" stroke-width="3"/><circle class="rz-pw" r="13" fill="none" stroke="#FF4F7B" stroke-width="3"/></g>`;
+  const T=(x,y,t,o='')=>`<text x="${x}" y="${y}" ${o}>${t}</text>`;
+  const shr=(x,y,c='#2F7DF6')=>`<path transform="translate(${x-6} ${y-8})" d="M6 1v9M3 4l3-3 3 3M2.5 7H1.5v8h9V7h-1" fill="none" stroke="${c}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>`;
+  const dots=(x,y)=>`<g fill="#3A2A33"><circle cx="${x-5}" cy="${y}" r="1.8"/><circle cx="${x}" cy="${y}" r="1.8"/><circle cx="${x+5}" cy="${y}" r="1.8"/></g>`;
+  const game=(dy=0)=>`<rect x="8" y="8" width="164" height="304" rx="20" fill="#FFE9EF"/><rect x="8" y="${18+dy}" width="164" height="24" fill="#FF9636"/>
+    ${['#FF8FAB','#8FDCC0','#CDB4FF','#FFC93C'].map((c,i)=>`<rect x="${20+i*38}" y="${54+dy}" width="28" height="32" rx="7" fill="${c}"/>`).join('')}
+    <rect x="16" y="${98+dy}" width="148" height="66" rx="14" fill="#FFD3DF"/><rect x="16" y="${172+dy}" width="148" height="50" rx="14" fill="#E6DAFF"/><rect x="16" y="${230+dy}" width="148" height="40" rx="14" fill="#D6EEFF"/>`;
+  const dim=`<rect x="8" y="8" width="164" height="304" rx="20" fill="rgba(40,25,35,.38)"/>`;
+  const bar26=`<rect x="14" y="276" width="152" height="28" rx="14" fill="#fff" stroke="#E2DCE2"/><circle cx="29" cy="290" r="9" fill="#F1EEF2"/><path d="M31 286l-4 4 4 4" fill="none" stroke="#3A2A33" stroke-width="1.6" stroke-linecap="round"/>${T(88,293,'nattasitrx.github.io','font-size="8.5" text-anchor="middle" fill="#3A2A33"')}<circle cx="151" cy="290" r="9" fill="#F1EEF2"/>${dots(151,290)}`;
+  let cid=0;const icon=(x,y,w)=>{const id='rzIc'+(++cid);return `<clipPath id="${id}"><rect x="${x}" y="${y}" width="${w}" height="${w}" rx="${w*.23}"/></clipPath><rect x="${x}" y="${y}" width="${w}" height="${w}" rx="${w*.23}" fill="#FF9636"/><image href="icons/apple-touch-icon.png" x="${x}" y="${y}" width="${w}" height="${w}" clip-path="url(#${id})"/>`};
+  const addHead=`<rect x="8" y="8" width="164" height="304" rx="20" fill="#F4F2F5"/>${T(20,40,'ยกเลิก','font-size="9" fill="#2F7DF6"')}${T(90,40,'เพิ่มไปยังหน้าจอโฮม','font-size="8.5" font-weight="700" text-anchor="middle" fill="#3A2A33"')}${T(160,40,'เพิ่ม','font-size="10" font-weight="700" text-anchor="end" fill="#2F7DF6"')}
+    <rect x="16" y="54" width="148" height="62" rx="12" fill="#fff"/>${icon(24,62,46)}${T(80,82,'ร้านยาทันใจ','font-size="10" font-weight="700" fill="#3A2A33"')}<line x1="80" y1="88" x2="156" y2="88" stroke="#E6E1E6"/>${T(80,102,'nattasitrx.github.io','font-size="7.5" fill="#9A8590"')}`;
+  const home=(hi)=>`<defs><linearGradient id="rzWp" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7E8BFF"/><stop offset="1" stop-color="#F59ABF"/></linearGradient></defs><rect x="8" y="8" width="164" height="304" rx="20" fill="url(#rzWp)"/>
+    ${Array.from({length:16},(_,k)=>{const x=22+(k%4)*37,y=40+Math.floor(k/4)*48;return k===hi?'':`<rect x="${x}" y="${y}" width="28" height="28" rx="7" fill="rgba(255,255,255,${.35+(k%3)*.12})"/>`}).join('')}`;
+  const hiPos=k=>[22+(k%4)*37,40+Math.floor(k/4)*48];
+  let g='';
+  if(sc==='s26a')g=game()+bar26+ring(151,290);
+  else if(sc==='s26b')g=game()+dim+bar26+`<rect x="58" y="150" width="108" height="118" rx="14" fill="#fff"/><rect x="62" y="156" width="100" height="24" rx="8" fill="#FFE3EA"/>${shr(76,168)}${T(95,172,'แชร์','font-size="10" font-weight="700" fill="#3A2A33"')}
+    ${['เพิ่มบุ๊กมาร์ก','ค้นหาในหน้า','แท็บใหม่'].map((t,k)=>T(95,200+k*24,t,'font-size="9" fill="#7A6570"')).join('')}`+ring(76,168);
+  else if(sc==='sheet')g=game()+dim+`<path d="M8 120h164v172a20 20 0 0 1-20 20H28a20 20 0 0 1-20-20z" fill="#F4F2F5"/><rect x="8" y="120" width="164" height="24" rx="20" fill="#F4F2F5"/>${icon(18,130,22)}${T(46,145,'ร้านยาทันใจ','font-size="9" font-weight="700" fill="#3A2A33"')}
+    ${['#5AC8FA','#34C759','#FFCC00','#FF6B6B'].map((c,k)=>`<circle cx="${34+k*37}" cy="${176}" r="13" fill="${c}"/>`).join('')}
+    <rect x="16" y="200" width="148" height="100" rx="12" fill="#fff"/>${['คัดลอก','เพิ่มไปยังรายการอ่าน'].map((t,k)=>T(26,218+k*24,t,'font-size="9" fill="#7A6570"')).join('')}
+    <rect x="18" y="254" width="144" height="26" rx="8" fill="#FFE3EA"/>${T(26,271,'เพิ่มไปยังหน้าจอโฮม','font-size="9.5" font-weight="700" fill="#3A2A33"')}<rect x="141" y="260" width="13" height="13" rx="3.5" fill="none" stroke="#3A2A33" stroke-width="1.4"/><path d="M147.5 263.5v6M144.5 266.5h6" stroke="#3A2A33" stroke-width="1.4"/>`+ring(147.5,266.5);
+  else if(sc==='add')g=addHead+ring(152,36);
+  else if(sc==='addw')g=addHead+`<rect x="16" y="126" width="148" height="30" rx="10" fill="#fff"/>${T(26,145,'เปิดเป็นเว็บแอป','font-size="9" font-weight="700" fill="#3A2A33"')}<rect x="128" y="132" width="28" height="17" rx="8.5" fill="#34C759"/><circle cx="147.5" cy="140.5" r="7" fill="#fff"/>`+ring(142,140.5)+ring(152,36);
+  else if(sc==='home'){const [x,y]=hiPos(9);g=home(9)+icon(x,y,28)+T(x+14,y+38,'ร้านยาทันใจ','font-size="7" text-anchor="middle" fill="#fff" font-weight="700"')+ring(x+14,y+14)}
+  else if(sc==='oth'){const [x,y]=hiPos(13);g=home(13)+`<circle cx="${x+14}" cy="${y+14}" r="14" fill="#fff"/><circle cx="${x+14}" cy="${y+14}" r="11" fill="#2F9BFF"/><path d="M${x+14} ${y+6}l3 8-3 8-3-8z" fill="#fff"/><path d="M${x+14} ${y+14}l3 0-3 8z" fill="#FF4F4F"/>`+T(x+14,y+38,'Safari','font-size="7" text-anchor="middle" fill="#fff" font-weight="700"')+ring(x+14,y+14)}
+  else if(sc==='sold')g=game(-6)+`<rect x="8" y="252" width="164" height="60" rx="0" fill="#F7F5F8"/><rect x="8" y="292" width="164" height="20" rx="20" fill="#F7F5F8"/><rect x="18" y="258" width="144" height="20" rx="8" fill="#E9E5EA"/>${T(90,271,'nattasitrx.github.io','font-size="8" text-anchor="middle" fill="#3A2A33"')}
+    <path d="M24 296l-4 4 4 4M52 296l4 4-4 4" fill="none" stroke="#2F7DF6" stroke-width="1.6" stroke-linecap="round"/>${shr(90,301)}<rect x="118" y="295" width="12" height="10" rx="2" fill="none" stroke="#2F7DF6" stroke-width="1.5"/><rect x="146" y="295" width="11" height="11" rx="2.5" fill="none" stroke="#2F7DF6" stroke-width="1.5"/>`+ring(90,299);
+  else if(sc==='crm')g=game(26)+`<rect x="8" y="8" width="164" height="40" rx="20" fill="#F7F5F8"/><rect x="8" y="28" width="164" height="20" fill="#F7F5F8"/><rect x="16" y="20" width="148" height="22" rx="11" fill="#E9E5EA"/>${T(78,35,'nattasitrx.github.io','font-size="8" text-anchor="middle" fill="#3A2A33"')}${shr(150,32,'#3A2A33')}`+ring(150,31);
+  else if(sc==='iap1'||sc==='iap2')g=game(26)+`<rect x="8" y="8" width="164" height="40" rx="20" fill="#fff"/><rect x="8" y="28" width="164" height="20" fill="#fff"/><path d="M20 26l8 8M28 26l-8 8" stroke="#3A2A33" stroke-width="1.8" stroke-linecap="round"/>${T(90,34,'ร้านยาทันใจ','font-size="9" font-weight="700" text-anchor="middle" fill="#3A2A33"')}${dots(155,30)}`
+    +(sc==='iap1'?ring(155,30):dim+`<rect x="52" y="46" width="116" height="104" rx="12" fill="#fff"/><rect x="56" y="52" width="108" height="24" rx="8" fill="#FFE3EA"/>${T(62,68,'เปิดในเบราว์เซอร์','font-size="9" font-weight="700" fill="#3A2A33"')}${['คัดลอกลิงก์','แชร์','รีเฟรช'].map((t,k)=>T(62,94+k*20,t,'font-size="9" fill="#7A6570"')).join('')}`+ring(154,64));
+  else if(sc==='brw')g=game()+bar26;
+  return `<svg class="rz-phsvg" viewBox="0 0 180 320" role="img" aria-hidden="true" font-family="Sarabun,Mali,system-ui,sans-serif"><rect x="1" y="1" width="178" height="318" rx="27" fill="#2B2230"/><clipPath id="rzScr"><rect x="8" y="8" width="164" height="304" rx="20"/></clipPath><g clip-path="url(#rzScr)">${g}</g></svg>`}
+/* ---------- move a save between Safari, the home-screen icon, or another phone ---------- */
+const rzSaveCode=()=>'RXP1.'+btoa(unescape(encodeURIComponent(JSON.stringify(RD))));
+function rzSaveParse(t){try{const m=String(t||'').replace(/\s+/g,'').match(/RXP1\.([A-Za-z0-9+/=]+)/);if(!m)return null;
+  const d=JSON.parse(decodeURIComponent(escape(atob(m[1]))));return d&&d.v===1&&Array.isArray(d.stars)?d:null}catch(e){return null}}
+const rzSaveSum=d=>`ผ่าน ${(d.stars||[]).filter(x=>x).length} ด่าน · ดาว ${(d.stars||[]).reduce((a,b)=>a+(+b||0),0)} · เหรียญ ${d.wallet||0}`;
+let RZ_XD=null;
+function rzXfer(welcome){const o=rzQ('#rzOv');if(!o)return;o.hidden=false;RZS.tap();RZ_XD=null;
+  o.innerHTML=`<div class="rz-card sm xfer"><div class="rz-kick">💾 ย้ายเซฟ</div><h2>${welcome?'ยินดีต้อนรับสู่ร้านแบบเต็มจอ!':'ย้ายเซฟไปเล่นต่อที่อื่น'}</h2>
+   ${welcome?'<p class="rz-sub">เคยเล่นไว้ในเบราว์เซอร์? วางรหัสเซฟด้านล่างแล้วเล่นต่อได้เลย ถ้าเพิ่งเริ่มเล่น กดปิดได้เลย</p>':'<p class="rz-sub small">ใช้ย้ายจาก Safari ไปไอคอนบนหน้าจอโฮม หรือย้ายไปเครื่องใหม่</p>'}
+   ${welcome?'':`<div class="rz-set"><span>ส่งเซฟออก <small>${rzSaveSum(RD)}</small></span><button class="rz-b sm" data-r="cpsave">คัดลอกรหัสเซฟ</button></div>`}
+   <div class="rz-xin"><b>รับเซฟเข้า</b><small>วางรหัสที่คัดลอกมา แล้วกดโหลดเซฟ</small>
+    <textarea id="rzXta" rows="3" placeholder="RXP1.…" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>
+    <div class="rz-row"><button class="rz-b sm ghost" data-r="xpaste">วางจากคลิปบอร์ด</button><button class="rz-b sm" data-r="xload">โหลดเซฟ</button></div><div class="rz-xmsg" id="rzXmsg"></div></div>
+   <div class="rz-row"><button class="rz-b" data-r="closeov">ปิด</button></div></div>`}
+function rzXmsg(h,bad){const m=rzQ('#rzXmsg');if(m){m.innerHTML=h;m.classList.toggle('bad',!!bad)}}
+function rzXload(){const t=rzQ('#rzXta');const d=rzSaveParse(t&&t.value);if(!d){RZS.nope();rzXmsg('รหัสไม่ถูกต้อง ลองกดคัดลอกรหัสเซฟใหม่อีกครั้ง แล้ววางให้ครบทั้งหมด',1);return}
+  RZ_XD=d;RZS.ok();rzXmsg(`<b>เจอเซฟแล้ว!</b> ${rzSaveSum(d)}<br><small>เซฟในเครื่องนี้ (${rzSaveSum(RD)}) จะถูกแทนที่</small><div class="rz-row"><button class="rz-b sm" data-r="xok">ใช้เซฟนี้เลย</button></div>`)}
+
 function rzSettings(){
   const o=rzQ('#rzOv');if(!o)return;o.hidden=false;RZS.tap();
   o.innerHTML=`<div class="rz-card sm"><h2>ตั้งค่า</h2>
    <div class="rz-set"><span>คำแนะนำจากพี่แอน <small>มือชี้สอนวิธีเล่นและระบบใหม่</small></span><button class="rz-tg ${RD.tutOff?'':'on'}" data-r="tut"><i></i></button></div>
    <div class="rz-set"><span>เสียงประกอบ</span><button class="rz-tg ${SND.on?'on':''}" data-r="snd"><i></i></button></div>
    <div class="rz-set"><span>เพลง</span><button class="rz-tg ${RD.music?'on':''}" data-r="music"><i></i></button></div>
-   ${rzFsCan()?`<div class="rz-set"><span>เล่นเต็มจอ <small>เปิดเต็มจอให้เองทุกครั้งที่แตะเริ่มเกม</small></span><button class="rz-tg ${rzFsEl()?'on':''}" data-r="fs"><i></i></button></div>`:rzStandalone()?'':`<div class="rz-set"><span>📱 เล่นเต็มจอ <small>เพิ่มเกมไว้ที่หน้าจอโฮม แล้วเปิดจากไอคอน</small></span><button class="rz-b sm" data-r="a2hs">ดูวิธี</button></div>`}
+   ${rzFsCan()&&!rzEnv().inapp?`<div class="rz-set"><span>เล่นเต็มจอ <small>เปิดเต็มจอให้เองทุกครั้งที่แตะเริ่มเกม</small></span><button class="rz-tg ${rzFsEl()?'on':''}" data-r="fs"><i></i></button></div>`:rzStandalone()?'':`<div class="rz-set"><span>📱 เล่นเต็มจอ <small>${rzEnv().inapp?'เปิดในเบราว์เซอร์ก่อน แล้วเพิ่มเกมไว้ที่หน้าจอโฮม':'เพิ่มเกมไว้ที่หน้าจอโฮม แล้วเปิดจากไอคอน'}</small></span><button class="rz-b sm" data-r="a2hs">ดูวิธี</button></div>`}
+   <div class="rz-set"><span>💾 ย้ายเซฟ <small>คัดลอกรหัสไปเล่นต่อที่ไอคอนหน้าจอโฮมหรือเครื่องอื่น</small></span><button class="rz-b sm" data-r="xfer">เปิด</button></div>
    <div class="rz-set"><span>☕ สนับสนุนผู้พัฒนา <small>เป็นกำลังใจให้ทำเวอร์ชันต่อไป</small></span><button class="rz-b sm" data-r="donate">สนับสนุน</button></div>${RZ_FORM?`<div class="rz-set"><span>💬 ติชม / แนะนำเกม <small>บอกเราได้ว่าชอบอะไร อยากให้ปรับอะไร</small></span><a class="rz-b sm ghost" href="${RZ_FORM}" target="_blank" rel="noopener">เปิดฟอร์ม</a></div>`:''}
    <p class="rz-sub" style="margin-top:10px">ตัวละคร ร้านยา และภาพยาเป็นเรื่องสมมติ เกร็ดความรู้ในเกมเป็นข้อมูลทั่วไป ไม่ใช่คำแนะนำการรักษา ควรปรึกษาแพทย์หรือเภสัชกรเสมอ</p>
    <div class="rz-row"><button class="rz-b" data-r="closeov">ปิด</button></div></div>`;
