@@ -18,12 +18,13 @@ Levels 1–30 exist in this version (`RZ_LAST=30`). After level 30 a "coming soo
 
 ## Code map (all in index.html)
 - Prefix `rz` / `RZ` for everything. Main container `#rz` (`rzEl`) inside `#app` (fixed 1120×630 landscape or 480×900 portrait canvas scaled with `--s`).
-- Save: `localStorage['rxplease-rush-v1']` → object `RD` (stars[], best[], wallet, gem, bst{}, up{}, dup{}, gpp{}, cx{}, cxr{}, q{}, w{}, ms{}, life{}, gift{}, bossG{}, seen{}, tutOff, music, hiStart). Always save with `rzSave()` (it also syncs map header pills).
+- Save: `localStorage['rxplease-rush-v1']` → object `RD` (stars[], best[], wallet, gem, bst{}, up{}, dup{}, gpp{}, cx{}, cxr{}, q{}, w{}, ms{}, life{}, gift{}, bossG{}, seen{}, tutOff, music, fs, hiStart). Always save with `rzSave()` (it also syncs map header pills).
 - Debug hook: `window.__rz()` returns the running level state `RZ`.
 - Level generator `rzLevel(L, seed)`; unlock schedule `RZ_UNL` (new drugs at L1–8, 14 insulin, 17 crushing, 20 cold eye drops, 23 VIP, 26 enteric-coated aspirin trap, 28 four-item orders).
 - Systems: shop upgrades `RZ_UP`; drug cost tiers `RZ_DUPN` (buying smarter lowers cost → more profit, not "services"); my-shop extras `RZ_GPP` (the shop already passes GPP from day one; these are beyond-GPP services); codex `RZ_TOPIC` + per-drug facts, +15/+20 coins for reading each card; daily/weekly quests `RZ_QP` and missions `RZ_MS` with claim-all.
 - Gems & boosters: `RZ_BST` (calm, ice, shaker, grinder, aide = pharmacy assistant prepares, ptph = part-time pharmacist serves one customer every 15 s, feast), `RZ_MORE` rescue (+3 customers). Gems only from map gift boxes (after levels 4 and 8 of each chapter), first 3★ on boss levels, weekly quest bonus. Never sold for coins. Free trial levels `RZ_TRIAL`.
 - Chapter star gates `rzGateNeed(L)` (about 2.15★ per level needed).
+- Fullscreen: the splash tap calls `rzFsOn()` on touch devices unless `RD.fs===0` (settings toggle `data-r="fs"`). iPhone Safari has no page fullscreen, so `rzA2hs()` shows an add-to-home-screen guide once (`RD.seen.a2hs`) and in settings. Home-screen app: `manifest.webmanifest` + `icons/` + apple meta tags; `layout()` keeps the canvas inside the safe area (notch). No service worker on purpose, so pushes reach players right away. Note: iOS home-screen apps have separate storage from Safari.
 - Support-the-developer card `rzDonate()` (PromptPay QR embedded, `RZ_PPID` e-Wallet ID copy button). Feedback form link goes in `RZ_FORM` (empty = button hidden).
 - Art is inline SVG drawn in code (`rzArt`, `czPerson`, `rzScene` shop backdrop, `rzOutdoor` map). Glossy "mobile game" UI skin lives in the CSS blocks near `/* portrait */`.
 

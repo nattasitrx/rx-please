@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="description" content="ร้านยาทันใจ เกมจัดยาน่ารัก ๆ เรียนรู้เรื่องยาไปพร้อมกับการเล่น">
 <meta name="theme-color" content="#FF9636">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ร้านยาทันใจ">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <title>Rx, Please!</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +25,7 @@ html{height:100%;touch-action:manipulation;-webkit-text-size-adjust:100%}
 body{height:100%;margin:0;background:#3A2A33;color:#5A3E4B;font-family:"Mali","Sarabun",system-ui,sans-serif;font-size:15px;line-height:1.5;overflow:hidden;-webkit-tap-highlight-color:transparent}
 button{font:inherit;color:inherit;cursor:pointer;-webkit-user-select:none;user-select:none}
 button:focus-visible{outline:2px solid #FFC93C;outline-offset:2px}
-#app{position:fixed;left:50%;top:50%;width:1120px;height:630px;transform:translate(-50%,-50%) scale(var(--s,1));overflow:hidden;border-radius:6px;box-shadow:0 30px 80px -30px rgba(0,0,0,.9)}
+#app{position:fixed;left:calc(50% + var(--ox,0px));top:calc(50% + var(--oy,0px));width:1120px;height:630px;transform:translate(-50%,-50%) scale(var(--s,1));overflow:hidden;border-radius:6px;box-shadow:0 30px 80px -30px rgba(0,0,0,.9)}
 html.port #app{width:480px;height:900px}
 /* ===== Rush mode: soft candy pharmacy ===== */
 .rz{--ink:#5A3E4B;--pink:#FF8FAB;--pink2:#FFD3DF;--mint:#8FDCC0;--lav:#CDB4FF;--butter:#FFE29A;--sky:#BFE3FF;--wall1:#FFE4EC;--wall2:#FFF0F4;
@@ -284,6 +291,7 @@ html.port .rz-qn{left:126px;right:auto;top:14px}
 .rz-gear{position:absolute!important;right:14px;top:12px;z-index:3!important}
 .rz-set{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border-radius:16px;padding:10px 14px;margin:6px 0;font-weight:700}
 .rz-set.col{flex-wrap:wrap}.rz-set small{display:block;font-weight:500;font-size:12px;color:#9A8590}
+.rz-steps{margin:8px 0 6px;padding:0;list-style:none;counter-reset:st;display:grid;gap:6px;text-align:left}.rz-steps li{counter-increment:st;display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:8px 12px;font-weight:600}.rz-steps li::before{content:counter(st);flex:none;width:24px;height:24px;border-radius:50%;background:#FF9636;color:#fff;font-weight:700;font-size:13px;display:grid;place-items:center}.rz-card.a2hs .rz-row{justify-content:center}
 .rz-tg{width:52px;height:30px;border-radius:999px;border:0;background:#E4D8DD;position:relative;flex:none}.rz-tg i{position:absolute;left:3px;top:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 2px 0 rgba(90,62,75,.15)}
 .rz-tg.on{background:#6FC8A8}.rz-tg.on i{transform:translateX(22px)}
 .rz-fbs{display:flex;gap:10px}
@@ -550,9 +558,21 @@ document.body.insertAdjacentHTML('beforeend',`<svg width="0" height="0" style="p
  <radialGradient id="chShine" cx=".35" cy=".3" r=".45"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
  <linearGradient id="chCloth" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#5A2E28" stop-opacity=".22"/></linearGradient>
 </defs></svg>`);
-function layout(){const W=innerWidth,H=innerHeight,sL=Math.min(W/1120,H/630),sP=Math.min(W/480,H/900),land=sL>=sP;
-  root.classList.add('stage');root.classList.toggle('land',land);root.classList.toggle('port',!land);root.style.setProperty('--s',(land?sL:sP).toFixed(4))}
+/* safe area (notch / home bar) when opened from the home screen or in fullscreen: keep the game canvas clear of it */
+const rzSafe=(()=>{const p=document.createElement('div');p.style.cssText='position:fixed;left:0;top:0;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)';
+  document.body.appendChild(p);return()=>{const c=getComputedStyle(p);return{t:parseFloat(c.paddingTop)||0,r:parseFloat(c.paddingRight)||0,b:parseFloat(c.paddingBottom)||0,l:parseFloat(c.paddingLeft)||0}}})();
+function layout(){const S=rzSafe(),W=innerWidth-S.l-S.r,H=innerHeight-S.t-S.b,sL=Math.min(W/1120,H/630),sP=Math.min(W/480,H/900),land=sL>=sP;
+  root.classList.add('stage');root.classList.toggle('land',land);root.classList.toggle('port',!land);root.style.setProperty('--s',(land?sL:sP).toFixed(4));
+  root.style.setProperty('--ox',((S.l-S.r)/2)+'px');root.style.setProperty('--oy',((S.t-S.b)/2)+'px')}
 layout();addEventListener('resize',layout);
+/* fullscreen: browsers only allow it from a tap, so the splash tap enters it (touch devices, setting on by default).
+   iPhone Safari has no fullscreen for pages, so iPhone players get "add to home screen" instead (opens without browser bars). */
+const rzFsEl=()=>document.fullscreenElement||document.webkitFullscreenElement;
+const rzStandalone=()=>navigator.standalone===true||matchMedia('(display-mode: standalone)').matches||(matchMedia('(display-mode: fullscreen)').matches&&!rzFsEl());/* installed app; browser fullscreen also reports display-mode fullscreen */
+const rzFsCan=()=>{const d=document.documentElement;return !rzStandalone()&&!!(d.requestFullscreen||d.webkitRequestFullscreen)};
+function rzFsOn(){if(!rzFsCan()||rzFsEl())return;try{const d=document.documentElement,f=d.requestFullscreen||d.webkitRequestFullscreen,p=f.call(d,{navigationUI:'hide'});if(p&&p.catch)p.catch(()=>{})}catch(e){}}
+function rzFsOff(){if(!rzFsEl())return;try{const f=document.exitFullscreen||document.webkitExitFullscreen,p=f&&f.call(document);if(p&&p.catch)p.catch(()=>{})}catch(e){}}
+['fullscreenchange','webkitfullscreenchange'].forEach(t=>document.addEventListener(t,()=>{setTimeout(layout,60);const b=document.querySelector('[data-r="fs"]');if(b)b.classList.toggle('on',!!rzFsEl())}));
 /* stop pinch / double-tap zoom on phones (iOS Safari ignores user-scalable=no) */
 ['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
 document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
@@ -1244,7 +1264,9 @@ function rzTrapRes(j,v){
 rzEl.addEventListener('click',e=>{
   const b=e.target.closest('[data-r]');if(!b)return;const r=b.dataset.r;SND.init();
   if(r==='title'){rzSplash();return}
-  if(r==='enter'){SND.init();RZS.pop();rzMap();return}
+  if(r==='enter'){SND.init();RZS.pop();const touch=matchMedia('(pointer:coarse)').matches;if(touch&&RD.fs!==0)rzFsOn();rzMap();if(touch&&!rzFsCan()&&!rzStandalone()&&!RD.seen.a2hs){RD.seen.a2hs=1;rzSave();setTimeout(rzA2hs,450)}return}
+  if(r==='fs'){if(rzFsEl()){RD.fs=0;rzFsOff()}else{RD.fs=1;rzFsOn()}rzSave();return}
+  if(r==='a2hs'){rzA2hs();return}
   if(r==='settings'){rzSettings();return}
   if(r==='tut'){RD.tutOff=!RD.tutOff;rzSave();b.classList.toggle('on',!RD.tutOff);return}
   if(r==='gpp'){rzBuild2();return}
@@ -1576,12 +1598,20 @@ function rzSplash(){
    <button class="rz-ic rz-gear" data-r="settings" aria-label="ตั้งค่า">${RZ_GEAR}</button><div class="rz-spbtns"><button class="rz-b sm rz-supb" data-r="donate">☕ สนับสนุนผู้พัฒนา</button>${RZ_FORM?`<a class="rz-b sm ghost" href="${RZ_FORM}" target="_blank" rel="noopener">💬 ติชมเกม</a>`:''}</div><div class="rz-ov" id="rzOv" hidden></div>`;
 }
 const RZ_GEAR='<svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm8.4 5-1.9-.3a6.8 6.8 0 0 1-.7 1.6l1.1 1.6-1.8 1.8-1.6-1.1a6.8 6.8 0 0 1-1.6.7l-.3 1.9h-2.6l-.3-1.9a6.8 6.8 0 0 1-1.6-.7l-1.6 1.1-1.8-1.8 1.1-1.6a6.8 6.8 0 0 1-.7-1.6l-1.9-.3v-2.6l1.9-.3a6.8 6.8 0 0 1 .7-1.6L5.6 6.9l1.8-1.8 1.6 1.1a6.8 6.8 0 0 1 1.6-.7l.3-1.9h2.6l.3 1.9a6.8 6.8 0 0 1 1.6.7l1.6-1.1 1.8 1.8-1.1 1.6a6.8 6.8 0 0 1 .7 1.6l1.9.3Z" fill="currentColor"/></svg>';
+function rzA2hs(){const o=rzQ('#rzOv');if(!o)return;o.hidden=false;RZS.tap();
+  const share='<svg viewBox="0 0 24 24" width="20" height="20" style="vertical-align:-4px"><path d="M12 3v12M8 7l4-4 4 4M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1" fill="none" stroke="#2F7DF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  o.innerHTML=`<div class="rz-card sm a2hs"><div class="rz-kick">เล่นแบบแอปเกม</div><h2>📱 เปิดร้านแบบเต็มจอ</h2>
+   <p class="rz-sub">บน iPhone เปิดเต็มจอจากเบราว์เซอร์ไม่ได้ แต่เพิ่มเกมไว้ที่หน้าจอโฮมได้ เปิดจากไอคอนแล้วจะเต็มจอ ไม่มีแถบเบราว์เซอร์มากวน</p>
+   <ol class="rz-steps"><li>แตะปุ่มแชร์ ${share} ใน Safari</li><li>เลื่อนลงแล้วเลือก <b>เพิ่มไปยังหน้าจอโฮม</b></li><li>เปิดเกมจากไอคอน <b>ร้านยาทันใจ</b> บนหน้าจอโฮม</li></ol>
+   <p class="rz-sub small">ด่านและเหรียญที่เล่นไว้ในเบราว์เซอร์จะไม่ย้ายไปที่ไอคอน ถ้าเพิ่งเริ่มเล่น ย้ายตอนนี้จะไม่เสียอะไรเลย</p>
+   <div class="rz-row"><button class="rz-b" data-r="closeov">เข้าใจแล้ว</button></div></div>`}
 function rzSettings(){
   const o=rzQ('#rzOv');if(!o)return;o.hidden=false;RZS.tap();
   o.innerHTML=`<div class="rz-card sm"><h2>ตั้งค่า</h2>
    <div class="rz-set"><span>คำแนะนำจากพี่แอน <small>มือชี้สอนวิธีเล่นและระบบใหม่</small></span><button class="rz-tg ${RD.tutOff?'':'on'}" data-r="tut"><i></i></button></div>
    <div class="rz-set"><span>เสียงประกอบ</span><button class="rz-tg ${SND.on?'on':''}" data-r="snd"><i></i></button></div>
    <div class="rz-set"><span>เพลง</span><button class="rz-tg ${RD.music?'on':''}" data-r="music"><i></i></button></div>
+   ${rzFsCan()?`<div class="rz-set"><span>เล่นเต็มจอ <small>เปิดเต็มจอให้เองทุกครั้งที่แตะเริ่มเกม</small></span><button class="rz-tg ${rzFsEl()?'on':''}" data-r="fs"><i></i></button></div>`:rzStandalone()?'':`<div class="rz-set"><span>📱 เล่นเต็มจอ <small>เพิ่มเกมไว้ที่หน้าจอโฮม แล้วเปิดจากไอคอน</small></span><button class="rz-b sm" data-r="a2hs">ดูวิธี</button></div>`}
    <div class="rz-set"><span>☕ สนับสนุนผู้พัฒนา <small>เป็นกำลังใจให้ทำเวอร์ชันต่อไป</small></span><button class="rz-b sm" data-r="donate">สนับสนุน</button></div>${RZ_FORM?`<div class="rz-set"><span>💬 ติชม / แนะนำเกม <small>บอกเราได้ว่าชอบอะไร อยากให้ปรับอะไร</small></span><a class="rz-b sm ghost" href="${RZ_FORM}" target="_blank" rel="noopener">เปิดฟอร์ม</a></div>`:''}
    <p class="rz-sub" style="margin-top:10px">ตัวละคร ร้านยา และภาพยาเป็นเรื่องสมมติ เกร็ดความรู้ในเกมเป็นข้อมูลทั่วไป ไม่ใช่คำแนะนำการรักษา ควรปรึกษาแพทย์หรือเภสัชกรเสมอ</p>
    <div class="rz-row"><button class="rz-b" data-r="closeov">ปิด</button></div></div>`;
