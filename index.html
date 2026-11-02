@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="description" content="ร้านยาทันใจ เกมจัดยาน่ารัก ๆ เรียนรู้เรื่องยาไปพร้อมกับการเล่น">
-<meta name="theme-color" content="#FFE4EC">
+<meta name="theme-color" content="#FF9636">
 <title>Rx, Please!</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -76,10 +76,10 @@ html.port #app{width:480px;height:900px}
 .rz-work{display:grid;grid-template-columns:420px 330px minmax(0,1fr);gap:10px;padding:16px 12px 10px;min-height:0;z-index:3!important}
 .rz-zone{position:relative;border-radius:24px;padding:20px 10px 10px;display:flex;flex-direction:column;justify-content:center;gap:12px;min-height:0;box-shadow:0 5px 0 rgba(90,62,75,.08)}
 .rz-zone h4{position:absolute;left:14px;top:-11px;margin:0;font-size:13px;color:#fff;border-radius:999px;padding:2px 12px;box-shadow:0 3px 0 rgba(90,62,75,.12)}
-.rz-zone.tab{background:#FFF5F8}.rz-zone.tab h4{background:var(--pink)}
-.rz-zone.liq{background:#F7F2FF}.rz-zone.liq h4{background:#B79CFF}
-.rz-zone.cold{background:#EEF8FF}.rz-zone.cold h4{background:#7FBCEB}
-.rz-zone.locked{background:rgba(255,255,255,.45)}.rz-zone.locked h4{background:#CDBFC5}
+.rz-zone.tab h4{background:var(--pink)}
+.rz-zone.liq h4{background:#B79CFF}
+.rz-zone.cold h4{background:#7FBCEB}
+.rz-zone.locked h4{background:#CDBFC5}
 .rz-lock{margin:auto;display:flex;flex-direction:column;align-items:center;gap:4px;color:#BBA9B1;font-weight:700;font-size:13px}.rz-lock .ghost{width:96px;height:96px;opacity:.28;filter:grayscale(1)}.rz-lock .ghost svg{width:100%;height:100%}
 .rz-src{display:flex;gap:8px;flex-wrap:nowrap;justify-content:center}
 .rz-jar{border:0;background:#fff;border-radius:18px;flex:0 1 82px;min-width:0;width:82px;padding:4px 2px 5px;display:flex;flex-direction:column;align-items:center;box-shadow:0 4px 0 rgba(90,62,75,.12);font-size:10.5px;font-weight:700;line-height:1.15}
@@ -341,6 +341,48 @@ html.port .rz-house{width:110px;left:auto;right:0}html.port .rz-house svg{width:
 .rz-gppcert b{font-size:14px;color:#B07A12}.rz-gppcert span{font-size:10px;color:#2F8F6E;font-weight:700}.rz-gppcert.sel{box-shadow:0 0 0 3px var(--pink)}
 .rz-chk{margin:0;padding:0;list-style:none;display:grid;gap:4px;font-size:12.5px}.rz-chk li{position:relative;padding-left:20px;line-height:1.4}.rz-chk li::before{content:"✓";position:absolute;left:2px;color:#2F8F6E;font-weight:700}
 .rz-gdet{max-height:300px;overflow:auto}
+/* ===== gameplay skin: rich mobile-game look ===== */
+.rz-scene{position:absolute;left:0;top:0;width:100%;height:290px;display:block}
+.rz-floor{position:absolute;left:0;right:0;top:290px;bottom:0;background:
+  linear-gradient(180deg,rgba(60,28,12,.35),rgba(60,28,12,0) 26px),
+  repeating-linear-gradient(90deg,rgba(255,255,255,.07) 0 2px,transparent 2px 140px),
+  repeating-linear-gradient(180deg,#D9A273 0 36px,#CF9665 36px 38px,#DCA676 38px 74px,#CB9161 74px 76px)}
+.rz-top{background:linear-gradient(180deg,#FFC067,#FF9636 60%,#F07A1E);border-bottom:3px solid #B8561A;box-shadow:inset 0 2px 0 rgba(255,255,255,.55),0 4px 10px rgba(70,30,10,.28);z-index:4!important}
+.rz-top .rz-pill{background:linear-gradient(180deg,#B85A1C,#9C4813);color:#fff;border-radius:12px;box-shadow:inset 0 2px 3px rgba(0,0,0,.28),0 1.5px 0 rgba(255,255,255,.55);text-shadow:0 1.5px 0 rgba(80,30,5,.7)}
+.rz-top .rz-pill.lv{background:linear-gradient(180deg,#FF8FAB,#F0507A);border:2.5px solid #fff;box-shadow:0 3px 0 #B8355A,0 4px 6px rgba(0,0,0,.2)}
+.rz-top .rz-pill.coin{background:linear-gradient(180deg,#B85A1C,#9C4813)}.rz-top .rz-pill.coin b{color:#FFE07A}
+.rz-top .rz-pill svg{filter:drop-shadow(0 1px 0 rgba(80,30,5,.6))}
+.rz-top .rz-coin{box-shadow:0 0 0 2px #fff,0 2px 0 2px rgba(80,30,5,.4)}
+.rz-top .rz-prog{background:linear-gradient(180deg,#8E3E10,#A24E18);box-shadow:inset 0 3px 4px rgba(0,0,0,.35),0 1.5px 0 rgba(255,255,255,.55);border-radius:12px}
+.rz-top .rz-prog i{background:linear-gradient(180deg,#B8F5DC,#5DD3A5 50%,#36B988);box-shadow:inset 0 -3px 0 rgba(0,90,60,.18),inset 0 3px 0 rgba(255,255,255,.45);border-radius:9px}
+.rz-top .rz-prog b{color:#fff;text-shadow:0 1.5px 0 rgba(60,25,5,.75),0 0 4px rgba(60,25,5,.4)}
+.rz-top .rz-ic{background:radial-gradient(circle at 50% 30%,#FFD08A,#FF8A2A 70%);color:#fff;border:2.5px solid #fff;box-shadow:0 3px 0 #B8561A,0 4px 6px rgba(0,0,0,.25)}
+.rz-top .rz-cb{border:2.5px solid #fff;box-shadow:0 3px 0 #B8561A,0 5px 8px rgba(0,0,0,.25)}
+.rz-who svg{filter:drop-shadow(0 0 1.3px rgba(90,40,30,.55)) drop-shadow(0 4px 3px rgba(60,25,10,.18))}
+.rz-bub{border:3px solid #F2D6C2;box-shadow:0 4px 0 #D9B49C,0 7px 12px rgba(60,25,10,.18)}
+.rz-bub::after{border-top-color:#F2D6C2;bottom:-12px}
+.rz-oi svg,.rz-jar svg,.rz-art>svg{filter:drop-shadow(0 2.5px 0 rgba(70,35,20,.22)) saturate(1.12)}
+.rz-counter{top:262px;height:30px;border-radius:0;background:
+  linear-gradient(180deg,#FFFDF9 0,#F6E7DA 9px,#B56B3D 9px,#D58E5A 12px,#C27744 26px,#9C5A30 30px);box-shadow:0 8px 12px rgba(60,25,10,.35)}
+.rz-counter::after{height:3px;bottom:auto;top:13px;background:linear-gradient(90deg,#FFE29A,#FFC94D,#FFE29A);opacity:.85}
+.rz-work{padding-top:22px}
+.rz-zone{border-radius:22px;border:4px solid var(--rim);background:repeating-linear-gradient(45deg,rgba(255,255,255,.4) 0 2px,transparent 2px 20px),repeating-linear-gradient(-45deg,rgba(255,255,255,.4) 0 2px,transparent 2px 20px),linear-gradient(180deg,var(--top),var(--bot));
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.85),inset 0 -6px 10px rgba(90,40,20,.08),0 6px 0 var(--edge),0 10px 14px rgba(60,25,10,.3)}
+.rz-zone.tab{--rim:#FF9DB8;--top:#FFE9F0;--bot:#FFD3E0;--edge:#D9607F}
+.rz-zone.liq{--rim:#B79CFF;--top:#F2EBFF;--bot:#E0D2FF;--edge:#8A68D6}
+.rz-zone.cold{--rim:#8CC8F0;--top:#E7F5FF;--bot:#CDE7FB;--edge:#4F93C4}
+.rz-zone.locked{--rim:#E5D6CC;--top:#F7EEE8;--bot:#EBDDD3;--edge:#B9A090}
+.rz-zone h4{top:-15px;font-size:14px;padding:3px 16px;border-radius:12px;border:2.5px solid #fff;text-shadow:0 1.5px 0 rgba(0,0,0,.25);box-shadow:0 3px 0 var(--edge),0 4px 6px rgba(0,0,0,.18)}
+.rz-zone.tab h4{background:linear-gradient(180deg,#FFA3BC,#F06A8E)}.rz-zone.liq h4{background:linear-gradient(180deg,#CBB4FF,#9A7BE8)}.rz-zone.cold h4{background:linear-gradient(180deg,#A9D8F7,#5FA8DD)}.rz-zone.locked h4{background:linear-gradient(180deg,#DCCBC0,#B9A090)}
+.rz-jar{background:radial-gradient(circle at 50% 38%,#fff 0 52%,#F5EAE2 100%);border:2.5px solid #fff;box-shadow:0 0 0 2px #EBCFBE,0 5px 0 #D2AE96,0 8px 10px rgba(60,25,10,.18);transition:transform .12s}
+.rz-jar:active{transform:translateY(3px);box-shadow:0 0 0 2px #EBCFBE,0 2px 0 #D2AE96}
+.rz-jar.inst{background:radial-gradient(circle at 50% 38%,#FFFEF4 0 52%,#FBF0D2 100%)}
+.rz-jar.fr{background:radial-gradient(circle at 50% 38%,#fff 0 52%,#E3F1FB 100%)}
+.rz-slot .st-bg{filter:drop-shadow(0 4px 0 rgba(90,45,25,.18)) drop-shadow(0 6px 6px rgba(60,25,10,.15))}
+.rz-slot em{border:2px solid #F2D6C2;box-shadow:0 2px 0 #D9B49C}
+.rz-trash{background:linear-gradient(180deg,#9BE0BF,#5FBF95);border:2.5px solid #fff;color:#fff;text-shadow:0 1px 0 rgba(0,60,40,.4);box-shadow:0 4px 0 #3E9A72,0 6px 8px rgba(0,0,0,.2)}
+.rz-door{background:#B9703F;box-shadow:inset 4px 0 0 #E3A877}
+.rz-door i{background:linear-gradient(180deg,#8FDCC0,#5FBF95)}
 /* portrait */
 html.port .rz{grid-template-rows:52px 250px minmax(0,1fr)}
 html.port .rz-bg{background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.75) 0 3px,transparent 4px) 0 0/44px 44px,linear-gradient(180deg,var(--wall1),var(--wall2) 298px,#FBE1CF 298px,#F7D6C1)}
@@ -363,6 +405,7 @@ html.port .rz-map{padding:10px}html.port .rz-maph{flex-wrap:wrap}html.port .rz-l
 html.port .rz-node b{width:48px;height:48px;font-size:20px}html.port .rz-node.boss b{width:56px;height:56px}
 html.port .rz-ups{grid-template-columns:1fr}
 html.port .rz-res{grid-template-columns:repeat(3,minmax(0,1fr))}
+html.port .rz-top{align-self:start;padding-bottom:7px}html.port .rz-scene{height:306px}html.port .rz-floor{top:306px}html.port .rz-counter{top:278px}html.port .rz-top .rz-prog{height:22px}
 </style>
 </head>
 <body>
@@ -377,6 +420,12 @@ function shade(hex,amt){const n=parseInt(hex.slice(1),16),c=[n>>16,n>>8&255,n&25
 const SND={ctx:null,on:true,init(){if(this.ctx){this.ctx.resume&&this.ctx.resume();return}try{const C=window.AudioContext||window.webkitAudioContext;if(C)this.ctx=new C()}catch(e){this.ctx=null}}};
 /* ================= STAGE: fixed canvas scaled to fit, landscape 1120×630 or portrait 480×900 ================= */
 const root=document.documentElement,isPort=()=>root.classList.contains('port');
+/* shared gradients: soft shading on faces, shirts and hair (referenced by url(#id) from every inline svg) */
+document.body.insertAdjacentHTML('beforeend',`<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+ <radialGradient id="chFace" cx=".42" cy=".36" r=".7"><stop offset=".55" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#9A4A3A" stop-opacity=".22"/></radialGradient>
+ <radialGradient id="chShine" cx=".35" cy=".3" r=".45"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+ <linearGradient id="chCloth" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#5A2E28" stop-opacity=".22"/></linearGradient>
+</defs></svg>`);
 function layout(){const W=innerWidth,H=innerHeight,sL=Math.min(W/1120,H/630),sP=Math.min(W/480,H/900),land=sL>=sP;
   root.classList.add('stage');root.classList.toggle('land',land);root.classList.toggle('port',!land);root.style.setProperty('--s',(land?sL:sP).toFixed(4))}
 layout();addEventListener('resize',layout);addEventListener('orientationchange',()=>setTimeout(layout,250));
@@ -441,8 +490,8 @@ function czPerson(L,mood){
   const mask=L.acc==='mask'?`<path d="M34 74Q60 70 86 74V92Q60 104 34 92Z" fill="#EAF6FF" stroke="#BFD8EA" stroke-width="2"/><path d="M40 82H80M42 88H78" stroke="#CFE2F0" stroke-width="2"/>`:'';
   const fx=mood==='worried'?`<path d="M98 40Q104 50 98 54Q92 50 98 40Z" fill="#8FD3FF"/>`:mood==='angry'?`<g fill="#fff" opacity=".9"><circle cx="100" cy="30" r="6"/><circle cx="108" cy="24" r="4"/><circle cx="20" cy="30" r="5"/></g>`:mood==='happy'?`<path d="M104 30l2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" fill="#FFD84D"/>`:'';
   const sc=L.kid?'translate(9 18) scale(.85)':'';
-  return`<svg viewBox="0 0 120 150" aria-hidden="true"><g transform="${sc}">${back}<path d="M18 152Q20 112 60 108Q100 112 102 152Z" fill="${L.shirt}"/><path d="M46 110Q60 122 74 110" stroke="#fff" stroke-width="4" fill="none" opacity=".6"/>
-  <rect x="50" y="94" width="20" height="18" rx="8" fill="${shade(s,-.06)}"/><circle cx="60" cy="64" r="40" fill="${s}"/>${mood==='angry'?`<circle cx="60" cy="64" r="40" fill="#FF6B6B" opacity=".18"/>`:''}
+  return`<svg viewBox="0 0 120 150" aria-hidden="true"><g transform="${sc}">${back}<path d="M18 152Q20 112 60 108Q100 112 102 152Z" fill="${L.shirt}"/><path d="M18 152Q20 112 60 108Q100 112 102 152Z" fill="url(#chCloth)"/><path d="M46 110Q60 122 74 110" stroke="#fff" stroke-width="4" fill="none" opacity=".6"/>
+  <rect x="50" y="94" width="20" height="18" rx="8" fill="${shade(s,-.06)}"/><circle cx="60" cy="64" r="40" fill="${s}"/><circle cx="60" cy="64" r="40" fill="url(#chFace)"/><circle cx="60" cy="64" r="40" fill="url(#chShine)"/>${mood==='angry'?`<circle cx="60" cy="64" r="40" fill="#FF6B6B" opacity=".18"/>`:''}
   <ellipse cx="34" cy="80" rx="8" ry="5" fill="#FF8FAB" opacity="${mood==='angry'?.75:.45}"/><ellipse cx="86" cy="80" rx="8" ry="5" fill="#FF8FAB" opacity="${mood==='angry'?.75:.45}"/>
   ${front}${E[mood]||E.calm}${mask||M[mood]||M.calm}${acc}${fx}</g></svg>`;
 }
@@ -702,8 +751,51 @@ function rzBuild(){
   <div class="rz-fx" id="rzFx"></div><div class="rz-hint" id="rzHint" hidden></div><div class="rz-ov" id="rzOv" hidden></div>`;
   RZ.seats.forEach((_,j)=>rzSeat(j));rzStations();
 }
+/* ---------- gameplay backdrop: wooden medicine shelves, arched window with a sunny town view ---------- */
+function rzScene(){
+  const pal=['#FF8FAB','#7FC6F2','#8FDCC0','#FFC94D','#B79CFF','#FF9D5C','#6FCFC2','#F7A1C4'];
+  const shelf=(x0,w,seed)=>{let o=`<rect x="${x0-8}" y="58" width="${w+16}" height="190" rx="10" fill="#A8663E"/><rect x="${x0}" y="66" width="${w}" height="176" rx="5" fill="#7A4428"/><rect x="${x0}" y="66" width="${w}" height="176" rx="5" fill="url(#scBack)"/>`;
+    [116,176,236].forEach((by,r)=>{let x=x0+8,i=0;
+      while(x<x0+w-18){const k=(seed+i*5+r*3)%7,c=pal[(seed+i*3+r*5)%pal.length],t=(i+r+seed)%3;let ww;
+        if(t===0){ww=22+k%3*4;const h=28+k%3*5;o+=`<rect x="${x}" y="${by-h}" width="${ww}" height="${h}" rx="3" fill="${c}"/><rect x="${x}" y="${by-h}" width="${ww}" height="6" rx="2" fill="#fff" opacity=".35"/><rect x="${x+3}" y="${by-h+10}" width="${ww-6}" height="${h*.36}" rx="2" fill="#fff" opacity=".9"/><path d="M${x+ww/2} ${by-h+12.5}v${h*.36-5}M${x+ww/2-3.5} ${by-h+10+h*.18}h7" stroke="${c}" stroke-width="2.2"/>`}
+        else if(t===1){ww=18;const h=30+k%2*6;o+=`<rect x="${x+5}" y="${by-h-6}" width="8" height="7" rx="2" fill="#fff"/><rect x="${x}" y="${by-h}" width="18" height="${h}" rx="7" fill="${c}"/><rect x="${x+3}" y="${by-h+12}" width="12" height="11" rx="2" fill="#fff" opacity=".85"/>`}
+        else{ww=26;o+=`<rect x="${x}" y="${by-24}" width="26" height="24" rx="5" fill="${c}"/><rect x="${x-1}" y="${by-29}" width="28" height="7" rx="3" fill="#fff"/><circle cx="${x+13}" cy="${by-11}" r="5" fill="#fff" opacity=".85"/>`}
+        o+=`<rect x="${x+ww*.62}" y="${by-38}" width="${ww*.38}" height="38" fill="url(#scObj)"/>`;x+=ww+5;i++}
+      o+=`<rect x="${x0-2}" y="${by}" width="${w+4}" height="9" rx="2" fill="#E3A877"/><rect x="${x0-2}" y="${by}" width="${w+4}" height="3" rx="1.5" fill="#FFD3A8"/><rect x="${x0}" y="${by+9}" width="${w}" height="6" fill="#5A2E18" opacity=".35"/>`});
+    return o+`<rect x="${x0-8}" y="58" width="${w+16}" height="10" rx="5" fill="#C98552"/><rect x="${x0-8}" y="58" width="${w+16}" height="3" rx="1.5" fill="#F0B985"/>`};
+  const arch='M430 236V132Q430 62 560 62Q690 62 690 132V236Z';
+  const houses=[[440,186,'#F28C5B'],[478,192,'#FF9DB8'],[512,184,'#F2B63E'],[600,190,'#F28C5B'],[640,185,'#9C7BE8'],[674,192,'#F28C5B']].map(([x,y,c])=>`<rect x="${x}" y="${y}" width="26" height="${236-y}" fill="#FFF7EC"/><path d="M${x-4} ${y+2}L${x+13} ${y-12}L${x+30} ${y+2}Z" fill="${c}"/><rect x="${x+8}" y="${y+10}" width="9" height="9" rx="2" fill="#8FC9F0"/>`).join('');
+  const lamp=x=>`<path d="M${x} 40V78" stroke="#6B4A3A" stroke-width="2.5"/><circle cx="${x}" cy="96" r="34" fill="url(#scGlow)"/><path d="M${x-20} 96Q${x-18} 76 ${x} 76Q${x+18} 76 ${x+20} 96Z" fill="#FFB547"/><path d="M${x-20} 96Q${x-18} 76 ${x} 76" stroke="#FFE3A3" stroke-width="3" fill="none"/><ellipse cx="${x}" cy="97" rx="12" ry="4" fill="#FFF6C9"/>`;
+  const curtain=(x,dir)=>`<path d="M${x} 52Q${x+dir*30} 52 ${x+dir*34} 58Q${x+dir*20} 120 ${x+dir*28} 160Q${x+dir*14} 200 ${x+dir*22} 244H${x}Z" fill="url(#scCurt)"/><path d="M${x+dir*10} 60Q${x+dir*4} 130 ${x+dir*12} 240" stroke="#E8708F" stroke-width="3" fill="none" opacity=".6"/><path d="M${x} 150Q${x+dir*20} 156 ${x+dir*30} 150" stroke="#FFD84D" stroke-width="5" stroke-linecap="round" fill="none"/>`;
+  return`<svg class="rz-scene" viewBox="0 0 1120 290" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><defs>
+   <linearGradient id="scWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--wall1)"/><stop offset="1" style="stop-color:var(--wall2)"/></linearGradient>
+   <pattern id="scStripe" width="36" height="10" patternUnits="userSpaceOnUse"><rect width="18" height="10" fill="#fff" opacity=".28"/></pattern>
+   <linearGradient id="scBack" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity=".25"/><stop offset=".2" stop-color="#000" stop-opacity="0"/></linearGradient>
+   <linearGradient id="scObj" x1="0" x2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#3A1E10" stop-opacity=".22"/></linearGradient>
+   <linearGradient id="scSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6EC3F2"/><stop offset=".55" stop-color="#BFE6FA"/><stop offset="1" stop-color="#FFE2B8"/></linearGradient>
+   <radialGradient id="scSun"><stop offset="0" stop-color="#FFF7C2"/><stop offset=".35" stop-color="#FFE57A" stop-opacity=".9"/><stop offset="1" stop-color="#FFE57A" stop-opacity="0"/></radialGradient>
+   <radialGradient id="scGlow"><stop offset="0" stop-color="#FFF1B8" stop-opacity=".75"/><stop offset="1" stop-color="#FFF1B8" stop-opacity="0"/></radialGradient>
+   <linearGradient id="scCurt" x1="0" x2="1"><stop offset="0" stop-color="#FFB3C7"/><stop offset=".5" stop-color="#FF8FAB"/><stop offset="1" stop-color="#FFB3C7"/></linearGradient>
+   <linearGradient id="scWain" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E9B487"/><stop offset="1" stop-color="#C98552"/></linearGradient>
+   <clipPath id="scArch"><path d="${arch}"/></clipPath></defs>
+   <rect width="1120" height="290" fill="url(#scWall)"/><rect width="1120" height="290" fill="#E8866A" opacity=".16"/><rect width="1120" height="290" fill="url(#scStripe)"/><rect width="1120" height="40" y="46" fill="url(#scBack)"/>
+   <rect y="226" width="1120" height="64" fill="url(#scWain)"/><rect y="224" width="1120" height="6" fill="#F7CFA6"/><rect y="230" width="1120" height="3" fill="#A8663E" opacity=".5"/>
+   ${[60,200,340,780,920].map(x=>`<rect x="${x}" y="240" width="110" height="40" rx="6" fill="none" stroke="#B87447" stroke-width="2.5" opacity=".55"/>`).join('')}
+   ${shelf(24,300,0)}${shelf(796,250,3)}
+   <g clip-path="url(#scArch)"><rect x="420" y="50" width="280" height="200" fill="url(#scSky)"/><circle cx="628" cy="118" r="44" fill="url(#scSun)"/><circle cx="628" cy="118" r="15" fill="#FFF3A8"/>
+    <path d="M420 172Q470 138 520 160Q570 128 630 156Q670 140 700 152V240H420Z" fill="#A9D7C2"/><path d="M420 182Q480 164 540 178Q610 160 700 176V240H420Z" fill="#7EC9A8"/>
+    <rect x="420" y="196" width="280" height="44" fill="#6FB9E0"/><path d="M450 206h30M520 214h40M600 208h24M640 220h30" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".7"/>${houses}
+    <path d="M440 120L470 70M450 150L500 76" stroke="#fff" stroke-width="7" opacity=".22" stroke-linecap="round"/></g>
+   <path d="${arch}" fill="none" stroke="#C98552" stroke-width="14"/><path d="${arch}" fill="none" stroke="#F0B985" stroke-width="4"/><path d="M560 64V236M432 150H688" stroke="#C98552" stroke-width="7"/>
+   ${curtain(410,1)}${curtain(710,-1)}
+   <rect x="424" y="222" width="272" height="18" rx="5" fill="#B9703F"/><rect x="424" y="222" width="272" height="5" rx="2.5" fill="#E3A877"/>
+   ${[440,466,494,522,600,628,656,682].map((x,i)=>`<circle cx="${x}" cy="${216-i%2*4}" r="9" fill="#6CC08F"/><circle cx="${x+(i%2?4:-3)}" cy="${212-i%2*4}" r="5.5" fill="${['#FF7FA3','#FFD84D','#FF9D5C','#B79CFF'][i%4]}"/>`).join('')}
+   ${lamp(366)}${lamp(754)}
+   <g transform="translate(560 243)"><rect x="-72" y="-14" width="144" height="30" rx="10" fill="#fff" stroke="#6CC08F" stroke-width="3"/><circle cx="-52" cy="1" r="9" fill="#5CC27A"/><path d="M-52 -5v12M-58 1h12" stroke="#fff" stroke-width="3.4"/><text x="8" y="7" text-anchor="middle" font-family="Mali,sans-serif" font-weight="700" font-size="16" fill="#3E8E5E">ร้านยาทันใจ</text></g>
+  </svg>`;
+}
 function rzDeco(play){
-  if(play)return`<div class="rz-win"><i></i><i></i></div><div class="rz-door"><i></i></div>`;
+  if(play)return`${rzScene()}<div class="rz-floor"></div><div class="rz-door"><i></i></div>`;
   return`<div class="rz-win"><i></i><i></i></div><div class="rz-shelfdeco l">${['cough','para','eye'].map(x=>`<i>${czIcon(x)}</i>`).join('')}</div><div class="rz-shelfdeco r">${['cream','ors','cet'].map(x=>`<i>${czIcon(x)}</i>`).join('')}</div>
   <div class="rz-plant"><svg viewBox="0 0 60 80"><path d="M30 46C10 40 8 18 14 10c12 6 16 22 16 36Zm0 0C50 40 52 18 46 10 34 16 30 32 30 46Z" fill="#8FDCB8"/><path d="M30 50C18 34 22 20 30 14c8 6 12 20 0 36Z" fill="#7CCFA8"/><path d="M16 48h28l-4 28H20Z" fill="#FFB3C7"/><path d="M14 46h32v7H14Z" fill="#FF9DB8"/></svg></div>`;
 }
