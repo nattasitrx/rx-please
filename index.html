@@ -828,7 +828,19 @@ const RZ_CROWN=`<svg class="crown" viewBox="0 0 40 26" aria-hidden="true"><path 
 /* ---------- save ---------- */
 const czStars=n=>[0,1,2].map(i=>`<svg viewBox="0 0 24 24" class="${i<n?'on':''}"><path d="M12 2l3 6.6 7.2.8-5.4 4.9 1.5 7.1L12 17.8 5.7 21.4l1.5-7.1L1.8 9.4 9 8.6Z"/></svg>`).join('');
 const RZ_KEY='rxplease-rush-v1';
-function rzLoad(){try{const d=JSON.parse(localStorage.getItem(RZ_KEY)||'null');if(d&&d.v===1)return d}catch(e){}return{v:1,stars:[],best:[],wallet:0,up:{},seen:{},music:1}}
+/* saves only ever hold numbers, booleans, short plain ids, arrays and objects. Anything else (HTML, long text, odd keys)
+   is dropped, so a crafted save code or an edited localStorage can never inject markup into the page. */
+function rzClean(x,d=0){if(d>6)return undefined;const t=typeof x;
+  if(t==='number')return Number.isFinite(x)?x:0;if(t==='boolean')return x;
+  if(t==='string')return/^[\w.~:\-]{0,40}$/.test(x)?x:undefined;
+  if(Array.isArray(x))return x.slice(0,400).map(v=>{const c=rzClean(v,d+1);return c===undefined?0:c});
+  if(x&&t==='object'){const o={};let n=0;for(const k of Object.keys(x)){if(++n>400)break;if(!/^[\w.~:\-]{1,40}$/.test(k)||k==='__proto__'||k==='constructor'||k==='prototype')continue;const c=rzClean(x[k],d+1);if(c!==undefined)o[k]=c}return o}
+  return undefined}
+function rzSafeSave(d){d=rzClean(d);if(!d||d.v!==1||!Array.isArray(d.stars))return null;
+  d.stars=d.stars.map(v=>Math.max(0,Math.min(3,Math.floor(+v)||0)));['wallet','gem'].forEach(k=>d[k]=Math.max(0,Math.floor(+d[k])||0));
+  ['up','seen','bst','dup','gpp','cx','cxr','life','gift','bossG','q','w','ms'].forEach(k=>{if(d[k]!=null&&(typeof d[k]!=='object'||Array.isArray(d[k])))delete d[k]});
+  if(!d.up)d.up={};if(!d.seen)d.seen={};return d}
+function rzLoad(){try{const d=rzSafeSave(JSON.parse(localStorage.getItem(RZ_KEY)||'null'));if(d)return d}catch(e){}return{v:1,stars:[],best:[],wallet:0,up:{},seen:{},music:1}}
 let RD=rzLoad();
 const rzSave=()=>{try{localStorage.setItem(RZ_KEY,JSON.stringify(RD))}catch(e){}try{rzSyncPills()}catch(e){}};
 /* ---------- analytics (PostHog) ----------
@@ -1805,7 +1817,7 @@ function rzPh(sc){
 /* ---------- move a save between Safari, the home-screen icon, or another phone ---------- */
 const rzSaveCode=()=>'RXP1.'+btoa(unescape(encodeURIComponent(JSON.stringify(RD))));
 function rzSaveParse(t){try{const m=String(t||'').replace(/\s+/g,'').match(/RXP1\.([A-Za-z0-9+/=]+)/);if(!m)return null;
-  const d=JSON.parse(decodeURIComponent(escape(atob(m[1]))));return d&&d.v===1&&Array.isArray(d.stars)?d:null}catch(e){return null}}
+  return rzSafeSave(JSON.parse(decodeURIComponent(escape(atob(m[1])))))}catch(e){return null}}
 const rzSaveSum=d=>`ผ่าน ${(d.stars||[]).filter(x=>x).length} ด่าน · ดาว ${(d.stars||[]).reduce((a,b)=>a+(+b||0),0)} · เหรียญ ${d.wallet||0}`;
 let RZ_XD=null;
 function rzXfer(welcome){const o=rzQ('#rzOv');if(!o)return;o.hidden=false;RZS.tap();RZ_XD=null;
