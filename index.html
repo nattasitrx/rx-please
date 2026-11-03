@@ -538,6 +538,15 @@ html.port .rz-ups{grid-template-columns:1fr}
 html.port .rz-res{grid-template-columns:repeat(3,minmax(0,1fr))}
 /* landscape: seat is 236px tall; keep bubble + customer inside it so the top bar never hides an order.
    3–4 item orders stay on ONE row of slightly smaller icons instead of wrapping to two rows. */
+/* portrait work area: zones size to their content (extra space shared out), and station rows never wrap.
+   With every upgrade (4 trays + amber bag + mortar, 3 mixing tables) things used to wrap into a hidden second line. */
+html.port .rz-work{grid-template-rows:auto auto auto;align-content:stretch}
+html.port .rz-zone .rz-row{flex:1 1 100%;min-width:0;flex-wrap:nowrap;justify-content:center;align-items:flex-end;gap:6px;margin-top:6px}
+html.port .rz-zone.tab .rz-slot,html.port .rz-zone.liq .rz-slot{width:60px;height:60px}
+html.port .rz-st small{font-size:9.5px;line-height:1.15}
+html.port .rz-zone.liq{flex-wrap:nowrap;align-items:center;gap:8px}
+html.port .rz-zone.liq .rz-src{flex:0 1 auto;min-width:0}
+html.port .rz-zone.liq .rz-row{flex:0 0 auto;margin-top:0}
 html.land .rz-who{width:122px;height:144px}
 html.land .rz-bub.many{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,42px));justify-content:center;gap:3px}
 html.land .rz-bub.many .rz-oi{width:100%;height:auto;aspect-ratio:1}
