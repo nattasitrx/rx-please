@@ -552,6 +552,12 @@ html.land .rz-who{width:122px;height:144px}
 html.land .rz-bub.many{display:grid;grid-template-columns:repeat(var(--n,3),36px);justify-content:center;gap:3px}
 html.land .rz-bub.many .rz-oi{width:36px;height:36px}
 html.land .rz-bub.many .rz-pat{grid-column:1/-1}
+/* decor */
+.dc-lights circle{animation:dctw 1.2s ease-in-out infinite;animation-delay:var(--d,0s)}@keyframes dctw{0%,100%{opacity:.35}50%{opacity:1}}
+.dc-neon{filter:drop-shadow(0 0 4px #FF6FA8);animation:dcneon 2.4s steps(1) infinite}@keyframes dcneon{0%,86%,92%,100%{opacity:1}88%{opacity:.4}}
+.dc-tail{transform-box:fill-box;transform-origin:0% 100%;animation:dctail 1.6s ease-in-out infinite}@keyframes dctail{0%,100%{transform:rotate(0)}50%{transform:rotate(-18deg)}}
+.dc-balloons{animation:rzbob 3s ease-in-out infinite}
+.rz-upi.dec{background:#FFF7EC;border-radius:14px;overflow:hidden}.rz-upi.dec svg{width:100%;height:100%}.rz-up.dec.own{box-shadow:0 0 0 2px #7FD8B6,0 3px 0 #E6C2A8}
 /* level events chips */
 .rz-evi{font-style:normal;font-size:.9em;margin-left:2px}
 .rz-evts{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}.rz-evts span{display:flex;align-items:center;gap:6px;background:linear-gradient(180deg,#FFF3C4,#FFE08A);border:2px solid #F5C451;border-radius:14px;padding:3px 10px 3px 6px;box-shadow:0 3px 0 #E0A93A}
@@ -846,7 +852,7 @@ const rzSave=()=>{try{localStorage.setItem(RZ_KEY,JSON.stringify(RD))}catch(e){}
 /* ---------- analytics (PostHog) ----------
    Off while RZ_PH_KEY is empty. Anonymous: PostHog keeps a random id per device in localStorage, no cookies, no names,
    no autocapture, no session recording. Players can switch it off in settings (RD.an=0). Events: see rzA(...) calls. */
-const RZ_VER='2026-11-03c';
+const RZ_VER='2026-11-03d';
 const RZ_PH_KEY='phc_rkFR2c2yjDTwaPrVCxRVn3D4aCkxwxJ37TjdZmG8a5WW';/* PostHog project API key (phc_…, public by design) */
 const RZ_PH_HOST='https://us.i.posthog.com';/* EU project: https://eu.i.posthog.com */
 let rzPH=false;
@@ -953,12 +959,16 @@ function rzLevel(L,seed){
   const r5=x=>Math.max(5,Math.round(x/5)*5),first=cs.slice(0,need);
   const P=first.reduce((a,c,i)=>a+(c.chat&&!c.chat.buy?0:1)*c.order.reduce((s,o)=>s+RI[o.id].p,0)*1.5*(i<2?1:i<5?1.15:1.3)*(c.vip?1.5:1),0);
   const itemsNeed=first.reduce((a,c)=>a+c.order.length,0);
-  const goal={t:gt,v:gt==='coins'?r5(P*.85):gt==='combo'?Math.min(30,Math.max(5,Math.round(itemsNeed*.5))):need};
+  const cf=L<=12?.85:L>=20?1.45:.85+(L-12)*.075;
+  const goal={t:gt,v:gt==='coins'?r5(P*cf):gt==='combo'?Math.min(30,Math.max(5,Math.round(itemsNeed*.5))):need};
   /* star times: when the last needed customer arrives, plus time to prepare their order */
   /* expected time for a skilled player (calibrated with a bot), then generous margins */
-  const work=first.reduce((a,c)=>a+(c.chat?2:0)+1.4+.8*c.order.length+c.order.reduce((e,o)=>e+(RI[o.id].crush?9:RI[o.id].amber?1.2:RI[o.id].mix?1.5:RI[o.id].cold?1:0),0),0);
+  const work=first.reduce((a,c)=>a+(c.chat?2:0)+1.4+.8*c.order.length+c.order.reduce((e,o)=>e+(RI[o.id].crush?4:RI[o.id].amber?1.2:RI[o.id].mix?1.5:RI[o.id].cold?1:0),0),0);
   const tFast=gt==='coins'?4+work*.55:gt==='combo'?6+goal.v*1.3:4+work*.65;
-  const par=L<=4?[Math.round(tFast*1.8+8),Math.round(tFast*2.6+15)]:[Math.round(tFast*1.35+3),Math.round(tFast*2+8)];
+  /* star-time tuning from a bot run over all 50 levels: a little looser for beginners, tighter from L29 on so late
+     levels stay as demanding as the middle of the game (combo goals already scale with the goal itself) */
+  const km=gt==='combo'?1:L<=10?1.12:L<=28?1:L>=36?.72:1-(L-28)*.035;
+  const par=(L<=4?[tFast*1.8+8,tFast*2.6+15]:[tFast*1.35+3,tFast*2+8]).map(t=>Math.round(t*km));
   return{L,items,feats,fresh,tut,news,seats,n,need,cs,goal,par,ch:Math.floor((L-1)/10),ev:[...ev]};
 }
 const RZ_GOALTXT=V=>{const v=V.goal.v;return V.goal.t==='coins'?`เก็บเงินให้ได้ ฿${v}`:V.goal.t==='combo'?`ทำคอมโบให้ถึง ×${v}`:V.goal.t==='nolose'?`ส่งยาให้ลูกค้า ${v} คน ห้ามมีใครรอจนกลับ`:`ส่งยาให้ลูกค้าครบ ${v} คน`};
@@ -1046,15 +1056,16 @@ function rzBuild(){
 /* ---------- gameplay backdrop: wooden medicine shelves, arched window with a sunny town view ---------- */
 function rzScene(noSign){
   const pal=['#FF8FAB','#7FC6F2','#8FDCC0','#FFC94D','#B79CFF','#FF9D5C','#6FCFC2','#F7A1C4'];
-  const shelf=(x0,w,seed)=>{let o=`<rect x="${x0-8}" y="58" width="${w+16}" height="190" rx="10" fill="#A8663E"/><rect x="${x0}" y="66" width="${w}" height="176" rx="5" fill="#7A4428"/><rect x="${x0}" y="66" width="${w}" height="176" rx="5" fill="url(#scBack)"/>`;
+  const G=rzDecOn('gold'),F1=G?'#E9B949':'#A8663E',F2=G?'#F2C94C':'#C98552',F3=G?'#FFF0A8':'#F0B985',F4=G?'#F7D774':'#E3A877';
+  const shelf=(x0,w,seed)=>{let o=`<rect x="${x0-8}" y="58" width="${w+16}" height="190" rx="10" fill="${F1}"/><rect x="${x0}" y="66" width="${w}" height="176" rx="5" fill="#7A4428"/><rect x="${x0}" y="66" width="${w}" height="176" rx="5" fill="url(#scBack)"/>`;
     [116,176,236].forEach((by,r)=>{let x=x0+8,i=0;
       while(x<x0+w-18){const k=(seed+i*5+r*3)%7,c=pal[(seed+i*3+r*5)%pal.length],t=(i+r+seed)%3;let ww;
         if(t===0){ww=22+k%3*4;const h=28+k%3*5;o+=`<rect x="${x}" y="${by-h}" width="${ww}" height="${h}" rx="3" fill="${c}"/><rect x="${x}" y="${by-h}" width="${ww}" height="6" rx="2" fill="#fff" opacity=".35"/><rect x="${x+3}" y="${by-h+10}" width="${ww-6}" height="${h*.36}" rx="2" fill="#fff" opacity=".9"/><path d="M${x+ww/2} ${by-h+12.5}v${h*.36-5}M${x+ww/2-3.5} ${by-h+10+h*.18}h7" stroke="${c}" stroke-width="2.2"/>`}
         else if(t===1){ww=18;const h=30+k%2*6;o+=`<rect x="${x+5}" y="${by-h-6}" width="8" height="7" rx="2" fill="#fff"/><rect x="${x}" y="${by-h}" width="18" height="${h}" rx="7" fill="${c}"/><rect x="${x+3}" y="${by-h+12}" width="12" height="11" rx="2" fill="#fff" opacity=".85"/>`}
         else{ww=26;o+=`<rect x="${x}" y="${by-24}" width="26" height="24" rx="5" fill="${c}"/><rect x="${x-1}" y="${by-29}" width="28" height="7" rx="3" fill="#fff"/><circle cx="${x+13}" cy="${by-11}" r="5" fill="#fff" opacity=".85"/>`}
         o+=`<rect x="${x+ww*.62}" y="${by-38}" width="${ww*.38}" height="38" fill="url(#scObj)"/>`;x+=ww+5;i++}
-      o+=`<rect x="${x0-2}" y="${by}" width="${w+4}" height="9" rx="2" fill="#E3A877"/><rect x="${x0-2}" y="${by}" width="${w+4}" height="3" rx="1.5" fill="#FFD3A8"/><rect x="${x0}" y="${by+9}" width="${w}" height="6" fill="#5A2E18" opacity=".35"/>`});
-    return o+`<rect x="${x0-8}" y="58" width="${w+16}" height="10" rx="5" fill="#C98552"/><rect x="${x0-8}" y="58" width="${w+16}" height="3" rx="1.5" fill="#F0B985"/>`};
+      o+=`<rect x="${x0-2}" y="${by}" width="${w+4}" height="9" rx="2" fill="${F4}"/><rect x="${x0-2}" y="${by}" width="${w+4}" height="3" rx="1.5" fill="#FFD3A8"/><rect x="${x0}" y="${by+9}" width="${w}" height="6" fill="#5A2E18" opacity=".35"/>`});
+    return o+`<rect x="${x0-8}" y="58" width="${w+16}" height="10" rx="5" fill="${F2}"/><rect x="${x0-8}" y="58" width="${w+16}" height="3" rx="1.5" fill="${F3}"/>`};
   const arch='M430 236V132Q430 62 560 62Q690 62 690 132V236Z';
   const houses=[[440,186,'#F28C5B'],[478,192,'#FF9DB8'],[512,184,'#F2B63E'],[600,190,'#F28C5B'],[640,185,'#9C7BE8'],[674,192,'#F28C5B']].map(([x,y,c])=>`<rect x="${x}" y="${y}" width="26" height="${236-y}" fill="#FFF7EC"/><path d="M${x-4} ${y+2}L${x+13} ${y-12}L${x+30} ${y+2}Z" fill="${c}"/><rect x="${x+8}" y="${y+10}" width="9" height="9" rx="2" fill="#8FC9F0"/>`).join('');
   const lamp=x=>`<path d="M${x} 40V78" stroke="#6B4A3A" stroke-width="2.5"/><circle cx="${x}" cy="96" r="34" fill="url(#scGlow)"/><path d="M${x-20} 96Q${x-18} 76 ${x} 76Q${x+18} 76 ${x+20} 96Z" fill="#FFB547"/><path d="M${x-20} 96Q${x-18} 76 ${x} 76" stroke="#FFE3A3" stroke-width="3" fill="none"/><ellipse cx="${x}" cy="97" rx="12" ry="4" fill="#FFF6C9"/>`;
@@ -1082,8 +1093,8 @@ function rzScene(noSign){
    ${curtain(410,1)}${curtain(710,-1)}
    <rect x="424" y="222" width="272" height="18" rx="5" fill="#B9703F"/><rect x="424" y="222" width="272" height="5" rx="2.5" fill="#E3A877"/>
    ${[440,466,494,522,600,628,656,682].map((x,i)=>`<circle cx="${x}" cy="${216-i%2*4}" r="9" fill="#6CC08F"/><circle cx="${x+(i%2?4:-3)}" cy="${212-i%2*4}" r="5.5" fill="${['#FF7FA3','#FFD84D','#FF9D5C','#B79CFF'][i%4]}"/>`).join('')}
-   ${lamp(366)}${lamp(754)}
-   ${noSign?'':`<g transform="translate(560 243)"><rect x="-72" y="-14" width="144" height="30" rx="10" fill="#fff" stroke="#6CC08F" stroke-width="3"/><circle cx="-52" cy="1" r="9" fill="#5CC27A"/><path d="M-52 -5v12M-58 1h12" stroke="#fff" stroke-width="3.4"/><text x="8" y="7" text-anchor="middle" font-family="Mali,sans-serif" font-weight="700" font-size="16" fill="#3E8E5E">ร้านยาทันใจ</text></g>`}
+   ${lamp(366)}${lamp(754)}${rzDecorSVG()}
+   ${noSign?'':`<g transform="translate(560 243)"><rect x="-72" y="-14" width="144" height="30" rx="10" fill="#fff" stroke="#6CC08F" stroke-width="3"/><circle cx="-52" cy="1" r="9" fill="#5CC27A"/><path d="M-52 -5v12M-58 1h12" stroke="#fff" stroke-width="3.4"/><text x="8" y="7" text-anchor="middle" font-family="Mali,sans-serif" font-weight="700" font-size="16" fill="#3E8E5E">ร้านยาทันใจ</text></g>${rzDecOn('marquee')?RZ_DECOR.find(d=>d.id==='marquee').svg():''}`}
   </svg>`;
 }
 /* ---------- outdoor scene behind the map: sky, hills, sea, grass, trees ---------- */
@@ -1421,6 +1432,8 @@ rzEl.addEventListener('click',e=>{
   if(r==='cx'){rzCodex(b.dataset.id);return}
   if(r==='cxclaim'){rzA('codex_read',{id:b.dataset.id});const id=b.dataset.id,e=rzCxList().find(x=>x.id===id);if(e&&!RD.cxr[id]){const v=rzCxRw(e);RD.cxr[id]=1;RD.wallet+=v;rzSave();RZS.coin();RZS.ok();rzCodex(id,v)}return}
   if(r==='stab'){rzShop(b.dataset.t);return}
+  if(r==='dbuy'){const d=RZ_DECOR.find(x=>x.id===b.dataset.id);if(!d||(RD.dec||{})[d.id])return;if(RD.wallet<d.c){RZS.nope();return}RD.wallet-=d.c;(RD.dec||(RD.dec={}))[d.id]=1;rzSave();RZS.coin();rzA('decor_buy',{id:d.id,cost:d.c});rzShop('decor');return}
+  if(r==='dtog'){const D=RD.dec||(RD.dec={});if(!D[b.dataset.id])return;D[b.dataset.id]=D[b.dataset.id]===1?2:1;rzSave();RZS.tap();rzShop('decor');return}
   if(r==='dbuy'){rzDBuy(b.dataset.id);return}
   if(r==='map'){if(RZ&&RZ.run&&!RZ.done)rzAnEnd('quit');rzMap();return}
   if(r==='shop'){rzShop();return}
@@ -1957,16 +1970,42 @@ function rzPoint(el,text,btn){
 }
 
 /* ---------- shop ---------- */
+/* ---------- decor shop: purely cosmetic, a coin sink for the late game. RD.dec[id] = 1 shown, 2 owned but hidden ---------- */
+const RZ_DPAL=['#FF8FAB','#FFD84D','#7FD8B6','#8FC9F0','#B79CFF','#FF9D5C'];
+const rzArchPts=n=>{const P=[];for(let i=0;i<n;i++){const t=i/(n-1);let x,y;if(t<.3){x=430;y=236-(t/.3)*104}else if(t>.7){x=690;y=132+((t-.7)/.3)*104}else{const u=(t-.3)/.4;x=(1-u)*(1-u)*430+2*u*(1-u)*560+u*u*690;y=(1-u)*(1-u)*132+2*u*(1-u)*(-8)+u*u*132}P.push([x,y])}return P};
+const RZ_DECOR=[
+ {id:'bunting',n:'ธงราวสีลูกกวาด',d:'ธงสามเหลี่ยมหลากสีขึงทั่วร้าน',c:500,box:[20,56,300,50],
+  svg:()=>`<g class="dc-bunting"><path d="M20 66H1100" stroke="#C98552" stroke-width="2"/>${Array.from({length:25},(_,i)=>{const x=28+i*44;return`<path d="M${x} 66h30l-15 24Z" fill="${RZ_DPAL[i%6]}"/>`}).join('')}</g>`},
+ {id:'plant',n:'ต้นไม้ใบใหญ่',d:'มอนสเตอร่าคู่ ข้างหน้าต่าง',c:700,box:[320,120,80,120],
+  svg:()=>[358,762].map(x=>`<g transform="translate(${x} 0)"><g fill="#4CAA50">${[[-18,170,-35],[0,150,0],[18,172,35],[-10,190,-60],[12,192,60]].map(([dx,y,r])=>`<ellipse cx="${dx}" cy="${y}" rx="13" ry="24" transform="rotate(${r} ${dx} ${y})"/>`).join('')}</g><path d="M-1 150V206M0 186L-14 196M0 180L14 192" stroke="#3E8E4E" stroke-width="3"/><path d="M-18 204H18L13 236H-13Z" fill="#E07A4F"/><rect x="-20" y="200" width="40" height="8" rx="3" fill="#F29A6B"/></g>`).join('')},
+ {id:'lights',n:'ไฟประดับรอบหน้าต่าง',d:'ไฟดวงเล็กกะพริบระยิบรอบซุ้ม',c:900,box:[420,52,280,190],
+  svg:()=>`<g class="dc-lights">${rzArchPts(26).map(([x,y],i)=>`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5.5" fill="${['#FFE066','#FF8FAB','#7FD8FF'][i%3]}" style="--d:${(i%5)*.25}s"/>`).join('')}</g>`},
+ {id:'balloons',n:'ลูกโป่งฉลองร้าน',d:'ลูกโป่งลอยฟ่องข้างชั้นยา',c:1200,box:[360,80,80,160],
+  svg:()=>`<g class="dc-balloons"><path d="M396 236Q392 200 384 150M396 236Q400 200 402 132M396 236Q404 205 420 156" stroke="#9A8590" stroke-width="1.4" fill="none"/>${[[384,136,'#FF8FAB'],[402,116,'#FFD84D'],[420,142,'#8FC9F0']].map(([x,y,c])=>`<ellipse cx="${x}" cy="${y}" rx="15" ry="18" fill="${c}"/><ellipse cx="${x-5}" cy="${y-7}" rx="4" ry="6" fill="#fff" opacity=".55"/><path d="M${x-3} ${y+18}h6l-3 4Z" fill="${c}"/>`).join('')}</g>`},
+ {id:'cat',n:'แมวส้มประจำร้าน',d:'นอนหลับปุ๋ยบนขอบหน้าต่าง หางแกว่งไปมา',c:1500,box:[520,170,90,60],
+  svg:()=>`<g class="dc-cat"><path class="dc-tail" d="M594 214Q612 206 606 190" stroke="#F0A04B" stroke-width="7" stroke-linecap="round" fill="none"/><ellipse cx="572" cy="212" rx="26" ry="12" fill="#F0A04B"/><path d="M556 206q6-4 12 0M572 205q6-4 12 0" stroke="#D9822F" stroke-width="2.4" fill="none" stroke-linecap="round"/><circle cx="546" cy="206" r="12" fill="#F4AE5C"/><path d="M536 199l3-10 7 6ZM551 196l6-8 3 10Z" fill="#F4AE5C"/><path d="M540 207q3 2 5 0M549 207q3 2 5 0" stroke="#5A3E4B" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="547" cy="211" r="1.4" fill="#FF8FAB"/><text x="532" y="188" font-family="Mali,sans-serif" font-size="11" font-weight="700" fill="#9A8590">z</text><text x="524" y="178" font-family="Mali,sans-serif" font-size="14" font-weight="700" fill="#9A8590">Z</text></g>`},
+ {id:'neon',n:'ป้ายไฟ OPEN',d:'ป้ายนีออนสีชมพูแขวนกลางหน้าต่าง',c:2000,box:[500,58,120,60],
+  svg:()=>`<g class="dc-neon"><path d="M520 62L530 82M600 62L590 82" stroke="#6B4A3A" stroke-width="1.6"/><rect x="508" y="80" width="104" height="32" rx="9" fill="#3A1F3A" stroke="#FF6FA8" stroke-width="2.4"/><text x="560" y="103" text-anchor="middle" font-family="Chakra Petch,sans-serif" font-weight="700" font-size="19" fill="#FFE3F0" stroke="#FF4F96" stroke-width=".8" letter-spacing="2">OPEN</text></g>`},
+ {id:'marquee',n:'ป้ายร้านไฟวิบวับ',d:'ป้าย “ร้านยาทันใจ” ขอบไฟเหมือนโรงละคร',c:3000,box:[480,222,160,40],
+  svg:()=>`<g class="dc-lights" transform="translate(560 243)"><rect x="-80" y="-20" width="160" height="42" rx="13" fill="none" stroke="#FFC93C" stroke-width="5"/>${Array.from({length:22},(_,i)=>{const t=i/22,per=2*(160+42),d=t*per;let x,y;if(d<160){x=-80+d;y=-20}else if(d<202){x=80;y=-20+(d-160)}else if(d<362){x=80-(d-202);y=22}else{x=-80;y=22-(d-362)}return`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.6" fill="#FFF3A8" style="--d:${(i%4)*.2}s"/>`}).join('')}</g>`},
+ {id:'gold',n:'ชั้นวางยาทองคำ',d:'เปลี่ยนชั้นวางยาเป็นสีทองอร่าม สำหรับเภสัชระดับตำนาน',c:4000,box:[16,52,320,200],svg:()=>''},
+];
+const rzDecOn=id=>(RD.dec||{})[id]===1;
+const rzDecorSVG=()=>RZ_DECOR.filter(d=>rzDecOn(d.id)&&d.id!=='marquee').map(d=>d.svg()).join('');
+function rzShopDecor(){const D=RD.dec||{};
+  return`<p class="rz-sub" style="margin:-2px 0 8px">ของตกแต่งไม่มีผลกับการเล่น แต่ทำให้ร้านของคุณไม่เหมือนใคร แตะซ่อนหรือแสดงได้ตลอด</p><div class="rz-ups">${RZ_DECOR.map(d=>{const own=!!D[d.id],on=D[d.id]===1,[bx,by,bw,bh]=d.box;
+    const pv=d.id==='gold'?`<svg viewBox="0 0 40 40"><rect x="4" y="6" width="32" height="30" rx="4" fill="#E9B949"/><rect x="8" y="10" width="24" height="22" rx="2" fill="#7A4428"/><rect x="7" y="19" width="26" height="3" fill="#F7D774"/><rect x="7" y="29" width="26" height="3" fill="#F7D774"/></svg>`:`<svg viewBox="${bx} ${by} ${bw} ${bh}" preserveAspectRatio="xMidYMid meet">${d.id==='marquee'?`<rect x="480" y="222" width="160" height="40" fill="#FFF7EC"/>`:''}${d.svg()}</svg>`;
+    return`<div class="rz-up dec ${own?'own':''}"><div class="rz-upi dec">${pv}</div><div class="rz-upt"><b>${d.n}</b><span>${d.d}</span></div>${own?`<button class="rz-b sm ${on?'':'ghost'}" data-r="dtog" data-id="${d.id}">${on?'ใช้อยู่ ✓':'แสดง'}</button>`:`<button class="rz-b sm ${RD.wallet<d.c?'dis':''}" data-r="dbuy" data-id="${d.id}"><i class="rz-coin"></i>${d.c}</button>`}</div>`}).join('')}</div>`}
 function rzShop(tab){
   const max=rzMaxL();RZS.tap();const su=RD.seenUp||(RD.seenUp={});if(tab==null)tab=RD.seen.dup===1?'gear':'gear';
   const o=rzQ('#rzOv')||rzEl;o.hidden=false;const dupOn=rzOpen('dup'),bstOn=max>=RZ_BST_L;
   o.innerHTML=`<div class="rz-card shop"><div class="rz-shoph"><h2>ร้านค้าอัปเกรด</h2>${tab==='bst'?`<span class="rz-pill gem">${RZ_GEM}<b>${RD.gem}</b></span>`:`<span class="rz-pill coin"><i class="rz-coin"></i><b>${RD.wallet}</b></span>`}</div>
-   ${dupOn||bstOn?`<div class="rz-tabs"><button class="${tab==='gear'?'on':''}" data-r="stab" data-t="gear">อุปกรณ์ร้าน</button>${dupOn?`<button class="${tab==='drug'?'on':''} ${RD.seen.dup===1?'dotb':''}" data-r="stab" data-t="drug">ลดต้นทุนยา</button>`:''}${bstOn?`<button class="${tab==='bst'?'on':''}" data-r="stab" data-t="bst">ตัวช่วย</button>`:''}</div>`:''}
-   ${tab==='bst'?`<p class="rz-sub" style="margin:-2px 0 8px">เพชรหาได้จากกล่องของขวัญบนแผนที่ ด่านบอสได้ 3 ดาว และโบนัสภารกิจสัปดาห์ · ใช้เงินซื้อไม่ได้</p><div class="rz-ups">${rzBstAll.map(b=>`<div class="rz-up"><div class="rz-upi">${b.ic}</div><div class="rz-upt"><b>${b.n} <small class="rz-own">มี ${RD.bst[b.id]||0}</small></b><span>${b.d}</span></div><button class="rz-b sm gemb ${RD.gem<b.g?'dis':''}" data-r="bbuy" data-id="${b.id}">${RZ_GEM}${b.g}</button></div>`).join('')}</div>`:tab==='drug'?rzShopDrugs():`<div class="rz-ups">${RZ_UP.map(u=>{const lv=RD.up[u.id]||0,maxed=lv>=u.v.length-1,lock=max<u.need,cost=maxed?0:u.c[lv+1];
+   ${dupOn||bstOn?`<div class="rz-tabs"><button class="${tab==='gear'?'on':''}" data-r="stab" data-t="gear">อุปกรณ์ร้าน</button>${dupOn?`<button class="${tab==='drug'?'on':''} ${RD.seen.dup===1?'dotb':''}" data-r="stab" data-t="drug">ลดต้นทุนยา</button>`:''}${bstOn?`<button class="${tab==='bst'?'on':''}" data-r="stab" data-t="bst">ตัวช่วย</button>`:''}${max>=12?`<button class="${tab==='decor'?'on':''} ${!RD.seen.decor?'dotb':''}" data-r="stab" data-t="decor">ตกแต่งร้าน</button>`:''}</div>`:''}
+   ${tab==='decor'?rzShopDecor():tab==='bst'?`<p class="rz-sub" style="margin:-2px 0 8px">เพชรหาได้จากกล่องของขวัญบนแผนที่ ด่านบอสได้ 3 ดาว และโบนัสภารกิจสัปดาห์ · ใช้เงินซื้อไม่ได้</p><div class="rz-ups">${rzBstAll.map(b=>`<div class="rz-up"><div class="rz-upi">${b.ic}</div><div class="rz-upt"><b>${b.n} <small class="rz-own">มี ${RD.bst[b.id]||0}</small></b><span>${b.d}</span></div><button class="rz-b sm gemb ${RD.gem<b.g?'dis':''}" data-r="bbuy" data-id="${b.id}">${RZ_GEM}${b.g}</button></div>`).join('')}</div>`:tab==='drug'?rzShopDrugs():`<div class="rz-ups">${RZ_UP.map(u=>{const lv=RD.up[u.id]||0,maxed=lv>=u.v.length-1,lock=max<u.need,cost=maxed?0:u.c[lv+1];
      return`<div class="rz-up ${lock?'lock':''}"><div class="rz-upi">${RZ_UPI[u.id]||''}</div><div class="rz-upt"><b>${u.n}${!lock&&!su[u.id]?'<small class="rz-newb">ใหม่</small>':''}</b><span>${lock?`ปลดล็อกด่าน ${u.need}`:u.d}</span><i>${u.v.slice(1).map((_,k)=>`<em class="${k<lv?'on':''}"></em>`).join('')}</i></div>
       ${lock?'':maxed?'<span class="rz-max">สูงสุด</span>':`<button class="rz-b sm ${RD.wallet<cost?'dis':''}" data-r="buy" data-id="${u.id}"><i class="rz-coin"></i>${cost}</button>`}</div>`}).join('')}</div>`}
    <div class="rz-row"><button class="rz-b" data-r="map">กลับแผนที่</button></div></div>`;
-  RZ_UP.forEach(u=>{if(max>=u.need)su[u.id]=1});rzSave();
+  RZ_UP.forEach(u=>{if(max>=u.need)su[u.id]=1});if(tab==='decor')RD.seen.decor=1;rzSave();
   const h=rzQ('#rzHint');if(h){h.hidden=true;h.innerHTML=''}
   if(RD.seen.shop===1)setTimeout(()=>rzPoint(rzEl.querySelector('[data-r="buy"][data-id="speed"]'),'ลองอัปเกรด “ไม้พายนับยาสปีด” ดูนะ ยาเม็ดจะนับเสร็จเร็วขึ้นทุกด่าน',''),350);
   if(RD.seen.dup===1&&RD.seen.shop>=3){if(tab!=='drug')setTimeout(()=>rzPoint(rzEl.querySelector('[data-r="stab"][data-t="drug"]'),'แท็บใหม่! แตะ “ลดต้นทุนยา”',''),300);else{const b=rzEl.querySelector('[data-r="dbuy"]:not(.dis)')||rzEl.querySelector('[data-r="dbuy"]');if(b)setTimeout(()=>rzPoint(b,'ลดต้นทุนยาที่ขายบ่อย ทุกครั้งที่ขายจะได้กำไรมากขึ้น',''),300)}}
