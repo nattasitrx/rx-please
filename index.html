@@ -553,6 +553,12 @@ html.land .rz-who{width:122px;height:144px}
 html.land .rz-bub.many{display:grid;grid-template-columns:repeat(var(--n,3),36px);justify-content:center;gap:3px}
 html.land .rz-bub.many .rz-oi{width:36px;height:36px}
 html.land .rz-bub.many .rz-pat{grid-column:1/-1}
+/* upgrade advice */
+.rz-rec{display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,#FFF7D6,#FFEBA8);border:2px solid #F5C451;border-radius:16px;padding:8px 10px;margin:8px 0;box-shadow:0 3px 0 #E0A93A;text-align:left}
+.rz-rec>div{flex:1;min-width:0}.rz-rec b{display:block;font-size:14px;color:#7A4A00}.rz-rec small{display:block;font-size:12px;color:#8A6A30;line-height:1.35}.rz-recic{font-size:22px}
+.rz-rec.sm{padding:6px 10px}.rz-rec.top{margin:0 0 8px}
+.rz-upt .rz-upfx{color:#2F9C76;font-weight:700;margin-top:1px}.rz-recb{font-style:normal;font-size:10px;background:#FFC93C;color:#7A4A00;border-radius:999px;padding:0 6px;margin-left:5px;vertical-align:2px}
+.rz-up.rec{box-shadow:0 0 0 2.5px #FFC93C,0 3px 0 #E0A93A!important}.rz-up.hl{animation:rzhl 1.2s ease-in-out 3}@keyframes rzhl{50%{background:#FFF3C4}}
 /* decor */
 .dc-lights circle{animation:dctw 1.2s ease-in-out infinite;animation-delay:var(--d,0s)}@keyframes dctw{0%,100%{opacity:.35}50%{opacity:1}}
 .dc-neon{filter:drop-shadow(0 0 4px #FF6FA8);animation:dcneon 2.4s steps(1) infinite}@keyframes dcneon{0%,86%,92%,100%{opacity:1}88%{opacity:.4}}
@@ -1438,6 +1444,7 @@ rzEl.addEventListener('click',e=>{
   if(r==='dbuy'){rzDBuy(b.dataset.id);return}
   if(r==='map'){if(RZ&&RZ.run&&!RZ.done)rzAnEnd('quit');rzMap();return}
   if(r==='shop'){rzShop();return}
+  if(r==='upgo'){rzA('upgrade_hint_click',{id:b.dataset.id});rzShop('gear',b.dataset.id);return}
   if(r==='buy'){rzA('shop_buy',{id:b.dataset.id});rzBuy(b.dataset.id);return}
   if(r==='page'){rzMap(+b.dataset.p);return}
   if(r==='music'){RD.music=RD.music?0:1;rzSave();RZS.music(!!RD.music);b.classList.toggle('off',!RD.music);return}
@@ -1997,16 +2004,38 @@ function rzShopDecor(){const D=RD.dec||{};
   return`<p class="rz-sub" style="margin:-2px 0 8px">ของตกแต่งไม่มีผลกับการเล่น แต่ทำให้ร้านของคุณไม่เหมือนใคร แตะซ่อนหรือแสดงได้ตลอด</p><div class="rz-ups">${RZ_DECOR.map(d=>{const own=!!D[d.id],on=D[d.id]===1,[bx,by,bw,bh]=d.box;
     const pv=d.id==='gold'?`<svg viewBox="0 0 40 40"><rect x="4" y="6" width="32" height="30" rx="4" fill="#E9B949"/><rect x="8" y="10" width="24" height="22" rx="2" fill="#7A4428"/><rect x="7" y="19" width="26" height="3" fill="#F7D774"/><rect x="7" y="29" width="26" height="3" fill="#F7D774"/></svg>`:`<svg viewBox="${bx} ${by} ${bw} ${bh}" preserveAspectRatio="xMidYMid meet">${d.id==='marquee'?`<rect x="480" y="222" width="160" height="40" fill="#FFF7EC"/>`:''}${d.svg()}</svg>`;
     return`<div class="rz-up dec ${own?'own':''}"><div class="rz-upi dec">${pv}</div><div class="rz-upt"><b>${d.n}</b><span>${d.d}</span></div>${own?`<button class="rz-b sm ${on?'':'ghost'}" data-r="dtog" data-id="${d.id}">${on?'ใช้อยู่ ✓':'แสดง'}</button>`:`<button class="rz-b sm ${RD.wallet<d.c?'dis':''}" data-r="dbuy" data-id="${d.id}"><i class="rz-coin"></i>${d.c}</button>`}</div>`}).join('')}</div>`}
-function rzShop(tab){
-  const max=rzMaxL();RZS.tap();const su=RD.seenUp||(RD.seenUp={});if(tab==null)tab=RD.seen.dup===1?'gear':'gear';
+/* ---------- upgrade advice: what each level does (before → after) and which one to buy next ---------- */
+function rzUpFx(id,lv){const u=RZ_UP.find(x=>x.id===id),A=u.v[Math.min(lv,u.v.length-1)],B=u.v[lv+1];
+  const f=(lab,g,unit,pre='')=>B==null?`${lab} ${pre}${g(A)}${unit} (สูงสุด)`:`${lab} ${pre}${g(A)} → ${pre}${g(B)}${unit}`,r1=x=>Math.round(x*10)/10;
+  return id==='tray'?f('ถาดนับยา',x=>x,' ถาด'):id==='speed'?f('นับยา',x=>r1(RZT.count*x),' วิ'):id==='mixer'?f('โต๊ะผสมยา',x=>x,' โต๊ะ')
+   :id==='sofa'?f('ลูกค้ารอได้นานขึ้น',x=>Math.round((x-1)*100),'%','+'):id==='bell'?f('คอมโบค้างได้',x=>x,' วิ'):id==='tip'?f('ทิป',x=>x,'','×')
+   :id==='ice'?f('ยาเย็นอยู่ได้',x=>r1(RZT.cold*x),' วิ'):id==='pack'?f('กล่องแพ็กยาเย็น',x=>x,' กล่อง'):id==='mortar'?f('บดยา',x=>x,' ครั้ง'):''}
+let RZ_LR=null;/* what went wrong in the last level, for advice */
+function rzRecUp(){const max=rzMaxL(),L=RZ_LR,sc={},why={};
+  const ok=RZ_UP.filter(u=>max>=u.need&&(RD.up[u.id]||0)<u.v.length-1);if(!ok.length)return null;
+  const base={speed:5,tray:4,sofa:4,mixer:3,ice:3,bell:2,pack:2,mortar:2,tip:1};ok.forEach(u=>{sc[u.id]=base[u.id]||1;why[u.id]=''});
+  const add=(id,v,w)=>{if(sc[id]!=null){sc[id]+=v;if(v>=4&&!why[id])why[id]=w}};
+  if(L){const W=L.walk||{};let tab=0,liq=0,cold=0,cr=0;for(const id in W){const it=RI[id];if(!it)continue;if(id.includes('~'))cr+=W[id];else if(it.z==='tab')tab+=W[id];else if(it.z==='liq'&&!it.inst)liq+=W[id];else if(it.z==='cold')cold+=W[id]}
+    add('speed',tab*4,'ลูกค้ารอยาเม็ดจนกลับไป');add('tray',tab*3,'ลูกค้ารอยาเม็ดจนกลับไป');add('mortar',cr*5,'บดยาไม่ทัน ลูกค้ารอจนกลับไป');
+    add('mixer',liq*5,'ผสมยาน้ำไม่ทัน');add('pack',cold*4,'แพ็กยาเย็นไม่ทัน');add('ice',(L.spoil||0)*6+cold*2,'ยาเย็นเสื่อมระหว่างรอส่ง');
+    add('sofa',(L.missed||0)*2+(L.qw||0)*2,'ลูกค้ารอไม่ไหวบ่อย');if(!L.pass&&L.goal==='combo')add('bell',6,'คอมโบขาดก่อนถึงเป้า');if(!L.pass&&L.goal==='coins')add('tip',5,'เงินไม่ถึงเป้า ทิปช่วยได้')}
+  const cost=id=>{const u=RZ_UP.find(x=>x.id===id);return u.c[(RD.up[id]||0)+1]};
+  const best=Object.keys(sc).sort((a,b)=>sc[b]-sc[a]||cost(a)-cost(b))[0];
+  return{id:best,u:RZ_UP.find(x=>x.id===best),cost:cost(best),why:why[best]||'ช่วยให้ร้านทำงานไวขึ้นทุกด่าน'}}
+function rzRecBox(pass){if(!rzOpen('shop'))return'';const r=rzRecUp();if(!r)return'';const can=RD.wallet>=r.cost;if(pass&&!can)return'';
+  return`<div class="rz-rec ${pass?'sm':''}"><span class="rz-recic">💡</span><div><b>${pass?`มีเงินพออัปเกรด “${r.u.n}” แล้ว`:`ลองอัปเกรด “${r.u.n}”`}</b><small>${pass?'':r.why+' · '}${rzUpFx(r.id,RD.up[r.id]||0)}</small></div><button class="rz-b sm ${can?'':'ghost'}" data-r="upgo" data-id="${r.id}">${can?'ไปอัปเกรด':`<i class="rz-coin"></i>${r.cost}`}</button></div>`}
+function rzShop(tab,hl){
+  const max=rzMaxL(),rec=rzRecUp();RZS.tap();const su=RD.seenUp||(RD.seenUp={});if(tab==null)tab=RD.seen.dup===1?'gear':'gear';
   const o=rzQ('#rzOv')||rzEl;o.hidden=false;const dupOn=rzOpen('dup'),bstOn=max>=RZ_BST_L;
   o.innerHTML=`<div class="rz-card shop"><div class="rz-shoph"><h2>ร้านค้าอัปเกรด</h2>${tab==='bst'?`<span class="rz-pill gem">${RZ_GEM}<b>${RD.gem}</b></span>`:`<span class="rz-pill coin"><i class="rz-coin"></i><b>${RD.wallet}</b></span>`}</div>
    ${dupOn||bstOn?`<div class="rz-tabs"><button class="${tab==='gear'?'on':''}" data-r="stab" data-t="gear">อุปกรณ์ร้าน</button>${dupOn?`<button class="${tab==='drug'?'on':''} ${RD.seen.dup===1?'dotb':''}" data-r="stab" data-t="drug">ลดต้นทุนยา</button>`:''}${bstOn?`<button class="${tab==='bst'?'on':''}" data-r="stab" data-t="bst">ตัวช่วย</button>`:''}${max>=12?`<button class="${tab==='decor'?'on':''} ${!RD.seen.decor?'dotb':''}" data-r="stab" data-t="decor">ตกแต่งร้าน</button>`:''}</div>`:''}
+   ${tab==='gear'&&rec?`<div class="rz-rec top"><span class="rz-recic">⭐</span><div><b>แนะนำให้ซื้อ “${rec.u.n}” ก่อน</b><small>${rec.why}</small></div></div>`:''}
    ${tab==='decor'?rzShopDecor():tab==='bst'?`<p class="rz-sub" style="margin:-2px 0 8px">เพชรหาได้จากกล่องของขวัญบนแผนที่ ด่านบอสได้ 3 ดาว และโบนัสภารกิจสัปดาห์ · ใช้เงินซื้อไม่ได้</p><div class="rz-ups">${rzBstAll.map(b=>`<div class="rz-up"><div class="rz-upi">${b.ic}</div><div class="rz-upt"><b>${b.n} <small class="rz-own">มี ${RD.bst[b.id]||0}</small></b><span>${b.d}</span></div><button class="rz-b sm gemb ${RD.gem<b.g?'dis':''}" data-r="bbuy" data-id="${b.id}">${RZ_GEM}${b.g}</button></div>`).join('')}</div>`:tab==='drug'?rzShopDrugs():`<div class="rz-ups">${RZ_UP.map(u=>{const lv=RD.up[u.id]||0,maxed=lv>=u.v.length-1,lock=max<u.need,cost=maxed?0:u.c[lv+1];
-     return`<div class="rz-up ${lock?'lock':''}"><div class="rz-upi">${RZ_UPI[u.id]||''}</div><div class="rz-upt"><b>${u.n}${!lock&&!su[u.id]?'<small class="rz-newb">ใหม่</small>':''}</b><span>${lock?`ปลดล็อกด่าน ${u.need}`:u.d}</span><i>${u.v.slice(1).map((_,k)=>`<em class="${k<lv?'on':''}"></em>`).join('')}</i></div>
+     return`<div class="rz-up ${lock?'lock':''} ${rec&&rec.id===u.id?'rec':''} ${hl===u.id?'hl':''}" data-up="${u.id}"><div class="rz-upi">${RZ_UPI[u.id]||''}</div><div class="rz-upt"><b>${u.n}${rec&&rec.id===u.id?'<small class="rz-recb">⭐ แนะนำ</small>':''}${!lock&&!su[u.id]?'<small class="rz-newb">ใหม่</small>':''}</b><span>${lock?`ปลดล็อกด่าน ${u.need}`:u.d}</span>${lock?'':`<span class="rz-upfx">${rzUpFx(u.id,lv)}</span>`}<i>${u.v.slice(1).map((_,k)=>`<em class="${k<lv?'on':''}"></em>`).join('')}</i></div>
       ${lock?'':maxed?'<span class="rz-max">สูงสุด</span>':`<button class="rz-b sm ${RD.wallet<cost?'dis':''}" data-r="buy" data-id="${u.id}"><i class="rz-coin"></i>${cost}</button>`}</div>`}).join('')}</div>`}
    <div class="rz-row"><button class="rz-b" data-r="map">กลับแผนที่</button></div></div>`;
   RZ_UP.forEach(u=>{if(max>=u.need)su[u.id]=1});if(tab==='decor')RD.seen.decor=1;rzSave();
+  if(hl){const row=rzEl.querySelector(`.rz-up[data-up="${hl}"]`);if(row)setTimeout(()=>row.scrollIntoView({block:'center',behavior:'smooth'}),120)}
   const h=rzQ('#rzHint');if(h){h.hidden=true;h.innerHTML=''}
   if(RD.seen.shop===1)setTimeout(()=>rzPoint(rzEl.querySelector('[data-r="buy"][data-id="speed"]'),'ลองอัปเกรด “ไม้พายนับยาสปีด” ดูนะ ยาเม็ดจะนับเสร็จเร็วขึ้นทุกด่าน',''),350);
   if(RD.seen.dup===1&&RD.seen.shop>=3){if(tab!=='drug')setTimeout(()=>rzPoint(rzEl.querySelector('[data-r="stab"][data-t="drug"]'),'แท็บใหม่! แตะ “ลดต้นทุนยา”',''),300);else{const b=rzEl.querySelector('[data-r="dbuy"]:not(.dis)')||rzEl.querySelector('[data-r="dbuy"]');if(b)setTimeout(()=>rzPoint(b,'ลดต้นทุนยาที่ขายบ่อย ทุกครั้งที่ขายจะได้กำไรมากขึ้น',''),300)}}
@@ -2119,6 +2148,7 @@ function rzIntro(L){
    <div class="rz-row"><button class="rz-b ghost" data-r="map">แผนที่</button><button class="rz-b big" data-r="go" data-l="${L}">เริ่มเลย!</button></div></div></div>`;
 }
 function rzEnd(pass,why){
+  {const a=rzAnLv();RZ_LR={L:RZ.L,pass,goal:RZ.V.goal.t,walk:{...a.walk},spoil:a.spoil,qw:a.qw,missed:RZ.missed}}
   RZ.run=false;rzEl.classList.remove('fever');RZS.m.fast=0;const V=RZ.V,L=RZ.L;
   const stars=pass?(RZ.T<=V.par[0]?3:RZ.T<=V.par[1]?2:1):0;let gemGot=0;if(stars===3&&L%10===0&&!RD.bossG[L]){RD.bossG[L]=1;RD.gem+=5;gemGot=5}
   rzAnEnd(pass?'pass':'fail',stars,pass?null:why);
@@ -2130,7 +2160,7 @@ function rzEnd(pass,why){
    <div class="rz-bigstars">${czStars(stars)}</div>${gemGot?`<div class="rz-gemgot">${RZ_GEM} +${gemGot} เพชร · รางวัล 3 ดาวด่านบอส</div>`:''}
    ${pass?`<p class="rz-sub" style="text-align:center">ใช้เวลา ${rzFmt(RZ.T)} · ${stars<3?`3 ดาวต้องเสร็จภายใน ${rzFmt(V.par[0])}`:'เร็วสุด ๆ!'}</p>`:`<div class="rz-goalbox bad"><b>${why||'เป้าหมาย'}</b>${RZ_GOALTXT(V)}</div>`}
    <div class="rz-res"><div><b><i class="rz-coin"></i>${RZ.coins}</b><span>เข้ากระเป๋าแล้ว</span></div><div><b>${RZ.served}</b><span>ลูกค้าได้ยา${RZ.missed?` · พลาด ${RZ.missed}`:''}</span></div><div><b>×${RZ.best}</b><span>คอมโบสูงสุด${RZ.fevers?` · ไฟลุก ${RZ.fevers} ครั้ง`:''}</span></div></div>
-   <div class="rz-tip"><b>รู้ไหม</b>${RZ_FACT[fx]||''}</div>
+   ${rzRecBox(pass)||`<div class="rz-tip"><b>รู้ไหม</b>${RZ_FACT[fx]||''}</div>`}
    <div class="rz-row"><button class="rz-b ghost" data-r="map">แผนที่</button><button class="rz-b ${pass?'ghost':'big'}" data-r="go" data-l="${L}">เล่นอีกครั้ง</button>${pass?(rzPending()&&rzMaxL()>wasMax?`<button class="rz-b big" data-r="map">ปลดล็อก${rzPending().n}! ไปดูกัน</button>`:(L>=RZ_LAST?`<button class="rz-b big" data-r="soon">🚧 ติดตามเวอร์ชันใหม่</button>`:rzGated(L+1)?`<button class="rz-b big" data-r="map">ดาวยังไม่พอเปิดบทใหม่ (${rzTotStars()}/${rzGateNeed(L+1)} ★)</button>`:`<button class="rz-b big" data-r="lv" data-l="${L+1}">ด่านต่อไป</button>`)):''}</div></div>`;
 }
 
