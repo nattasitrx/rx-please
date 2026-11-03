@@ -1439,8 +1439,8 @@ rzEl.addEventListener('click',e=>{
   if(r==='cx'){rzCodex(b.dataset.id);return}
   if(r==='cxclaim'){rzA('codex_read',{id:b.dataset.id});const id=b.dataset.id,e=rzCxList().find(x=>x.id===id);if(e&&!RD.cxr[id]){const v=rzCxRw(e);RD.cxr[id]=1;RD.wallet+=v;rzSave();RZS.coin();RZS.ok();rzCodex(id,v)}return}
   if(r==='stab'){rzShop(b.dataset.t);return}
-  if(r==='dbuy'){const d=RZ_DECOR.find(x=>x.id===b.dataset.id);if(!d||(RD.dec||{})[d.id])return;if(RD.wallet<d.c){RZS.nope();return}RD.wallet-=d.c;(RD.dec||(RD.dec={}))[d.id]=1;rzSave();RZS.coin();rzA('decor_buy',{id:d.id,cost:d.c});rzShop('decor');return}
-  if(r==='dtog'){const D=RD.dec||(RD.dec={});if(!D[b.dataset.id])return;D[b.dataset.id]=D[b.dataset.id]===1?2:1;rzSave();RZS.tap();rzShop('decor');return}
+  if(r==='decbuy'){const d=RZ_DECOR.find(x=>x.id===b.dataset.id);if(!d||(RD.dec||{})[d.id])return;if(RD.wallet<d.c){RZS.nope();return}RD.wallet-=d.c;(RD.dec||(RD.dec={}))[d.id]=1;rzSave();RZS.coin();rzA('decor_buy',{id:d.id,cost:d.c});rzShop('decor');return}
+  if(r==='dectog'){const D=RD.dec||(RD.dec={});if(!D[b.dataset.id])return;D[b.dataset.id]=D[b.dataset.id]===1?2:1;rzSave();RZS.tap();rzShop('decor');return}
   if(r==='dbuy'){rzDBuy(b.dataset.id);return}
   if(r==='map'){if(RZ&&RZ.run&&!RZ.done)rzAnEnd('quit');rzMap();return}
   if(r==='shop'){rzShop();return}
@@ -2003,7 +2003,7 @@ const rzDecorSVG=()=>RZ_DECOR.filter(d=>rzDecOn(d.id)&&d.id!=='marquee').map(d=>
 function rzShopDecor(){const D=RD.dec||{};
   return`<p class="rz-sub" style="margin:-2px 0 8px">ของตกแต่งไม่มีผลกับการเล่น แต่ทำให้ร้านของคุณไม่เหมือนใคร แตะซ่อนหรือแสดงได้ตลอด</p><div class="rz-ups">${RZ_DECOR.map(d=>{const own=!!D[d.id],on=D[d.id]===1,[bx,by,bw,bh]=d.box;
     const pv=d.id==='gold'?`<svg viewBox="0 0 40 40"><rect x="4" y="6" width="32" height="30" rx="4" fill="#E9B949"/><rect x="8" y="10" width="24" height="22" rx="2" fill="#7A4428"/><rect x="7" y="19" width="26" height="3" fill="#F7D774"/><rect x="7" y="29" width="26" height="3" fill="#F7D774"/></svg>`:`<svg viewBox="${bx} ${by} ${bw} ${bh}" preserveAspectRatio="xMidYMid meet">${d.id==='marquee'?`<rect x="480" y="222" width="160" height="40" fill="#FFF7EC"/>`:''}${d.svg()}</svg>`;
-    return`<div class="rz-up dec ${own?'own':''}"><div class="rz-upi dec">${pv}</div><div class="rz-upt"><b>${d.n}</b><span>${d.d}</span></div>${own?`<button class="rz-b sm ${on?'':'ghost'}" data-r="dtog" data-id="${d.id}">${on?'ใช้อยู่ ✓':'แสดง'}</button>`:`<button class="rz-b sm ${RD.wallet<d.c?'dis':''}" data-r="dbuy" data-id="${d.id}"><i class="rz-coin"></i>${d.c}</button>`}</div>`}).join('')}</div>`}
+    return`<div class="rz-up dec ${own?'own':''}"><div class="rz-upi dec">${pv}</div><div class="rz-upt"><b>${d.n}</b><span>${d.d}</span></div>${own?`<button class="rz-b sm ${on?'':'ghost'}" data-r="dectog" data-id="${d.id}">${on?'ใช้อยู่ ✓':'แสดง'}</button>`:`<button class="rz-b sm ${RD.wallet<d.c?'dis':''}" data-r="decbuy" data-id="${d.id}"><i class="rz-coin"></i>${d.c}</button>`}</div>`}).join('')}</div>`}
 /* ---------- upgrade advice: what each level does (before → after) and which one to buy next ---------- */
 function rzUpFx(id,lv){const u=RZ_UP.find(x=>x.id===id),A=u.v[Math.min(lv,u.v.length-1)],B=u.v[lv+1];
   const f=(lab,g,unit,pre='')=>B==null?`${lab} ${pre}${g(A)}${unit} (สูงสุด)`:`${lab} ${pre}${g(A)} → ${pre}${g(B)}${unit}`,r1=x=>Math.round(x*10)/10;
