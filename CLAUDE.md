@@ -34,6 +34,6 @@ Levels 1–30 exist in this version (`RZ_LAST=30`). After level 30 a "coming soo
 - A simple bot can play levels by reading `window.__rz()` and clicking `[data-r="src"]`, `[data-r="slot"]` buttons.
 
 ## Open items / ideas
-- Waiting for the owner's Google Form link → set `RZ_FORM`.
+- Feedback form "📋 ใบสั่งยาจากผู้เล่น" is live (owner's Google account; created by Apps Script) and linked in `RZ_FORM`.
 - Analytics: PostHog considered (needs the project `phc_` key); Google Sheets via Apps Script was the alternative.
 - Later: app store version (Capacitor, in-app purchases via RevenueCat, login + cloud save, bundle fonts), CrazyGames / Poki with an English option, new chapters after level 30 (e.g. Valentine's night pharmacy: contraception; flu-season pharmacy: test kits, masks).
