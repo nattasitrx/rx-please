@@ -536,6 +536,12 @@ html.port .rz-map{padding:10px}html.port .rz-maph{flex-wrap:wrap}html.port .rz-l
 html.port .rz-node b{width:48px;height:48px;font-size:20px}html.port .rz-node.boss b{width:56px;height:56px}
 html.port .rz-ups{grid-template-columns:1fr}
 html.port .rz-res{grid-template-columns:repeat(3,minmax(0,1fr))}
+/* landscape: seat is 236px tall; keep bubble + customer inside it so the top bar never hides an order.
+   3–4 item orders stay on ONE row of slightly smaller icons instead of wrapping to two rows. */
+html.land .rz-who{width:122px;height:144px}
+html.land .rz-bub.many{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,42px));justify-content:center;gap:3px}
+html.land .rz-bub.many .rz-oi{width:100%;height:auto;aspect-ratio:1}
+html.land .rz-bub.many .rz-pat{grid-column:1/-1}
 html.port .rz-top{align-self:start;padding-bottom:7px}html.port .rz-scene{height:306px}html.port .rz-floor{top:306px}html.port .rz-counter{top:278px}html.port .rz-top .rz-prog{height:22px}
 /* portrait fit: the 2-line top bar is ~77px, so reserve all of it and keep order bubbles below it (hall still ends at 302px) */
 .rz{grid-template-columns:minmax(0,1fr)}
@@ -1076,7 +1082,7 @@ function rzSeat(j){
   if(!c){el.innerHTML='';el.className='rz-seat';return}
   el.className='rz-seat'+(c.vip?' vip':'');
   if(c.walk>0||c.leave){el.innerHTML=`<div class="rz-who ${c.walk>0?'walking':'leave '+c.leave}" style="--dx:${c.leave?Math.round(rzEl.offsetWidth-rzXY(el).x+20):c.dx}px;--wd:${c.wd}s">${c.vip?RZ_CROWN:''}${czPerson(c.look,c.leave==='happy'?'happy':c.walk>0?'calm':c.mood)}</div>`;return}
-  el.innerHTML=`<div class="rz-bub ${c.order.length>2?'many':''}" data-r="cust" data-i="${j}">${c.order.map((o,k)=>`<span class="rz-oi ${o.done?'ok':''} ${o.trap&&!o.res?'trap':''}">${o.trap&&!o.res?rzArt('asa','bag'):rzOrderArt(o.res==='ok'?'asa':o.id)}${o.trap&&!o.res?'<i class="q">?</i><i class="badge">บด</i>':''}${RI[o.id].crush?'<i class="badge">บด</i>':''}</span>`).join('')}<div class="rz-pat"><i style="width:${Math.max(0,c.pat/c.pm*100)}%"></i></div></div>
+  el.innerHTML=`<div class="rz-bub ${c.order.length>2?'many':''}" style="--n:${c.order.length}" data-r="cust" data-i="${j}">${c.order.map((o,k)=>`<span class="rz-oi ${o.done?'ok':''} ${o.trap&&!o.res?'trap':''}">${o.trap&&!o.res?rzArt('asa','bag'):rzOrderArt(o.res==='ok'?'asa':o.id)}${o.trap&&!o.res?'<i class="q">?</i><i class="badge">บด</i>':''}${RI[o.id].crush?'<i class="badge">บด</i>':''}</span>`).join('')}<div class="rz-pat"><i style="width:${Math.max(0,c.pat/c.pm*100)}%"></i></div></div>
    <div class="rz-who ${c.arrive?'arrive':''}" data-r="cust" data-i="${j}">${c.vip?RZ_CROWN:''}${czPerson(c.look,c.leave==='happy'?'happy':c.mood)}</div>`;
   c.arrive=0;
 }
