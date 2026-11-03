@@ -564,7 +564,7 @@ html.port .rz-qn{left:auto;right:0;top:5px;font-size:11px;padding:1px 8px}
    Only once (the flag stays in the URL), so there is no loop if an old LINE ignores it; the flag is removed again outside LINE. */
 (()=>{try{const u=new URL(location.href),inLine=/\bLine\//i.test(navigator.userAgent),has=u.searchParams.has('openExternalBrowser');
   if(inLine&&!has){u.searchParams.set('openExternalBrowser','1');location.replace(u.href);return}
-  if(!inLine&&has){u.searchParams.delete('openExternalBrowser');history.replaceState(null,'',u.pathname+u.search+u.hash)}}catch(e){}})();
+  if(!inLine&&has){window.RZ_FROM_LINE=1;u.searchParams.delete('openExternalBrowser');history.replaceState(null,'',u.pathname+u.search+u.hash)}}catch(e){}})();
 </script>
 <script>
 (()=>{
@@ -780,13 +780,35 @@ const RZ_KEY='rxplease-rush-v1';
 function rzLoad(){try{const d=JSON.parse(localStorage.getItem(RZ_KEY)||'null');if(d&&d.v===1)return d}catch(e){}return{v:1,stars:[],best:[],wallet:0,up:{},seen:{},music:1}}
 let RD=rzLoad();
 const rzSave=()=>{try{localStorage.setItem(RZ_KEY,JSON.stringify(RD))}catch(e){}try{rzSyncPills()}catch(e){}};
+/* ---------- analytics (PostHog) ----------
+   Off while RZ_PH_KEY is empty. Anonymous: PostHog keeps a random id per device in localStorage, no cookies, no names,
+   no autocapture, no session recording. Players can switch it off in settings (RD.an=0). Events: see rzA(...) calls. */
+const RZ_VER='2026-11-03';
+const RZ_PH_KEY='';/* PostHog project API key (phc_…, public by design) */
+const RZ_PH_HOST='https://us.i.posthog.com';/* EU project: https://eu.i.posthog.com */
+let rzPH=false;
+function rzAnInit(){if(!RZ_PH_KEY||RD.an===0||rzPH)return;rzPH=true;try{
+  !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+  const E=rzEnv();
+  posthog.init(RZ_PH_KEY,{api_host:RZ_PH_HOST,persistence:'localStorage',person_profiles:'identified_only',autocapture:false,capture_pageview:true,capture_pageleave:true,
+    disable_session_recording:true,disable_surveys:true,advanced_disable_flags:true,enable_heatmaps:false,capture_exceptions:false,capture_dead_clicks:false});
+  posthog.register({game_v:RZ_VER,display:rzStandalone()?'home_screen_app':'browser',inapp:E.inapp||'none',from_line_redirect:!!window.RZ_FROM_LINE});
+}catch(e){}}
+function rzA(ev,p,beacon){if(!rzPH||RD.an===0)return;try{const st=(RD.stars||[]);
+  posthog.capture(ev,Object.assign({hi_level:RD.hiStart||0,levels_cleared:st.filter(x=>x).length,stars_total:st.reduce((a,b)=>a+(+b||0),0),orient:root.classList.contains('port')?'portrait':'landscape'},p||{}),beacon?{transport:'sendBeacon'}:undefined)}catch(e){}}
+function rzAnLv(){const a=RZ.an||(RZ.an={walk:{},qw:0,spoil:0,trash:0,tok:0,tbad:0});return a}
+function rzAnStart(){if(!RZ)return;rzA('level_start',{level:RZ.L,chapter:RZ.V.ch+1,goal:RZ.V.goal.t,customers:RZ.V.n,boosters:[...RZ.bst],trial:RZ.trial||null,stars_before:RD.stars[RZ.L-1]||0})}
+function rzAnEnd(res,stars,why,beacon){if(!RZ||RZ.anSent)return;RZ.anSent=1;const a=rzAnLv();
+  rzA('level_end',{level:RZ.L,chapter:RZ.V.ch+1,result:res,stars:stars||0,time_s:Math.round(RZ.T),served:RZ.served,missed:RZ.missed,customers:RZ.V.n,coins:RZ.coins,best_combo:RZ.best,
+    goal:RZ.V.goal.t,fail_reason:why||null,boosters:[...RZ.bst],walkout_items:a.walk,queue_walkouts:a.qw,spoiled:a.spoil,trashed:a.trash,trap_ok:a.tok,trap_crushed:a.tbad},beacon)}
+addEventListener('pagehide',()=>{if(RZ&&RZ.run&&!RZ.done)rzAnEnd('closed',0,null,true)});
 /* keep the wallet / gem numbers in the map header in step while a panel is open on top of it */
 function rzSyncPills(){rzEl.querySelectorAll('.rz-maph .rz-pill.coin b').forEach(b=>{if(b.textContent!=String(RD.wallet)){b.textContent=RD.wallet;const p=b.parentNode;p.classList.remove('bump');void p.offsetWidth;p.classList.add('bump')}});
   rzEl.querySelectorAll('.rz-maph .rz-pill.gem b').forEach(b=>b.textContent=RD.gem)}
 const rzMaxL=()=>{let i=0;while(RD.stars[i]>0)i++;return i+1};
 const RZ_LAST=30;/* last level in this version */
 const rzAllDone=()=>rzMaxL()>RZ_LAST;
-function rzSoon(){const o=rzQ('#rzOv');if(!o)return;o.hidden=false;RZS.tap();const tot=RD.stars.slice(0,RZ_LAST).reduce((a,b)=>a+(b||0),0),miss=RD.stars.slice(0,RZ_LAST).map((v,i)=>v<3?i+1:0).filter(Boolean);
+function rzSoon(){rzA('reached_end_of_content');const o=rzQ('#rzOv');if(!o)return;o.hidden=false;RZS.tap();const tot=RD.stars.slice(0,RZ_LAST).reduce((a,b)=>a+(b||0),0),miss=RD.stars.slice(0,RZ_LAST).map((v,i)=>v<3?i+1:0).filter(Boolean);
   o.innerHTML=`<div class="rz-card sm soon"><div class="rz-soonart">${rzHouse()}<i>🚧</i></div><div class="rz-kick">จบเนื้อหาเวอร์ชันนี้แล้ว</div><h2>บทต่อไปกำลังพัฒนา</h2>
    <p class="rz-sub">ขอบคุณที่เล่นมาถึงด่าน ${RZ_LAST} ร้านยาสาขาใหม่และยาชนิดใหม่กำลังจะมา ติดตามเวอร์ชันใหม่เร็ว ๆ นี้</p>
    <div class="rz-goalbox"><b>ระหว่างรอ</b>ดาวรวม ${tot}/${RZ_LAST*3} ★${miss.length?` · ยังไม่ได้ 3 ดาวอีก ${miss.length} ด่าน`:' · ได้ 3 ดาวครบทุกด่านแล้ว สุดยอด!'}</div>
@@ -1037,7 +1059,7 @@ function rzQueue(){const box=rzQ('#rzQueue');if(!box)return;
 function rzQueueTick(dt){
   if(!RZ.queue.length)return;let ch=false;const box=rzQ('#rzQueue');
   RZ.queue.forEach((c,i)=>{if(!RZ.fever)c.pat-=dt*(rzG('ac')?.33:.5)*(RZ.bst.has('calm')?.5:1)*(RZ.bst.has('ptph')?.7:1);const m=rzMood(c);if(m!==c.mood){c.mood=m;ch=true}const b=box&&box.children[i]&&box.children[i].querySelector('b');if(b){const f=c.pat/c.pm;b.style.width=Math.max(0,f*100)+'%';b.style.background=f>.6?'#7FD8B6':f>.3?'#FFCF5C':'#FF7F9E'}});
-  const gone=RZ.queue.filter(c=>c.pat<=0);if(gone.length){RZ.queue=RZ.queue.filter(c=>c.pat>0);gone.forEach(()=>{RZ.missed++;rzComboBreak(true)});rzFloat(box,'รอคิวไม่ไหวแล้ว!','bad');RZS.sad();ch=true;rzHUD();if(RZ.V.goal.t==='nolose')rzFail('มีลูกค้ารอคิวจนกลับไป')}
+  const gone=RZ.queue.filter(c=>c.pat<=0);if(gone.length){RZ.queue=RZ.queue.filter(c=>c.pat>0);gone.forEach(()=>{RZ.missed++;rzAnLv().qw++;rzComboBreak(true)});rzFloat(box,'รอคิวไม่ไหวแล้ว!','bad');RZS.sad();ch=true;rzHUD();if(RZ.V.goal.t==='nolose')rzFail('มีลูกค้ารอคิวจนกลับไป')}
   /* a seat is free: the first person in line walks over */
   const j=RZ.seats.findIndex(s=>!s);
   if(j>=0&&RZ.queue.length){const c=RZ.queue.shift(),qe=box&&box.firstElementChild,se=rzQ('#rzS'+j);
@@ -1261,7 +1283,7 @@ function rzLoop(now){
       RZ.seats.forEach((c,j)=>{if(!c||c.leave||c.walk>0)return;
         if(!RZ.fever)c.pat-=dt*(c.vip?1.1:1)*(RZ.bst.has('calm')?.5:1);const m=rzMood(c);if(m!==c.mood){c.mood=m;rzSeat(j);if(m==='angry')RZS.nope()}
         const bar=rzQ(`#rzS${j} .rz-pat i`);if(bar){const f=c.pat/c.pm;bar.style.width=Math.max(0,f*100)+'%';bar.style.background=f>.6?'#7FD8B6':f>.3?'#FFCF5C':'#FF7F9E'}
-        if(c.pat<=0){RZ.missed++;rzComboBreak(true);rzFloat(rzQ('#rzS'+j),'รอไม่ไหวแล้ว!','bad');RZS.sad();c.mood='angry';rzExit(j,'angry');rzHUD();if(RZ.V.goal.t==='nolose')rzFail('มีลูกค้ารอจนกลับไป')}});
+        if(c.pat<=0){RZ.missed++;{const a=rzAnLv();c.order.forEach(o=>{if(!o.done)a.walk[o.id]=(a.walk[o.id]||0)+1})}rzComboBreak(true);rzFloat(rzQ('#rzS'+j),'รอไม่ไหวแล้ว!','bad');RZS.sad();c.mood='angry';rzExit(j,'angry');rzHUD();if(RZ.V.goal.t==='nolose')rzFail('มีลูกค้ารอจนกลับไป')}});
       if(!RZ.done&&RZ.qi>=RZ.V.cs.length&&!RZ.queue.length&&RZ.seats.every(s=>!s)){RZ.ending+=dt;if(RZ.ending>.6){if(rzCanRescue())rzRescueAsk();else rzFail('ลูกค้าหมดก่อนถึงเป้า')}}}
     rzStarClock();
   }
@@ -1276,7 +1298,7 @@ function rzTrap(j){
    <div class="rz-tagline">${rzArt('asa','bag')}<span><b>แอสไพรินเคลือบลำไส้ (EC)</b>เม็ดเคลือบพิเศษ</span></div>
    <div class="rz-choices"><button class="rz-b ghost" data-r="trap" data-v="crush" data-i="${j}">บดให้เลย</button><button class="rz-b" data-r="trap" data-v="ok" data-i="${j}">อธิบายว่ายานี้ห้ามบด แนะนำให้กลืนทั้งเม็ด</button></div></div>`;
 }
-function rzTrapRes(j,v){
+function rzTrapRes(j,v){if(RZ){const a=rzAnLv();if(v==='ok')a.tok++;else a.tbad++}
   const c=RZ.seats[j];rzQ('#rzOv').hidden=true;RZ.hold=0;RZ.last=performance.now();if(!c)return;const o=c.order.find(o=>o.trap&&!o.res);if(!o)return;
   if(v==='ok'){o.res='ok';RZS.ok();rzStat('trap');rzFloat(rzQ('#rzS'+j),'+10 คำแนะนำดีมาก','good');c.pat=Math.min(c.pm,c.pat+c.pm*.25)}
   else{o.res='crush';o.done=true;o.bad=true;RZS.nope()}
@@ -1287,22 +1309,23 @@ function rzTrapRes(j,v){
 rzEl.addEventListener('click',e=>{
   const b=e.target.closest('[data-r]');if(!b)return;const r=b.dataset.r;SND.init();
   if(r==='title'){rzSplash();return}
-  if(r==='enter'){SND.init();RZS.pop();const touch=matchMedia('(pointer:coarse)').matches,E=rzEnv();
+  if(r==='enter'){SND.init();RZS.pop();const touch=matchMedia('(pointer:coarse)').matches,E=rzEnv();rzA('game_enter',{touch,fs_auto:!!(touch&&RD.fs!==0&&!E.inapp&&rzFsCan())});
     if(touch&&RD.fs!==0&&!E.inapp)rzFsOn();rzMap();
     let ss=0;try{ss=sessionStorage.getItem('rzia')}catch(e){}
     if(E.inapp&&!ss){try{sessionStorage.setItem('rzia','1')}catch(e){}setTimeout(rzA2hs,450)}
-    else if(rzStandalone()&&!RD.seen.sa){RD.seen.sa=1;rzSave();if(!(RD.stars||[]).some(x=>x))setTimeout(()=>rzXfer(1),450)}
+    else if(rzStandalone()&&!RD.seen.sa){RD.seen.sa=1;rzSave();rzA('home_screen_first_launch');if(!(RD.stars||[]).some(x=>x))setTimeout(()=>rzXfer(1),450)}
     else if(touch&&!rzFsCan()&&!rzStandalone()&&!RD.seen.a2hs){RD.seen.a2hs=1;rzSave();setTimeout(rzA2hs,450)}return}
-  if(r==='fs'){if(rzFsEl()){RD.fs=0;rzFsOff()}else{RD.fs=1;rzFsOn()}rzSave();return}
+  if(r==='fs'){if(rzFsEl()){RD.fs=0;rzFsOff()}else{RD.fs=1;rzFsOn()}rzSave();rzA('fullscreen_toggle',{on:RD.fs===1});return}
+  if(r==='an'){if(RD.an===0){RD.an=1;rzSave();if(rzPH){try{posthog.opt_in_capturing()}catch(e){}}else rzAnInit()}else{rzA('analytics_off');RD.an=0;rzSave();try{posthog.opt_out_capturing()}catch(e){}}b.classList.toggle('on',RD.an!==0);return}
   if(r==='a2hs'){rzA2hs();return}
   if(r==='a2nx'){RZS.tap();rzA2hs(RZ_A2.i+1);return}
   if(r==='a2pv'){RZS.tap();rzA2hs(RZ_A2.i-1);return}
   if(r==='cplink'){rzCopy(location.origin+location.pathname,b);return}
-  if(r==='cpsave'){rzCopy(rzSaveCode(),b);return}
+  if(r==='cpsave'){rzA('save_code_copied');rzCopy(rzSaveCode(),b);return}
   if(r==='xfer'){rzXfer();return}
   if(r==='xpaste'){const t=rzQ('#rzXta');try{navigator.clipboard.readText().then(v=>{if(t){t.value=v;rzXload()}}).catch(()=>rzXmsg('กดค้างในช่องด้านบน แล้วเลือก วาง ได้เลย'))}catch(e){rzXmsg('กดค้างในช่องด้านบน แล้วเลือก วาง ได้เลย')}return}
   if(r==='xload'){rzXload();return}
-  if(r==='xok'){if(RZ_XD){RD=RZ_XD;rzSave();location.reload()}return}
+  if(r==='xok'){if(RZ_XD){rzA('save_imported',{levels:(RZ_XD.stars||[]).filter(x=>x).length},true);RD=RZ_XD;rzSave();location.reload()}return}
   if(r==='settings'){rzSettings();return}
   if(r==='tut'){RD.tutOff=!RD.tutOff;rzSave();b.classList.toggle('on',!RD.tutOff);return}
   if(r==='gpp'){rzBuild2();return}
@@ -1318,16 +1341,16 @@ rzEl.addEventListener('click',e=>{
   if(r==='msclaim'){const m=RZ_MS.find(x=>x.k===b.dataset.k),t=rzMsTier(m);if(t<m.n.length&&rzMsVal(m)>=m.n[t]){RD.ms[m.k]=t+1;rzClaim(100*(t+1),b)}rzQuests('ms');return}
   if(r==='codex'){rzCodex();return}
   if(r==='cx'){rzCodex(b.dataset.id);return}
-  if(r==='cxclaim'){const id=b.dataset.id,e=rzCxList().find(x=>x.id===id);if(e&&!RD.cxr[id]){const v=rzCxRw(e);RD.cxr[id]=1;RD.wallet+=v;rzSave();RZS.coin();RZS.ok();rzCodex(id,v)}return}
+  if(r==='cxclaim'){rzA('codex_read',{id:b.dataset.id});const id=b.dataset.id,e=rzCxList().find(x=>x.id===id);if(e&&!RD.cxr[id]){const v=rzCxRw(e);RD.cxr[id]=1;RD.wallet+=v;rzSave();RZS.coin();RZS.ok();rzCodex(id,v)}return}
   if(r==='stab'){rzShop(b.dataset.t);return}
   if(r==='dbuy'){rzDBuy(b.dataset.id);return}
-  if(r==='map'){rzMap();return}
+  if(r==='map'){if(RZ&&RZ.run&&!RZ.done)rzAnEnd('quit');rzMap();return}
   if(r==='shop'){rzShop();return}
-  if(r==='buy'){rzBuy(b.dataset.id);return}
+  if(r==='buy'){rzA('shop_buy',{id:b.dataset.id});rzBuy(b.dataset.id);return}
   if(r==='page'){rzMap(+b.dataset.p);return}
   if(r==='music'){RD.music=RD.music?0:1;rzSave();RZS.music(!!RD.music);b.classList.toggle('off',!RD.music);return}
   if(r==='lv'){RZS.tap();rzIntro(+b.dataset.l);return}
-  if(r==='go'){rzStart(+b.dataset.l);return}
+  if(r==='go'){if(RZ&&RZ.run&&!RZ.done)rzAnEnd('restart');rzStart(+b.dataset.l);rzAnStart();return}
   if(r==='hok'){RZS.tap();rzHintNext();return}
   if(r==='mhok'){rzMapHintDone();return}
   if(r==='pause'){rzPause();return}
@@ -1339,7 +1362,8 @@ rzEl.addEventListener('click',e=>{
   if(r==='bbuy'){const d=rzBstDef(b.dataset.id);if(d&&RD.gem>=d.g){RD.gem-=d.g;RD.bst[d.id]=(RD.bst[d.id]||0)+1;rzSave();RZS.coin();RZS.ok();rzShop('bst')}else RZS.nope();return}
   if(r==='gift'){const L=+b.dataset.l;if(RD.gift[L]||!(RD.stars[L-1]>0))return;const g=rzGiftOf(L);RD.gift[L]=1;RD.gem+=g.gem;if(g.b)RD.bst[g.b]=(RD.bst[g.b]||0)+1;rzSave();RZS.coin();rzMap(Math.floor((L-1)/10));rzCPopMap('ของขวัญ!',`+${g.gem} เพชร${g.b?' · '+rzBstDef(g.b).n:''}`);return}
   if(r==='soon'){rzSoon();return}
-  if(r==='donate'){rzDonate();return}
+  if(r==='donate'){rzA('donate_open');rzDonate();return}
+  if(r==='fb'){rzA('feedback_click');return}
   if(r==='ppcopy'){rzCopy(RZ_PPID,b);return}
   if(r==='gatei'){RZS.nope();const n=rzGateNeed(+b.dataset.l);rzMapToast(`เก็บดาวรวมให้ครบ ${n} ดวงเพื่อเปิดบทใหม่ ลองเล่นด่านเก่าให้ได้ 3 ดาว`);return}
   if(r==='resume'){RZ.paused=false;RZ.last=performance.now();rzQ('#rzOv').hidden=true;RZS.music(true);requestAnimationFrame(rzLoop);return}
@@ -1384,7 +1408,7 @@ const RZ_TUT={
  vip:[{on:'vip',at:()=>rzQ('.rz-seat.vip .rz-bub'),t:'ลูกค้า VIP มีมงกุฎ จ่าย 1.5 เท่า แต่รอได้น้อยกว่า ส่งให้ก่อนเลย',ok:1}],
  trap:[{on:'trap',at:()=>rzQ('.rz-oi.trap'),t:'ลูกค้าขอให้บดแอสไพรินเคลือบลำไส้ แตะที่ลูกค้าเพื่อคุยก่อน',until:'trapRes'}],
 };
-function rzEv(ev){
+function rzEv(ev){if(RZ&&RZ.run){const a=rzAnLv();if(ev==='spoiled')a.spoil++;else if(ev==='trashed')a.trash++}
   if(!RZ)return;const T=RZ.tut;
   if(T.cur){if(T.cur.until===ev)rzHintNext();return}
   const st=T.steps[T.k];if(st&&st.on===ev)setTimeout(()=>{if(RZ&&RZ.run&&!RZ.tut.cur&&RZ.tut.steps[RZ.tut.k]===st)rzHintShow(st)},120);
@@ -1427,7 +1451,7 @@ function rzDonate(){const o=rzQ('#rzOv');if(!o)return;o.hidden=false;RZS.tap();
    <img class="rz-qr" src="${RZ_QR}" alt="QR พร้อมเพย์สำหรับสนับสนุนผู้พัฒนา">
    <div class="rz-ppid"><span>พร้อมเพย์ (e-Wallet ID)<b>${RZ_PPID.replace(/(\d{3})(\d{4})(\d{4})(\d{4})/,'$1 $2 $3 $4')}</b></span><button class="rz-b sm big" data-r="ppcopy">คัดลอกเลข</button></div>
    <p class="rz-sub small">เล่นบนมือถือ: กดคัดลอกเลข แล้วเปิดแอปธนาคาร › โอนเงิน › พร้อมเพย์ › e-Wallet ID แล้ววางเลข หรือบันทึกรูป QR แล้วเลือกสแกนจากรูปภาพ · การสนับสนุนไม่ได้ของในเกม เป็นกำลังใจล้วน ๆ</p>
-   <div class="rz-row"><a class="rz-b ghost" href="${RZ_QR}" download="ร้านยาทันใจ-สนับสนุน.jpg">บันทึกรูป QR</a>${RZ_FORM?`<a class="rz-b ghost" href="${RZ_FORM}" target="_blank" rel="noopener">💬 ติชมเกม</a>`:''}<button class="rz-b" data-r="closeov">ปิด</button></div></div>`}
+   <div class="rz-row"><a class="rz-b ghost" href="${RZ_QR}" download="ร้านยาทันใจ-สนับสนุน.jpg">บันทึกรูป QR</a>${RZ_FORM?`<a class="rz-b ghost" data-r="fb" href="${RZ_FORM}" target="_blank" rel="noopener">💬 ติชมเกม</a>`:''}<button class="rz-b" data-r="closeov">ปิด</button></div></div>`}
 function rzCopy(txt,btn){const done=()=>{RZS.ok();if(btn){const t=btn.textContent;btn.textContent='คัดลอกแล้ว ✓';btn.classList.add('copied');setTimeout(()=>{btn.textContent=t;btn.classList.remove('copied')},1800)}};
   const fb=()=>{try{const a=document.createElement('textarea');a.value=txt;a.setAttribute('readonly','');a.style.cssText='position:fixed;opacity:0;top:0;left:0';document.body.appendChild(a);a.select();a.setSelectionRange(0,99);document.execCommand('copy');a.remove();done()}catch(e){RZS.nope()}};
   if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(txt).then(done,fb);else fb()}
@@ -1631,7 +1655,7 @@ function rzSplash(){
    <div class="rz-sp-crowd">${kids.map((k,i)=>`<i style="--i:${i}">${czPerson(k,i%2?'happy':'calm')}</i>`).join('')}</div>
    <div class="rz-sp-tap">แตะเพื่อเริ่มเปิดร้าน</div>
    <p class="rz-sp-disc">ตัวละครและร้านยาเป็นเรื่องสมมติ · เกมนี้ทำเพื่อการเรียนรู้และความบันเทิง ไม่ใช่แหล่งอ้างอิงทางการแพทย์</p></div>
-   <button class="rz-ic rz-gear" data-r="settings" aria-label="ตั้งค่า">${RZ_GEAR}</button><div class="rz-spbtns"><button class="rz-b sm rz-supb" data-r="donate">☕ สนับสนุนผู้พัฒนา</button>${RZ_FORM?`<a class="rz-b sm ghost" href="${RZ_FORM}" target="_blank" rel="noopener">💬 ติชมเกม</a>`:''}</div><div class="rz-ov" id="rzOv" hidden></div>`;
+   <button class="rz-ic rz-gear" data-r="settings" aria-label="ตั้งค่า">${RZ_GEAR}</button><div class="rz-spbtns"><button class="rz-b sm rz-supb" data-r="donate">☕ สนับสนุนผู้พัฒนา</button>${RZ_FORM?`<a class="rz-b sm ghost" data-r="fb" href="${RZ_FORM}" target="_blank" rel="noopener">💬 ติชมเกม</a>`:''}</div><div class="rz-ov" id="rzOv" hidden></div>`;
 }
 const RZ_GEAR='<svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm8.4 5-1.9-.3a6.8 6.8 0 0 1-.7 1.6l1.1 1.6-1.8 1.8-1.6-1.1a6.8 6.8 0 0 1-1.6.7l-.3 1.9h-2.6l-.3-1.9a6.8 6.8 0 0 1-1.6-.7l-1.6 1.1-1.8-1.8 1.1-1.6a6.8 6.8 0 0 1-.7-1.6l-1.9-.3v-2.6l1.9-.3a6.8 6.8 0 0 1 .7-1.6L5.6 6.9l1.8-1.8 1.6 1.1a6.8 6.8 0 0 1 1.6-.7l.3-1.9h2.6l.3 1.9a6.8 6.8 0 0 1 1.6.7l1.6-1.1 1.8 1.8-1.1 1.6a6.8 6.8 0 0 1 .7 1.6l1.9.3Z" fill="currentColor"/></svg>';
 /* ---------- play fullscreen on iPhone / in-app browsers: illustrated step-by-step guide ---------- */
@@ -1657,7 +1681,7 @@ function rzA2hs(i){const o=rzQ('#rzOv');if(!o)return;const E=rzEnv();
   const st=F[RZ_A2.i].slice(),last=RZ_A2.i===F.length-1,out=RZ_A2.k==='inapp'||RZ_A2.k==='other';
   if(st[0]==='iap1'&&E.inapp)st[2]=`ตอนนี้เปิดเกมอยู่ในแอป ${RZ_APPN[E.inapp]} ซึ่งเล่นเต็มจอไม่ได้`;
   if(st[0]==='brw')st[2]=E.ios?'จากนั้นกด ⚙️ ตั้งค่า › เล่นเต็มจอ เพื่อดูวิธีเพิ่มเกมไว้ที่หน้าจอโฮม':'แตะเริ่มเกม แล้วเกมจะขยายเต็มจอให้เอง';
-  const prog=(RD.stars||[]).some(x=>x);
+  const prog=(RD.stars||[]).some(x=>x);rzA('a2hs_step',{flow:RZ_A2.k,step:RZ_A2.i+1,of:F.length,scene:st[0]});
   o.hidden=false;
   o.innerHTML=`<div class="rz-card sm a2hs"><div class="rz-kick">เล่นเต็มจอ · ขั้นที่ ${RZ_A2.i+1} จาก ${F.length}</div>
    <h2>${RZ_A2.k==='inapp'?'📲 เปิดในเบราว์เซอร์ก่อนนะ':'📱 เปิดร้านแบบเต็มจอ'}</h2>
@@ -1727,8 +1751,9 @@ function rzSettings(){
    <div class="rz-set"><span>เสียงประกอบ</span><button class="rz-tg ${SND.on?'on':''}" data-r="snd"><i></i></button></div>
    <div class="rz-set"><span>เพลง</span><button class="rz-tg ${RD.music?'on':''}" data-r="music"><i></i></button></div>
    ${rzFsCan()&&!rzEnv().inapp?`<div class="rz-set"><span>เล่นเต็มจอ <small>เปิดเต็มจอให้เองทุกครั้งที่แตะเริ่มเกม</small></span><button class="rz-tg ${rzFsEl()?'on':''}" data-r="fs"><i></i></button></div>`:rzStandalone()?'':`<div class="rz-set"><span>📱 เล่นเต็มจอ <small>${rzEnv().inapp?'เปิดในเบราว์เซอร์ก่อน แล้วเพิ่มเกมไว้ที่หน้าจอโฮม':'เพิ่มเกมไว้ที่หน้าจอโฮม แล้วเปิดจากไอคอน'}</small></span><button class="rz-b sm" data-r="a2hs">ดูวิธี</button></div>`}
+   ${RZ_PH_KEY?`<div class="rz-set"><span>📊 ส่งสถิติการเล่น <small>ไม่ระบุตัวตน ไม่เก็บชื่อหรือข้อมูลส่วนตัว ใช้ปรับด่านให้สนุกขึ้น</small></span><button class="rz-tg ${RD.an!==0?'on':''}" data-r="an"><i></i></button></div>`:''}
    <div class="rz-set"><span>💾 ย้ายเซฟ <small>คัดลอกรหัสไปเล่นต่อที่ไอคอนหน้าจอโฮมหรือเครื่องอื่น</small></span><button class="rz-b sm" data-r="xfer">เปิด</button></div>
-   <div class="rz-set"><span>☕ สนับสนุนผู้พัฒนา <small>เป็นกำลังใจให้ทำเวอร์ชันต่อไป</small></span><button class="rz-b sm" data-r="donate">สนับสนุน</button></div>${RZ_FORM?`<div class="rz-set"><span>💬 ติชม / แนะนำเกม <small>บอกเราได้ว่าชอบอะไร อยากให้ปรับอะไร</small></span><a class="rz-b sm ghost" href="${RZ_FORM}" target="_blank" rel="noopener">เปิดฟอร์ม</a></div>`:''}
+   <div class="rz-set"><span>☕ สนับสนุนผู้พัฒนา <small>เป็นกำลังใจให้ทำเวอร์ชันต่อไป</small></span><button class="rz-b sm" data-r="donate">สนับสนุน</button></div>${RZ_FORM?`<div class="rz-set"><span>💬 ติชม / แนะนำเกม <small>บอกเราได้ว่าชอบอะไร อยากให้ปรับอะไร</small></span><a class="rz-b sm ghost" data-r="fb" href="${RZ_FORM}" target="_blank" rel="noopener">เปิดฟอร์ม</a></div>`:''}
    <p class="rz-sub" style="margin-top:10px">ตัวละคร ร้านยา และภาพยาเป็นเรื่องสมมติ เกร็ดความรู้ในเกมเป็นข้อมูลทั่วไป ไม่ใช่คำแนะนำการรักษา ควรปรึกษาแพทย์หรือเภสัชกรเสมอ</p>
    <div class="rz-row"><button class="rz-b" data-r="closeov">ปิด</button></div></div>`;
 }
@@ -1950,7 +1975,7 @@ function rzHelpTick(dt){
 /* ---------- level intro / end ---------- */
 function rzIntro(L){
   if(L>RZ_LAST){rzMap();setTimeout(rzSoon,50);return}
-  if(rzGated(L)){RZS.nope();rzMapToast(`เก็บดาวรวมให้ครบ ${rzGateNeed(L)} ดวงเพื่อเปิดบทใหม่`);return}
+  if(rzGated(L)){rzA('chapter_gate_blocked',{level:L,need:rzGateNeed(L)});RZS.nope();rzMapToast(`เก็บดาวรวมให้ครบ ${rzGateNeed(L)} ดวงเพื่อเปิดบทใหม่`);return}
   if(RZ){RZ.run=false;RZ=null}const V=RZ_NEXT=rzLevel(L,(Math.random()*1e9)|0);RZ_BSEL=new Set();RZ_BCONF=null;
   let gift='';if(L>=RZ_BST_L&&!RD.seen.bst){RD.seen.bst=1;rzBstAll.forEach(b=>RD.bst[b.id]=(RD.bst[b.id]||0)+1);RD.gem+=10;rzSave();RD.seen.staff=1;gift=`<div class="rz-new"><span class="rz-newtag">ของขวัญ</span><p>ระบบตัวช่วยเปิดแล้ว! พี่แถมตัวช่วยให้อย่างละ 1 ชิ้น และเพชร 10 เม็ด ลองเลือกใช้ด้านล่างได้เลย</p></div>`}
   {const tr=rzTrialOf(L);if(tr&&L>=RZ_BST_L){const d=rzBstDef(tr);gift+=`<div class="rz-new trial"><span class="rz-newtag">ทดลองใช้ฟรี</span><div class="rz-ni">${d.ic}<div><b>${d.n}</b><small>${d.d}</small></div></div><p>ด่านนี้ใช้ได้ฟรีจนกว่าจะผ่าน ไม่เสียของในกระเป๋า${tr==='more'?' · ตัวช่วยนี้จะเด้งขึ้นมาเองตอนลูกค้าหมด':''}</p></div>`}}
@@ -1967,6 +1992,7 @@ function rzIntro(L){
 function rzEnd(pass,why){
   RZ.run=false;rzEl.classList.remove('fever');RZS.m.fast=0;const V=RZ.V,L=RZ.L;
   const stars=pass?(RZ.T<=V.par[0]?3:RZ.T<=V.par[1]?2:1):0;let gemGot=0;if(stars===3&&L%10===0&&!RD.bossG[L]){RD.bossG[L]=1;RD.gem+=5;gemGot=5}
+  rzAnEnd(pass?'pass':'fail',stars,pass?null:why);
   if(pass){rzStat('clear');if(stars===3)rzStat('star3')}rzStat('coins',RZ.coins);rzStat('combo',RZ.best,true);
   const wasMax=rzMaxL();RD.stars[L-1]=Math.max(RD.stars[L-1]||0,stars);RD.best[L-1]=Math.max(RD.best[L-1]||0,RZ.coins);RD.wallet+=Math.round(RZ.coins*(rzG('fire')?1.05:1));rzSave();
   RZS.music(false);
@@ -1979,7 +2005,7 @@ function rzEnd(pass,why){
    <div class="rz-row"><button class="rz-b ghost" data-r="map">แผนที่</button><button class="rz-b ${pass?'ghost':'big'}" data-r="go" data-l="${L}">เล่นอีกครั้ง</button>${pass?(rzPending()&&rzMaxL()>wasMax?`<button class="rz-b big" data-r="map">ปลดล็อก${rzPending().n}! ไปดูกัน</button>`:(L>=RZ_LAST?`<button class="rz-b big" data-r="soon">🚧 ติดตามเวอร์ชันใหม่</button>`:rzGated(L+1)?`<button class="rz-b big" data-r="map">ดาวยังไม่พอเปิดบทใหม่ (${rzTotStars()}/${rzGateNeed(L+1)} ★)</button>`:`<button class="rz-b big" data-r="lv" data-l="${L+1}">ด่านต่อไป</button>`)):''}</div></div>`;
 }
 
-rzSplash();
+rzSplash();rzAnInit();
 })();
 </script>
 </body>
