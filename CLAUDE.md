@@ -14,14 +14,15 @@ Customers walk in and order medicines; the player prepares them in three zones a
 - **Liquids:** dry syrup → water → shake (sediment returns if left) → label; cough syrup and oral syringe are instant.
 - **Cold chain:** fridge → ice-pack box with a cold gauge that spoils.
 
-Levels 1–30 exist in this version (`RZ_LAST=30`). After level 30 a "coming soon / ติดตามเวอร์ชันใหม่" card shows. The old hospital OPD pharmacist mode was removed; its last version is kept on branch `archive/opd-mode`.
+Levels 1–50 exist in this version (`RZ_LAST=50`, 5 chapters of 10: ปากซอย, ข้างโรงเรียน, ตลาดนัด, ในห้าง, ริมทะเล). After level 50 a "coming soon / ติดตามเวอร์ชันใหม่" card shows. The old hospital OPD pharmacist mode was removed; its last version is kept on branch `archive/opd-mode`.
 
 ## Code map (all in index.html)
 - Prefix `rz` / `RZ` for everything. Main container `#rz` (`rzEl`) inside `#app` (fixed 1120×630 landscape or 480×900 portrait canvas scaled with `--s`).
 - Save: `localStorage['rxplease-rush-v1']` → object `RD` (stars[], best[], wallet, gem, bst{}, up{}, dup{}, gpp{}, cx{}, cxr{}, q{}, w{}, ms{}, life{}, gift{}, bossG{}, seen{}, tutOff, music, fs, hiStart). Always save with `rzSave()` (it also syncs map header pills).
 - Debug hook: `window.__rz()` returns the running level state `RZ`.
-- Level generator `rzLevel(L, seed)`; unlock schedule `RZ_UNL` (new drugs at L1–8, 14 insulin, 17 crushing, 20 cold eye drops, 23 VIP, 26 chatty customers, 28 four-item orders). Aspirin EC and the "don't crush" trap/consult popup were removed on purpose (owner felt it broke the flow).
+- Level generator `rzLevel(L, seed)`; unlock schedule `RZ_UNL` (new drugs at L1–8, 14 insulin, 17 crushing, 20 cold eye drops, 23 VIP, 26 chatty customers, 28 four-item orders, 31 rush hour, 33 VIP chatters (always buy, longer chat), 41 hot days). Aspirin EC and the "don't crush" trap/consult popup were removed on purpose (owner felt it broke the flow).
 - Systems: shop upgrades `RZ_UP`; drug cost tiers `RZ_DUPN` (buying smarter lowers cost → more profit, not "services"); my-shop extras `RZ_GPP` (the shop already passes GPP from day one; these are beyond-GPP services); codex `RZ_TOPIC` + per-drug facts, +15/+20 coins for reading each card; daily/weekly quests `RZ_QP` and missions `RZ_MS` with claim-all.
+- Level events (chapters 4–5): `RZ_LVEVT[L]` → `V.ev` from `RZ_EVT` = rush (gap ×0.75), chatday (chat 36%), vipday (VIP 34%), hot (cold gauge ×0.7, more cold items). Shown as chips on the intro card and icons on the level pill. Bot run (Playwright, 3× time, ~3 taps/s) clears 21–50 with steady time/par ratios.
 - Chatty customers (`c.chat={need,buy,taps}`, ~20% of customers from L26, never VIP): bubble shows 💬 + pips; tapping the customer repeatedly (`rzChatTap`, no popup) chats. When done: `buy` → order revealed + bonus tip on payment (`c.tipx`); otherwise thanks + 0/5/10 tip and leaves. Ignored chatters leave on their own with no miss / combo break. Hidden orders never receive items (rzWho/aide/ptph skip `c.chat`). Lines in `RZ_CHATL` / `RZ_CHATBYE`. Quest `chat`, perk `allergy` boosts the chat tip.
 - VIP = over-the-top "คุณนาย": `czPerson({...look,vip:1})` draws hat, heart sunglasses, pearls, boa and VIP sash; gold glow + sparkles (`.vip-sp`). `RZ_CROWN` is no longer used.
 - Multi-touch: touch taps on jars/slots/customers are handled per finger on pointerup (`rzGameTap`), the follow-up click is ignored via `data-tt`; play area has `touch-action:none`.

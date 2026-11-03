@@ -552,6 +552,10 @@ html.land .rz-who{width:122px;height:144px}
 html.land .rz-bub.many{display:grid;grid-template-columns:repeat(var(--n,3),36px);justify-content:center;gap:3px}
 html.land .rz-bub.many .rz-oi{width:36px;height:36px}
 html.land .rz-bub.many .rz-pat{grid-column:1/-1}
+/* level events chips */
+.rz-evi{font-style:normal;font-size:.9em;margin-left:2px}
+.rz-evts{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}.rz-evts span{display:flex;align-items:center;gap:6px;background:linear-gradient(180deg,#FFF3C4,#FFE08A);border:2px solid #F5C451;border-radius:14px;padding:3px 10px 3px 6px;box-shadow:0 3px 0 #E0A93A}
+.rz-evts i{font-style:normal;font-size:20px}.rz-evts b{font-size:13.5px;color:#8A5A00}.rz-evts small{font-size:11.5px;color:#9A7A40}
 /* chatty customer bubble */
 .rz-bub.chatty{flex-direction:column;align-items:center;gap:0;padding:6px 12px 8px;background:#F0FFF8;animation:rzpop .45s cubic-bezier(.3,1.7,.5,1),rzbob 1.4s ease-in-out .5s infinite}
 .rz-talk{display:flex;flex-direction:column;align-items:center;line-height:1.1}.rz-talk svg{width:44px;height:35px}.rz-talk b{font-size:13px;color:#2F9C76}
@@ -830,7 +834,7 @@ const rzSave=()=>{try{localStorage.setItem(RZ_KEY,JSON.stringify(RD))}catch(e){}
 /* ---------- analytics (PostHog) ----------
    Off while RZ_PH_KEY is empty. Anonymous: PostHog keeps a random id per device in localStorage, no cookies, no names,
    no autocapture, no session recording. Players can switch it off in settings (RD.an=0). Events: see rzA(...) calls. */
-const RZ_VER='2026-11-03b';
+const RZ_VER='2026-11-03c';
 const RZ_PH_KEY='phc_rkFR2c2yjDTwaPrVCxRVn3D4aCkxwxJ37TjdZmG8a5WW';/* PostHog project API key (phc_…, public by design) */
 const RZ_PH_HOST='https://us.i.posthog.com';/* EU project: https://eu.i.posthog.com */
 let rzPH=false;
@@ -853,7 +857,7 @@ addEventListener('pagehide',()=>{if(RZ&&RZ.run&&!RZ.done)rzAnEnd('closed',0,null
 function rzSyncPills(){rzEl.querySelectorAll('.rz-maph .rz-pill.coin b').forEach(b=>{if(b.textContent!=String(RD.wallet)){b.textContent=RD.wallet;const p=b.parentNode;p.classList.remove('bump');void p.offsetWidth;p.classList.add('bump')}});
   rzEl.querySelectorAll('.rz-maph .rz-pill.gem b').forEach(b=>b.textContent=RD.gem)}
 const rzMaxL=()=>{let i=0;while(RD.stars[i]>0)i++;return i+1};
-const RZ_LAST=30;/* last level in this version */
+const RZ_LAST=50;/* last level in this version */
 const rzAllDone=()=>rzMaxL()>RZ_LAST;
 function rzSoon(){rzA('reached_end_of_content');const o=rzQ('#rzOv');if(!o)return;o.hidden=false;RZS.tap();const tot=RD.stars.slice(0,RZ_LAST).reduce((a,b)=>a+(b||0),0),miss=RD.stars.slice(0,RZ_LAST).map((v,i)=>v<3?i+1:0).filter(Boolean);
   o.innerHTML=`<div class="rz-card sm soon"><div class="rz-soonart">${rzHouse()}<i>🚧</i></div><div class="rz-kick">จบเนื้อหาเวอร์ชันนี้แล้ว</div><h2>บทต่อไปกำลังพัฒนา</h2>
@@ -880,6 +884,9 @@ const RZ_UNL=[
  {L:23,feat:'vip',tut:'vip',txt:'คุณนาย VIP มาแล้ว! หมวกใหญ่ แว่นหัวใจ สายสะพาย VIP จ่าย 1.5 เท่า แต่รอได้น้อยกว่า'},
  {L:26,feat:'chat',tut:'chat',txt:'ลูกค้าช่างคุยมาแล้ว 💬 แตะที่ตัวลูกค้าซ้ำ ๆ เพื่อคุย คุยจบอาจซื้อยาเพิ่มพร้อมทิป หรือแค่ขอบใจแล้วกลับไป จะไม่คุยก็ได้ เดี๋ยวเขากลับเอง'},
  {L:28,txt:'ลูกค้าบางคนสั่งยาถึง 4 อย่างแล้ว! ดูกรอบคำพูดให้ครบ แล้วเตรียมยาหลายโซนไปพร้อมกัน'},
+ {L:31,txt:'บทใหม่ ร้านยาในห้าง! ⏱️ ชั่วโมงเร่งด่วน ลูกค้าเดินเข้ามาถี่ขึ้น ใช้หลายนิ้วช่วยกันจัดยาได้เลย'},
+ {L:33,feat:'vipchat',txt:'คุณนายช่างคุย 👒💬 คุยนานกว่าคนอื่น แต่คุยจบซื้อยาแน่นอน ทิปจัดเต็ม'},
+ {L:41,feat:'hot',txt:'บทใหม่ ร้านยาริมทะเล! ☀️ วันอากาศร้อนจัด ไอซ์แพ็กละลายไว ยาเย็นต้องรีบส่ง'},
 ];
 const RZ_CH=['ร้านยาหน้าปากซอย','ร้านยาข้างโรงเรียน','ร้านยาในตลาดนัด','ร้านยาในห้าง','ร้านยาริมทะเล','ร้านยากลางเมือง'];
 const RZ_CHC=[['#FFE4EC','#FFF0F4'],['#E6F4FF','#F2F9FF'],['#FFF1D9','#FFF8EA'],['#EEE6FF','#F7F2FF'],['#E1F7EF','#F0FBF6'],['#FFE8DE','#FFF4EE']];
@@ -899,6 +906,11 @@ const RZT={count:2.6,amber:1.2,divide:1.1,water:1.5,shaking:.7,label:.5,sed:11,r
 
 /* ---------- seeded level generator: same level number → same customers ---------- */
 const rzRng=seed=>()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+/* level events for chapters 4–5: built on chatty customers, VIP madams, multi-touch and the cold chain */
+const RZ_EVT={rush:{ic:'⏱️',n:'ชั่วโมงเร่งด่วน',d:'ลูกค้ามาถี่ขึ้น'},chatday:{ic:'💬',n:'วันรวมพลคนช่างคุย',d:'ลูกค้าช่างคุยเยอะเป็นพิเศษ'},
+  vipday:{ic:'👒',n:'วันคุณนายนัดรวมตัว',d:'คุณนาย VIP มาเพียบ'},hot:{ic:'☀️',n:'วันร้อนจัด',d:'ยาเย็นเสื่อมไวขึ้น'}};
+const RZ_LVEVT={31:['rush'],35:['rush'],36:['chatday'],38:['rush'],39:['vipday'],40:['rush','vipday'],
+  41:['hot'],43:['rush'],44:['hot'],45:['chatday'],46:['hot','rush'],47:['vipday'],48:['hot'],49:['rush','chatday'],50:['hot','rush','vipday']};
 function rzLevel(L,seed){
   const R=rzRng(seed==null?L*7919+13:seed),rp=a=>a[Math.floor(R()*a.length)];
   const items=[],feats=new Set(),unl={};let fresh=[],tut=null,news=[];
@@ -906,9 +918,10 @@ function rzLevel(L,seed){
   const seats=L<3?2:L<5?3:L<7?4:5;
   const need=L===1?3:L===2?4:Math.min(26,3+Math.round(L*.5)),n=L<=2?need+1:Math.ceil(need*1.4)+1;
   const maxI=L<3?1:L<9?2:L<28?3:4;
-  const patBase=L<=4?44:Math.max(18,40-L*.5),gap=L<=4?3:Math.max(1,2.6-L*.03);
+  const patBase=L<=4?44:Math.max(18,40-L*.5),gap=(L<=4?3:Math.max(1.05,2.6-L*.03))*(RZ_LVEVT[L]&&RZ_LVEVT[L].includes('rush')?.75:1);
   const gt=L<=2?'serve':L%5===0?'nolose':L>=7&&L%7===0?'combo':L%3===0?'serve':'coins';
-  const used={};const wt=x=>(fresh.includes(x)?4:(L-unl[x]<6?2:1)*(x==='syr'?.7:1))/(1+(used[x]||0)*.6);let prevKey='';
+  const ev=new Set(RZ_LVEVT[L]||[]);
+  const used={};const wt=x=>(fresh.includes(x)?4:(L-unl[x]<6?2:1)*(x==='syr'?.7:1)*(ev.has('hot')&&RI[x].z==='cold'?1.6:1))/(1+(used[x]||0)*.6);let prevKey='';
   const cs=[];let at=.6;
   for(let i=0;i<n;i++){
     let k=1+Math.floor(R()*maxI);if(L<12&&k>2&&R()<.5)k=2;k=Math.min(k,items.length);
@@ -919,7 +932,8 @@ function rzLevel(L,seed){
     const key=order.map(o=>o.id).sort().join();if(key===prevKey&&pool.length){order[order.length-1]={id:pool[Math.floor(R()*pool.length)]}}prevKey=order.map(o=>o.id).sort().join();
     order.forEach(o=>used[o.id]=(used[o.id]||0)+1);
     order.forEach(o=>{if(o.id==='syr'&&!order.some(q=>q.id==='amox'||q.id==='cough')&&R()<.6&&items.includes('amox')&&order.length<maxI)order.push({id:'amox'})});
-    const vip=feats.has('vip')&&R()<.16,chat=feats.has('chat')&&i>=2&&!vip&&R()<.2?{need:4+Math.floor(R()*3),buy:R()<.6}:null;
+    const vip=feats.has('vip')&&R()<(ev.has('vipday')?.34:.16),vc=vip&&feats.has('vipchat')&&i>=2&&R()<.3;
+    const chat=vc?{need:6+Math.floor(R()*3),buy:true}:feats.has('chat')&&i>=2&&!vip&&R()<(ev.has('chatday')?.36:.2)?{need:4+Math.floor(R()*3),buy:R()<.6}:null;
     const g=i===0?.6:gap*(.7+R()*.6)*(1+(order.length-1)*.15);
     cs.push({at,g,order,vip,chat,look:rzLook(R),pat:(patBase+6*order.length)*(vip?.78:1)*(chat?1.15:1)});
     at+=g;
@@ -933,7 +947,7 @@ function rzLevel(L,seed){
   const work=first.reduce((a,c)=>a+(c.chat?2:0)+1.4+.8*c.order.length+c.order.reduce((e,o)=>e+(RI[o.id].crush?9:RI[o.id].amber?1.2:RI[o.id].mix?1.5:RI[o.id].cold?1:0),0),0);
   const tFast=gt==='coins'?4+work*.55:gt==='combo'?6+goal.v*1.3:4+work*.65;
   const par=L<=4?[Math.round(tFast*1.8+8),Math.round(tFast*2.6+15)]:[Math.round(tFast*1.35+3),Math.round(tFast*2+8)];
-  return{L,items,feats,fresh,tut,news,seats,n,need,cs,goal,par,ch:Math.floor((L-1)/10)};
+  return{L,items,feats,fresh,tut,news,seats,n,need,cs,goal,par,ch:Math.floor((L-1)/10),ev:[...ev]};
 }
 const RZ_GOALTXT=V=>{const v=V.goal.v;return V.goal.t==='coins'?`เก็บเงินให้ได้ ฿${v}`:V.goal.t==='combo'?`ทำคอมโบให้ถึง ×${v}`:V.goal.t==='nolose'?`ส่งยาให้ลูกค้า ${v} คน ห้ามมีใครรอจนกลับ`:`ส่งยาให้ลูกค้าครบ ${v} คน`};
 const rzFmt=t=>{t=Math.max(0,Math.ceil(t));return`${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`};
@@ -996,7 +1010,7 @@ function rzBuild(){
   const nextL=z=>(RZ_UNL.find(u=>u.L>V.L&&(u.add||[]).some(x=>RI[x].z===z))||{}).L;
   rzEl.style.setProperty('--wall1',ch[0]);rzEl.style.setProperty('--wall2',ch[1]);
   rzEl.innerHTML=`<div class="rz-bg">${rzDeco(1)}</div>
-  <div class="rz-top"><span class="rz-pill lv">ด่าน ${V.L}</span>${[...RZ.bst].map(id=>`<span class="rz-bact">${rzBstDef(id).ic}</span>`).join('')}<span class="rz-pill" id="rzCust"></span>
+  <div class="rz-top"><span class="rz-pill lv">ด่าน ${V.L}${V.ev.length?` <i class="rz-evi">${V.ev.map(e=>RZ_EVT[e].ic).join('')}</i>`:''}</span>${[...RZ.bst].map(id=>`<span class="rz-bact">${rzBstDef(id).ic}</span>`).join('')}<span class="rz-pill" id="rzCust"></span>
    <div class="rz-prog"><i id="rzBar"></i><b id="rzGoal"></b><span class="flag"><svg viewBox="0 0 16 16" width="16" height="16"><path d="M3 15V2" stroke="#5A3E4B" stroke-width="1.8" stroke-linecap="round"/><path d="M3.5 2.5h9l-2 3 2 3h-9Z" fill="#FF8FAB"/></svg></span></div><span class="rz-pill st" id="rzStarT"></span>
    <span class="rz-pill coin"><i class="rz-coin"></i><b id="rzCoin">0</b></span><div class="rz-cb" id="rzCombo" hidden><svg viewBox="0 0 40 40"><circle class="bgc" cx="20" cy="20" r="17"/><circle class="fg" cx="20" cy="20" r="17"/></svg><b>×0</b><span>คอมโบ</span></div>
    <button class="rz-ic" data-r="pause" aria-label="พัก"><svg viewBox="0 0 12 12" width="13" height="13"><rect x="1.5" y="1" width="3" height="10" rx="1" fill="currentColor"/><rect x="7.5" y="1" width="3" height="10" rx="1" fill="currentColor"/></svg></button></div>
@@ -1220,7 +1234,7 @@ function rzTickStations(dt){
     else if(x.ph==='ready'&&!x.sed&&!RZ.bst.has('shaker')&&RZ.V.feats.has('sed')&&x.t>RZT.sed){x.sed=1;rzSlotUpd('mix',k);rzEv('sed')}});
   S.pack.forEach((x,k)=>{if(!x)return;
     if(x.ph==='pack'){x.t+=dt;x.p=Math.min(1,x.t/RZT.pack);if(x.p>=1){x.ph='ready';x.t=0;x.p=0;x.cold=1;rzSlotUpd('pack',k);RZS.pop();rzEv('packReady')}}
-    else if(x.ph==='ready'){x.cold=RZ.bst.has('ice')?1:Math.max(0,x.cold-dt/(RZT.cold*rzU('ice')*(rzG('fridge')?1.15:1)));if(x.cold<=0){x.ph='spoiled';rzSlotUpd('pack',k);RZS.sad();rzFloat(rzQ(RZ_SLOTS.pack).children[k],'ยาเสื่อมแล้ว!','bad');rzEv('spoiled')}}});
+    else if(x.ph==='ready'){x.cold=RZ.bst.has('ice')?1:Math.max(0,x.cold-dt/(RZT.cold*(RZ.V.ev.includes('hot')?.7:1)*rzU('ice')*(rzG('fridge')?1.15:1)));if(x.cold<=0){x.ph='spoiled';rzSlotUpd('pack',k);RZS.sad();rzFloat(rzQ(RZ_SLOTS.pack).children[k],'ยาเสื่อมแล้ว!','bad');rzEv('spoiled')}}});
   for(const kind in RZ_SLOTS){const box=rzQ(RZ_SLOTS[kind]);if(!box)continue;RZ.S[kind].forEach((x,k)=>{const b=box.children[k];if(x&&b){b.style.setProperty('--p',x.p||0);if(x.cold!=null)b.style.setProperty('--cold',x.cold)}})}
 }
 
@@ -1697,6 +1711,7 @@ const RZ_TOPIC=[
  {id:'t_nsaid',L:6,n:'ยาแก้อักเสบ ≠ ยาปฏิชีวนะ',art:()=>rzArt('ibu','bag'),f:['คนไทยมักเรียกยาปฏิชีวนะว่า “ยาแก้อักเสบ” ซึ่งเป็นยาคนละกลุ่มกัน','ยาแก้อักเสบ (NSAIDs) เช่น ไอบูโพรเฟน ลดปวด บวม แดง ร้อน แต่ไม่ฆ่าเชื้อ','ยาปฏิชีวนะ เช่น อะม็อกซีซิลลิน ใช้ฆ่าเชื้อแบคทีเรีย ไม่ได้ลดปวดบวมโดยตรง','เวลาซื้อยาควรบอกอาการให้ชัด เภสัชกรจะเลือกยาให้ตรงกับสาเหตุ']},
  {id:'t_amber',L:11,n:'ซองสีชากันแสง',art:()=>rzArt('vitc','amber'),f:['ยาบางชนิดเสื่อมสลายเมื่อโดนแสง จึงใช้ซองหรือขวดสีชา','อย่าแกะยาออกจากซองกันแสงมาใส่ตลับใสทิ้งไว้นาน ๆ']},
  {id:'t_cold',L:14,n:'ยาเย็น 2–8°C',art:()=>rzArt('ins','cold'),f:['ยาบางชนิดต้องเก็บในตู้เย็น 2–8°C ตลอดเวลา เรียกว่าระบบลูกโซ่ความเย็น','ขนส่งกลับบ้านด้วยกระเป๋าเก็บความเย็นกับไอซ์แพ็ก แต่ไม่ให้ยาสัมผัสน้ำแข็งโดยตรง','ยาที่แข็งตัวเพราะแช่แข็งไม่ควรนำมาใช้']},
+ {id:'t_heat',L:41,n:'ยากับอากาศร้อน',art:()=>rzArt('lat','cold'),f:['ยาส่วนใหญ่ควรเก็บที่อุณหภูมิไม่เกินที่ฉลากกำหนด มักไม่เกิน 25–30°C พ้นแสงแดดและความชื้น','อย่าทิ้งยาไว้ในรถที่จอดกลางแดด ข้างในร้อนจนยาเสื่อมได้','ยาที่เปลี่ยนสี เปลี่ยนกลิ่น หรือยาเม็ดที่ชื้นเยิ้ม ไม่ควรนำมาใช้ ให้ปรึกษาเภสัชกร']},
  {id:'t_crush',L:17,n:'บดยาแบ่งห่อ',art:()=>rzArt('aml~c','packet'),f:['ช่วยผู้ป่วยกลืนลำบากหรือให้ยาทางสายให้อาหาร','ไม่ใช่ทุกยาที่บดได้ ต้องเช็กรายการยาห้ามบดก่อนทุกครั้ง']},
  {id:'t_staff',L:9,n:'ใครทำอะไรในร้านยา',art:()=>rzStaffArt('ptph'),f:['ร้านยาแผนปัจจุบันต้องมีเภสัชกรอยู่ปฏิบัติหน้าที่ตลอดเวลาที่เปิดร้าน','ผู้ช่วยเภสัชกรช่วยงานได้ เช่น จัดเตรียมยา นับยา ติดฉลาก และดูแลการจัดเก็บยา ภายใต้การกำกับของเภสัชกร','การส่งมอบยาและให้คำแนะนำการใช้ยาแก่ผู้ป่วยเป็นหน้าที่ของเภสัชกร','ถ้าไม่แน่ใจเรื่องยา ถามเภสัชกรประจำร้านได้เสมอ']},
  {id:'t_gpp',L:13,n:'ร้านยาคุณภาพ (GPP)',art:()=>rzHouse(),f:['GPP คือหลักวิธีปฏิบัติทางเภสัชกรรมชุมชน มาตรฐานที่ร้านยาแผนปัจจุบันต้องทำตาม','ร้านยาต้องผ่านเกณฑ์ GPP ก่อนจึงจะได้รับอนุญาตเปิดให้บริการ','ต้องมีเภสัชกรอยู่ปฏิบัติงาน สวมเสื้อกาวน์ และแสดงป้ายชื่อ เลขใบอนุญาต และรูปถ่าย','มีมุมให้คำปรึกษาแยกสัดส่วน เก็บยาทั่วไปไม่เกิน 30°C และยาเย็นที่ 2–8°C','ยาหมดอายุต้องแยกเก็บ และจ่ายยาตามหลักหมดอายุก่อนออกก่อน (FEFO)','ต้องถามประวัติแพ้ยาก่อนจ่ายยาทุกครั้ง']},
@@ -2044,6 +2059,7 @@ function rzIntro(L){
   const ch=RZ_CHC[V.ch%RZ_CHC.length];rzEl.style.setProperty('--wall1',ch[0]);rzEl.style.setProperty('--wall2',ch[1]);
   rzEl.innerHTML=`<div class="rz-bg">${rzScene()}<div class="rz-floor"></div></div><div class="rz-ov"><div class="rz-card intro"><div class="rz-ib"><div class="rz-kick">${RZ_CH[V.ch%RZ_CH.length]} · ด่าน ${L}</div>
    <h2>${L%10===0?'ด่านบอส! ':''}${RZ_GOALTXT(V)}</h2>
+   ${V.ev.length?`<div class="rz-evts">${V.ev.map(e=>`<span><i>${RZ_EVT[e].ic}</i><b>${RZ_EVT[e].n}</b><small>${RZ_EVT[e].d}</small></span>`).join('')}</div>`:''}
    <div class="rz-goalbox"><b>เป้าหมาย · ทำครบแล้วจบด่านทันที</b>${RZ_GOALTXT(V)}${V.goal.t==='nolose'?'':` · มีลูกค้าทั้งหมด ${V.n} คน`}</div>
    ${V.news.length?`<div class="rz-new"><span class="rz-newtag">ของใหม่</span>${V.fresh.map(x=>`<div class="rz-ni">${rzOrderArt(x)}<div><b>${RI[x].n}</b><small>${RI[x].e}</small></div></div>`).join('')}${V.news.map(u=>u.txt?`<p>${u.txt}</p>`:'').join('')}</div>`:''}
    <div class="rz-goal"><span>${czStars(3)} เสร็จภายใน ${rzFmt(V.par[0])}</span><span>${czStars(2)} ภายใน ${rzFmt(V.par[1])}</span><span>${czStars(1)} ทำเป้าหมายสำเร็จ</span></div>
