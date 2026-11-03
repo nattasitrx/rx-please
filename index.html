@@ -22,6 +22,7 @@
 html{height:100%;touch-action:manipulation;-webkit-text-size-adjust:100%}
 *{touch-action:manipulation;-webkit-touch-callout:none}
 .rz-slot,.rz-slot *{touch-action:none}
+.rz-work,.rz-hall,.rz-work *,.rz-hall *{touch-action:none}
 body{height:100%;margin:0;background:#3A2A33;color:#5A3E4B;font-family:"Mali","Sarabun",system-ui,sans-serif;font-size:15px;line-height:1.5;overflow:hidden;-webkit-tap-highlight-color:transparent}
 button{font:inherit;color:inherit;cursor:pointer;-webkit-user-select:none;user-select:none}
 button:focus-visible{outline:2px solid #FFC93C;outline-offset:2px}
@@ -548,9 +549,30 @@ html.port .rz-zone.liq{flex-wrap:nowrap;align-items:center;gap:8px}
 html.port .rz-zone.liq .rz-src{flex:0 1 auto;min-width:0}
 html.port .rz-zone.liq .rz-row{flex:0 0 auto;margin-top:0}
 html.land .rz-who{width:122px;height:144px}
-html.land .rz-bub.many{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,42px));justify-content:center;gap:3px}
-html.land .rz-bub.many .rz-oi{width:100%;height:auto;aspect-ratio:1}
+html.land .rz-bub.many{display:grid;grid-template-columns:repeat(var(--n,3),36px);justify-content:center;gap:3px}
+html.land .rz-bub.many .rz-oi{width:36px;height:36px}
 html.land .rz-bub.many .rz-pat{grid-column:1/-1}
+/* chatty customer bubble */
+.rz-bub.chatty{flex-direction:column;align-items:center;gap:0;padding:6px 12px 8px;background:#F0FFF8;animation:rzpop .45s cubic-bezier(.3,1.7,.5,1),rzbob 1.4s ease-in-out .5s infinite}
+.rz-talk{display:flex;flex-direction:column;align-items:center;line-height:1.1}.rz-talk svg{width:44px;height:35px}.rz-talk b{font-size:13px;color:#2F9C76}
+.rz-pips{display:flex;gap:3px;margin-top:3px}.rz-pips i{width:9px;height:9px;border-radius:50%;background:#D5EDE3;transition:background .15s,transform .15s}.rz-pips i.on{background:#3FBF8F;transform:scale(1.15)}
+html.port .rz-talk svg{width:34px;height:27px}html.port .rz-talk b{font-size:11.5px}html.port .rz-pips i{width:7px;height:7px}
+.rz-seat:has(.rz-bub.chatty) .rz-who{cursor:pointer}
+/* mortar: show the tablets waiting, glow until crushed */
+.rz-art .rz-mfill{position:absolute;left:-8px;top:-8px;width:calc(100% + 16px);height:calc(100% + 16px)}
+.rz-slot.mortar.crush{animation:rzmglow 1.1s ease-in-out infinite}
+@keyframes rzmglow{0%,100%{filter:drop-shadow(0 0 0 rgba(183,156,255,0))}50%{filter:drop-shadow(0 0 9px rgba(160,120,255,.95))}}
+.rz-slot.mortar.crush .st-bg .pestle{animation:rzpestle .9s ease-in-out infinite}
+@keyframes rzpestle{0%,100%{translate:0 0}50%{translate:-3px 6px}}
+.rz-slot.mortar.crush em.tapme{font-size:12.5px;padding:1px 10px}
+/* VIP madam: golden glow + sparkles */
+.rz-seat.vip .rz-who>svg{filter:drop-shadow(0 0 2px #FFD84D) drop-shadow(0 0 10px rgba(255,200,60,.9))!important;animation:rzvip 1.6s ease-in-out infinite}
+@keyframes rzvip{0%,100%{transform:scale(1)}50%{transform:scale(1.04) rotate(-1.5deg)}}
+.rz-who .vip-sp,.rz-who .vip-sp::before,.rz-who .vip-sp::after{position:absolute;width:14px;height:14px;background:#FFD84D;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);animation:rztw 1.4s ease-in-out infinite;pointer-events:none}
+.rz-who .vip-sp{left:4%;top:30%}.rz-who .vip-sp::before{content:"";left:calc(100% + 2px);top:-40px;animation-delay:-.5s;width:10px;height:10px}.rz-who .vip-sp::after{content:"";left:72px;top:6px;animation-delay:-1s}
+@keyframes rztw{0%,100%{opacity:.2;transform:scale(.6) rotate(0)}50%{opacity:1;transform:scale(1.15) rotate(45deg)}}
+.rz-seat.vip .rz-bub{box-shadow:0 0 0 3px #FFD84D,0 0 14px 3px rgba(255,200,60,.85),0 4px 0 rgba(90,62,75,.1)!important;background:#FFFBEA}
+.rz-qp.vip>svg{filter:drop-shadow(0 0 5px rgba(255,200,60,.95))}
 html.port .rz-top{align-self:start;padding-bottom:7px}html.port .rz-scene{height:306px}html.port .rz-floor{top:306px}html.port .rz-counter{top:278px}html.port .rz-top .rz-prog{height:22px}
 /* portrait fit: the 2-line top bar is ~77px, so reserve all of it and keep order bubbles below it (hall still ends at 302px) */
 .rz{grid-template-columns:minmax(0,1fr)}
@@ -675,11 +697,23 @@ function czPerson(L,mood){
   if(L.acc==='bow')acc+=`<g transform="translate(88 26) rotate(18)"><path d="M0 0L-14 -9V9ZM0 0L14 -9V9Z" fill="${L.cap}"/><circle r="5" fill="${shade(L.cap,-.15)}"/></g>`;
   const mask=L.acc==='mask'?`<path d="M34 74Q60 70 86 74V92Q60 104 34 92Z" fill="#EAF6FF" stroke="#BFD8EA" stroke-width="2"/><path d="M40 82H80M42 88H78" stroke="#CFE2F0" stroke-width="2"/>`:'';
   const fx=mood==='worried'?`<path d="M98 40Q104 50 98 54Q92 50 98 40Z" fill="#8FD3FF"/>`:mood==='angry'?`<g fill="#fff" opacity=".9"><circle cx="100" cy="30" r="6"/><circle cx="108" cy="24" r="4"/><circle cx="20" cy="30" r="5"/></g>`:mood==='happy'?`<path d="M104 30l2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" fill="#FFD84D"/>`:'';
+  let vipB='',vipF='';
+  if(L.vip){/* คุณนาย VIP: feather boa + pearls + pageant sash under the face, huge hat + heart sunglasses on top */
+    vipB=`<g>${[24,34,44,56,64,76,86,96].map((x,i)=>`<circle cx="${x}" cy="${112+Math.abs(60-x)*.12}" r="${9+(i%2)*2}" fill="${i%2?'#FF8FC8':'#FFB3DC'}"/>`).join('')}
+      <path d="M24 122L98 152H80L20 132Z" fill="#FFD84D" stroke="#E7A92B" stroke-width="2"/><text x="57" y="140" transform="rotate(22 57 140)" font-family="Mali,sans-serif" font-weight="700" font-size="11" fill="#9A5A00" text-anchor="middle">VIP</text>
+      <g fill="#FFF8F0" stroke="#E9D9C9" stroke-width="1">${[38,45,52,60,68,75,82].map((x,i)=>`<circle cx="${x}" cy="${104+Math.abs(60-x)*-.18+8}" r="3.4"/>`).join('')}</g></g>`;
+    vipF=`<g class="vip-hat"><path d="M30 34Q30 4 60 3Q90 4 90 34Z" fill="#E0408A"/><path d="M30 34Q30 4 60 3Q90 4 90 34Z" fill="url(#chShine)"/><rect x="29" y="24" width="62" height="9" rx="3" fill="#FFD84D" stroke="#E7A92B" stroke-width="1.5"/>
+      <ellipse cx="60" cy="35" rx="58" ry="10" fill="#C2185B"/><ellipse cx="60" cy="33" rx="54" ry="7" fill="#E0408A"/>
+      <path d="M84 26Q104 -6 120 2Q104 6 98 22Z" fill="#FFD84D"/><path d="M86 28Q112 2 124 14Q108 14 96 28Z" fill="#FF8FC8"/><circle cx="86" cy="28" r="5" fill="#FFF8F0" stroke="#E9D9C9"/></g>
+      <g class="vip-shades"><path d="M44 79C32 71 30 59 38 57C42 56 44 59 44 61C44 59 46 56 50 57C58 59 56 71 44 79Z" transform="translate(0 0) scale(1.2) translate(-7.3 -12)" fill="#3A1F3A" stroke="#FFD84D" stroke-width="2.4"/>
+      <path d="M76 79C64 71 62 59 70 57C74 56 76 59 76 61C76 59 78 56 82 57C90 59 88 71 76 79Z" transform="scale(1.2) translate(-12.7 -12)" fill="#3A1F3A" stroke="#FFD84D" stroke-width="2.4"/>
+      <path d="M53 64h14" stroke="#FFD84D" stroke-width="3"/><path d="M40 60l4 -2M72 60l4 -2" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".8"/></g>
+      <circle cx="74" cy="88" r="1.8" fill="${k}"/>`}
   const sc=L.kid?'translate(9 18) scale(.85)':'';
-  return`<svg viewBox="0 0 120 150" aria-hidden="true"><g transform="${sc}">${back}<path d="M18 152Q20 112 60 108Q100 112 102 152Z" fill="${L.shirt}"/><path d="M18 152Q20 112 60 108Q100 112 102 152Z" fill="url(#chCloth)"/><path d="M46 110Q60 122 74 110" stroke="#fff" stroke-width="4" fill="none" opacity=".6"/>
+  return`<svg viewBox="0 0 120 150" aria-hidden="true"><g transform="${sc}">${back}<path d="M18 152Q20 112 60 108Q100 112 102 152Z" fill="${L.shirt}"/><path d="M18 152Q20 112 60 108Q100 112 102 152Z" fill="url(#chCloth)"/><path d="M46 110Q60 122 74 110" stroke="#fff" stroke-width="4" fill="none" opacity=".6"/>${vipB}
   <rect x="50" y="94" width="20" height="18" rx="8" fill="${shade(s,-.06)}"/><circle cx="60" cy="64" r="40" fill="${s}"/><circle cx="60" cy="64" r="40" fill="url(#chFace)"/><circle cx="60" cy="64" r="40" fill="url(#chShine)"/>${mood==='angry'?`<circle cx="60" cy="64" r="40" fill="#FF6B6B" opacity=".18"/>`:''}
   <ellipse cx="34" cy="80" rx="8" ry="5" fill="#FF8FAB" opacity="${mood==='angry'?.75:.45}"/><ellipse cx="86" cy="80" rx="8" ry="5" fill="#FF8FAB" opacity="${mood==='angry'?.75:.45}"/>
-  ${front}${E[mood]||E.calm}${mask||M[mood]||M.calm}${acc}${fx}</g></svg>`;
+  ${front}${E[mood]||E.calm}${mask||M[mood]||M.calm}${L.vip?'':acc}${vipF}${fx}</g></svg>`;
 }
 /* ================= RUSH MODE · ร้านยาทันใจ ================= */
 /* ---------- catalogue ---------- */
@@ -689,7 +723,6 @@ const RI={
  aml:{z:'tab',n:'ยาความดัน',e:'Amlodipine',c:'#B9A4FF',sh:'oct',p:12},
  vitc:{z:'tab',n:'วิตามินซี',e:'Vitamin C · กันแสง',c:'#FFB547',sh:'round',p:14,amber:1},
  ibu:{z:'tab',n:'ยาแก้อักเสบ',e:'Ibuprofen · NSAIDs',c:'#7ED9A6',sh:'dia',p:12},
- asa:{z:'tab',n:'แอสไพรินเคลือบ',e:'Aspirin EC',c:'#FF8A8A',sh:'ring',p:12,ec:1},
  'aml~c':{z:'tab',n:'ยาความดันบดผง',e:'Crushed · แบ่งห่อ',c:'#B9A4FF',p:20,crush:'aml'},
  cough:{z:'liq',n:'ยาน้ำแก้ไอ',e:'Cough syrup',c:'#C3A3FF',p:8,inst:1},
  syr:{z:'liq',n:'ไซริงค์ป้อนยา',e:'Oral syringe',c:'#7FD4FF',p:4,inst:1},
@@ -703,7 +736,6 @@ const RZ_FACT={
  aml:'ยาความดันควรกินต่อเนื่องทุกวันตามที่แพทย์สั่ง แม้ไม่มีอาการก็ไม่ควรหยุดยาเอง',
  vitc:'วิตามินซีเสื่อมได้เมื่อโดนแสงและความชื้น จึงจ่ายในซองสีชาที่ช่วยกันแสง และควรปิดซองให้สนิท',
  ibu:'ยาแก้อักเสบ (NSAIDs) ไม่ใช่ยาปฏิชีวนะ ใช้ลดปวด ลดบวม ควรกินหลังอาหารทันทีเพราะระคายเคืองกระเพาะ',
- asa:'ยาเม็ดเคลือบลำไส้ (EC) ห้ามบดหรือเคี้ยว เพราะสารเคลือบช่วยไม่ให้ยาแตกตัวในกระเพาะ',
  'aml~c':'ผู้ป่วยที่กลืนยาเม็ดลำบากอาจบดยาได้ แต่ต้องเช็กก่อนทุกครั้งว่ายาตัวนั้นบดได้หรือไม่',
  cough:'ยาน้ำควรตวงด้วยช้อนหรือถ้วยตวงที่ให้มา เพราะช้อนกินข้าวแต่ละคันขนาดไม่เท่ากัน',
  syr:'ไซริงค์ป้อนยาช่วยตวงยาน้ำให้เด็กได้แม่นยำกว่าช้อน',
@@ -798,7 +830,7 @@ const rzSave=()=>{try{localStorage.setItem(RZ_KEY,JSON.stringify(RD))}catch(e){}
 /* ---------- analytics (PostHog) ----------
    Off while RZ_PH_KEY is empty. Anonymous: PostHog keeps a random id per device in localStorage, no cookies, no names,
    no autocapture, no session recording. Players can switch it off in settings (RD.an=0). Events: see rzA(...) calls. */
-const RZ_VER='2026-11-03';
+const RZ_VER='2026-11-03b';
 const RZ_PH_KEY='phc_rkFR2c2yjDTwaPrVCxRVn3D4aCkxwxJ37TjdZmG8a5WW';/* PostHog project API key (phc_…, public by design) */
 const RZ_PH_HOST='https://us.i.posthog.com';/* EU project: https://eu.i.posthog.com */
 let rzPH=false;
@@ -811,11 +843,11 @@ function rzAnInit(){if(!RZ_PH_KEY||RD.an===0||rzPH)return;rzPH=true;try{
 }catch(e){}}
 function rzA(ev,p,beacon){if(!rzPH||RD.an===0)return;try{const st=(RD.stars||[]);
   posthog.capture(ev,Object.assign({hi_level:RD.hiStart||0,levels_cleared:st.filter(x=>x).length,stars_total:st.reduce((a,b)=>a+(+b||0),0),orient:root.classList.contains('port')?'portrait':'landscape'},p||{}),beacon?{transport:'sendBeacon'}:undefined)}catch(e){}}
-function rzAnLv(){const a=RZ.an||(RZ.an={walk:{},qw:0,spoil:0,trash:0,tok:0,tbad:0});return a}
+function rzAnLv(){const a=RZ.an||(RZ.an={walk:{},qw:0,spoil:0,trash:0,cbuy:0,cbye:0,cign:0});return a}
 function rzAnStart(){if(!RZ)return;rzA('level_start',{level:RZ.L,chapter:RZ.V.ch+1,goal:RZ.V.goal.t,customers:RZ.V.n,boosters:[...RZ.bst],trial:RZ.trial||null,stars_before:RD.stars[RZ.L-1]||0})}
 function rzAnEnd(res,stars,why,beacon){if(!RZ||RZ.anSent)return;RZ.anSent=1;const a=rzAnLv();
   rzA('level_end',{level:RZ.L,chapter:RZ.V.ch+1,result:res,stars:stars||0,time_s:Math.round(RZ.T),served:RZ.served,missed:RZ.missed,customers:RZ.V.n,coins:RZ.coins,best_combo:RZ.best,
-    goal:RZ.V.goal.t,fail_reason:why||null,boosters:[...RZ.bst],walkout_items:a.walk,queue_walkouts:a.qw,spoiled:a.spoil,trashed:a.trash,trap_ok:a.tok,trap_crushed:a.tbad},beacon)}
+    goal:RZ.V.goal.t,fail_reason:why||null,boosters:[...RZ.bst],walkout_items:a.walk,queue_walkouts:a.qw,spoiled:a.spoil,trashed:a.trash,chat_buy:a.cbuy,chat_bye:a.cbye,chat_ignored:a.cign},beacon)}
 addEventListener('pagehide',()=>{if(RZ&&RZ.run&&!RZ.done)rzAnEnd('closed',0,null,true)});
 /* keep the wallet / gem numbers in the map header in step while a panel is open on top of it */
 function rzSyncPills(){rzEl.querySelectorAll('.rz-maph .rz-pill.coin b').forEach(b=>{if(b.textContent!=String(RD.wallet)){b.textContent=RD.wallet;const p=b.parentNode;p.classList.remove('bump');void p.offsetWidth;p.classList.add('bump')}});
@@ -845,8 +877,8 @@ const RZ_UNL=[
  {L:14,add:['ins'],tut:'cold',txt:'ยาเย็นต้องแพ็กกับไอซ์แพ็ก แล้วรีบส่งก่อนความเย็นหมด ไม่งั้นยาเสื่อม!'},
  {L:17,add:['aml~c'],tut:'crush',txt:'ผู้สูงอายุกลืนยาเม็ดลำบาก นับยา → ส่งเข้าโกร่ง → แตะรัว ๆ บดผง'},
  {L:20,add:['lat'],txt:'ยาหยอดตาบางชนิดต้องเก็บในตู้เย็นก่อนเปิดใช้'},
- {L:23,feat:'vip',tut:'vip',txt:'ลูกค้า VIP จ่าย 1.5 เท่า แต่รอได้น้อยกว่า'},
- {L:26,add:['asa'],feat:'trap',tut:'trap',txt:'ระวัง! ยาเคลือบลำไส้ (EC) ห้ามบด ถ้ามีคนขอให้บด แตะที่ลูกค้าเพื่อคุยก่อน'},
+ {L:23,feat:'vip',tut:'vip',txt:'คุณนาย VIP มาแล้ว! หมวกใหญ่ แว่นหัวใจ สายสะพาย VIP จ่าย 1.5 เท่า แต่รอได้น้อยกว่า'},
+ {L:26,feat:'chat',tut:'chat',txt:'ลูกค้าช่างคุยมาแล้ว 💬 แตะที่ตัวลูกค้าซ้ำ ๆ เพื่อคุย คุยจบอาจซื้อยาเพิ่มพร้อมทิป หรือแค่ขอบใจแล้วกลับไป จะไม่คุยก็ได้ เดี๋ยวเขากลับเอง'},
  {L:28,txt:'ลูกค้าบางคนสั่งยาถึง 4 อย่างแล้ว! ดูกรอบคำพูดให้ครบ แล้วเตรียมยาหลายโซนไปพร้อมกัน'},
 ];
 const RZ_CH=['ร้านยาหน้าปากซอย','ร้านยาข้างโรงเรียน','ร้านยาในตลาดนัด','ร้านยาในห้าง','ร้านยาริมทะเล','ร้านยากลางเมือง'];
@@ -876,7 +908,7 @@ function rzLevel(L,seed){
   const maxI=L<3?1:L<9?2:L<28?3:4;
   const patBase=L<=4?44:Math.max(18,40-L*.5),gap=L<=4?3:Math.max(1,2.6-L*.03);
   const gt=L<=2?'serve':L%5===0?'nolose':L>=7&&L%7===0?'combo':L%3===0?'serve':'coins';
-  const used={};const wt=x=>(fresh.includes(x)?4:(L-unl[x]<6?2:1)*(x==='syr'||x==='asa'?.7:1))/(1+(used[x]||0)*.6);let prevKey='';
+  const used={};const wt=x=>(fresh.includes(x)?4:(L-unl[x]<6?2:1)*(x==='syr'?.7:1))/(1+(used[x]||0)*.6);let prevKey='';
   const cs=[];let at=.6;
   for(let i=0;i<n;i++){
     let k=1+Math.floor(R()*maxI);if(L<12&&k>2&&R()<.5)k=2;k=Math.min(k,items.length);
@@ -886,19 +918,19 @@ function rzLevel(L,seed){
     if(L>=12&&order.length<maxI&&R()<.18){const t=order.find(o=>RI[o.id].z==='tab'&&!RI[o.id].crush);if(t)order.push({id:t.id})}
     const key=order.map(o=>o.id).sort().join();if(key===prevKey&&pool.length){order[order.length-1]={id:pool[Math.floor(R()*pool.length)]}}prevKey=order.map(o=>o.id).sort().join();
     order.forEach(o=>used[o.id]=(used[o.id]||0)+1);
-    order.forEach(o=>{if(o.id==='asa'&&feats.has('trap')&&R()<.55)o.trap=1;if(o.id==='syr'&&!order.some(q=>q.id==='amox'||q.id==='cough')&&R()<.6&&items.includes('amox')&&order.length<maxI)order.push({id:'amox'})});
-    const vip=feats.has('vip')&&R()<.16;
+    order.forEach(o=>{if(o.id==='syr'&&!order.some(q=>q.id==='amox'||q.id==='cough')&&R()<.6&&items.includes('amox')&&order.length<maxI)order.push({id:'amox'})});
+    const vip=feats.has('vip')&&R()<.16,chat=feats.has('chat')&&i>=2&&!vip&&R()<.2?{need:4+Math.floor(R()*3),buy:R()<.6}:null;
     const g=i===0?.6:gap*(.7+R()*.6)*(1+(order.length-1)*.15);
-    cs.push({at,g,order,vip,look:rzLook(R),pat:(patBase+6*order.length)*(vip?.78:1)});
+    cs.push({at,g,order,vip,chat,look:rzLook(R),pat:(patBase+6*order.length)*(vip?.78:1)*(chat?1.15:1)});
     at+=g;
   }
   const r5=x=>Math.max(5,Math.round(x/5)*5),first=cs.slice(0,need);
-  const P=first.reduce((a,c,i)=>a+c.order.reduce((s,o)=>s+RI[o.id].p,0)*1.5*(i<2?1:i<5?1.15:1.3)*(c.vip?1.5:1),0);
+  const P=first.reduce((a,c,i)=>a+(c.chat&&!c.chat.buy?0:1)*c.order.reduce((s,o)=>s+RI[o.id].p,0)*1.5*(i<2?1:i<5?1.15:1.3)*(c.vip?1.5:1),0);
   const itemsNeed=first.reduce((a,c)=>a+c.order.length,0);
   const goal={t:gt,v:gt==='coins'?r5(P*.85):gt==='combo'?Math.min(30,Math.max(5,Math.round(itemsNeed*.5))):need};
   /* star times: when the last needed customer arrives, plus time to prepare their order */
   /* expected time for a skilled player (calibrated with a bot), then generous margins */
-  const work=first.reduce((a,c)=>a+1.4+.8*c.order.length+c.order.reduce((e,o)=>e+(RI[o.id].crush?9:RI[o.id].amber?1.2:RI[o.id].mix?1.5:RI[o.id].cold?1:0),0),0);
+  const work=first.reduce((a,c)=>a+(c.chat?2:0)+1.4+.8*c.order.length+c.order.reduce((e,o)=>e+(RI[o.id].crush?9:RI[o.id].amber?1.2:RI[o.id].mix?1.5:RI[o.id].cold?1:0),0),0);
   const tFast=gt==='coins'?4+work*.55:gt==='combo'?6+goal.v*1.3:4+work*.65;
   const par=L<=4?[Math.round(tFast*1.8+8),Math.round(tFast*2.6+15)]:[Math.round(tFast*1.35+3),Math.round(tFast*2+8)];
   return{L,items,feats,fresh,tut,news,seats,n,need,cs,goal,par,ch:Math.floor((L-1)/10)};
@@ -958,7 +990,7 @@ function rzStart(L){
 function rzBanner(a,b){const fx=rzQ('#rzFx');if(!fx)return;const el=document.createElement('div');el.className='rz-banner';el.innerHTML=`<b>${a}</b>`;fx.appendChild(el);
   setTimeout(()=>{el.innerHTML=`<b class="go">${b}</b>`;RZS.pop()},650);setTimeout(()=>el.remove(),1300)}
 function rzBuild(){
-  const V=RZ.V,has=z=>V.items.some(x=>RI[x].z===z),jars=['para','cet','ibu','aml','vitc','asa'].filter(x=>V.items.includes(x)||(x==='aml'&&V.items.includes('aml~c')));
+  const V=RZ.V,has=z=>V.items.some(x=>RI[x].z===z),jars=['para','cet','ibu','aml','vitc'].filter(x=>V.items.includes(x)||(x==='aml'&&V.items.includes('aml~c')));
   const ch=RZ_CHC[V.ch%RZ_CHC.length];
   const lock=(z,txt)=>`<div class="rz-lock"><div class="ghost">${z==='liq'?rzArt('amox','bottle'):z==='cold'?rzArt('ins','cold'):rzArt('para','jar')}</div><svg viewBox="0 0 20 20" width="22" height="22"><rect x="4" y="9" width="12" height="9" rx="2" fill="currentColor"/><path d="M7 9V6a3 3 0 0 1 6 0v3" stroke="currentColor" stroke-width="2" fill="none"/></svg><span>${txt}</span></div>`;
   const nextL=z=>(RZ_UNL.find(u=>u.L>V.L&&(u.add||[]).some(x=>RI[x].z===z))||{}).L;
@@ -1058,10 +1090,10 @@ function rzSpawn(){
   const free=RZ.seats.map((s,j)=>s?-1:j).filter(j=>j>=0);
   if(!free.length||RZ.queue.length){if(RZ.queue.length>=RZ_QMAX())return;
     const C=V.cs[RZ.qi++];RZ.lastSp=RZ.T;const pm=C.pat*rzU('sofa')*rzGPat();
-    RZ.queue.push({id:++RZ.uid,look:C.look,vip:C.vip,order:C.order.map(o=>({...o,done:false})),pat:pm,pm,mood:'calm',qin:1});rzQueue();rzHUD();rzDoor();return}
+    RZ.queue.push({id:++RZ.uid,look:C.look,vip:C.vip,chat:C.chat?{...C.chat,taps:0}:null,order:C.order.map(o=>({...o,done:false})),pat:pm,pm,mood:'calm',qin:1});rzQueue();rzHUD();rzDoor();return}
   const C=V.cs[RZ.qi++],j=free.length>1&&RZ.qi>1?pick(free):free[0];RZ.lastSp=RZ.T;
   const pm=C.pat*rzU('sofa')*rzGPat(),se=rzQ('#rzS'+j),r=se?rzXY(se):{x:0,w:200},dx=Math.round(rzEl.offsetWidth-r.x+20),wd=+(1+dx/250).toFixed(2);
-  RZ.seats[j]={id:++RZ.uid,arr:RZ.T,look:C.look,vip:C.vip,order:C.order.map(o=>({...o,done:false})),pat:pm,pm,mood:'calm',walk:wd,wd,dx,leave:null};
+  RZ.seats[j]={id:++RZ.uid,arr:RZ.T,look:C.look,vip:C.vip,chat:C.chat?{...C.chat,taps:0}:null,order:C.order.map(o=>({...o,done:false})),pat:pm,pm,mood:'calm',walk:wd,wd,dx,leave:null};
   rzSeat(j);rzHUD();const door=rzQ('.rz-door');if(door){door.classList.remove('open');void door.offsetWidth;door.classList.add('open')}
   RZS.t(1318,.18,.03,'sine');RZS.t(1046,.3,.03,'sine',.12);
 }
@@ -1069,12 +1101,12 @@ const RZ_QMAX=()=>isPort()?3:4;
 function rzDoor(){const door=rzQ('.rz-door');if(door){door.classList.remove('open');void door.offsetWidth;door.classList.add('open')}RZS.t(1318,.18,.03,'sine');RZS.t(1046,.3,.03,'sine',.12)}
 /* waiting line by the door: people stand in a row and slowly lose patience */
 function rzQueue(){const box=rzQ('#rzQueue');if(!box)return;
-  box.innerHTML=RZ.queue.map((c,i)=>`<div class="rz-qp ${c.qin?'qin':''} ${c.vip?'vip':''}" style="--i:${i}">${c.vip?RZ_CROWN:''}${czPerson(c.look,c.mood)}<i><b style="width:${Math.max(0,c.pat/c.pm*100)}%"></b></i></div>`).join('')+(RZ.queue.length?`<span class="rz-qn">ต่อคิว ${RZ.queue.length}</span>`:'');
+  box.innerHTML=RZ.queue.map((c,i)=>`<div class="rz-qp ${c.qin?'qin':''} ${c.vip?'vip':''}" style="--i:${i}">${czPerson(c.vip?{...c.look,vip:1}:c.look,c.mood)}<i><b style="width:${Math.max(0,c.pat/c.pm*100)}%"></b></i></div>`).join('')+(RZ.queue.length?`<span class="rz-qn">ต่อคิว ${RZ.queue.length}</span>`:'');
   RZ.queue.forEach(c=>c.qin=0)}
 function rzQueueTick(dt){
   if(!RZ.queue.length)return;let ch=false;const box=rzQ('#rzQueue');
   RZ.queue.forEach((c,i)=>{if(!RZ.fever)c.pat-=dt*(rzG('ac')?.33:.5)*(RZ.bst.has('calm')?.5:1)*(RZ.bst.has('ptph')?.7:1);const m=rzMood(c);if(m!==c.mood){c.mood=m;ch=true}const b=box&&box.children[i]&&box.children[i].querySelector('b');if(b){const f=c.pat/c.pm;b.style.width=Math.max(0,f*100)+'%';b.style.background=f>.6?'#7FD8B6':f>.3?'#FFCF5C':'#FF7F9E'}});
-  const gone=RZ.queue.filter(c=>c.pat<=0);if(gone.length){RZ.queue=RZ.queue.filter(c=>c.pat>0);gone.forEach(()=>{RZ.missed++;rzAnLv().qw++;rzComboBreak(true)});rzFloat(box,'รอคิวไม่ไหวแล้ว!','bad');RZS.sad();ch=true;rzHUD();if(RZ.V.goal.t==='nolose')rzFail('มีลูกค้ารอคิวจนกลับไป')}
+  const gone=RZ.queue.filter(c=>c.pat<=0);if(gone.length){RZ.queue=RZ.queue.filter(c=>c.pat>0);const real=gone.filter(c=>!c.chat);gone.forEach(c=>{if(c.chat){rzAnLv().cign++;return}RZ.missed++;rzAnLv().qw++;rzComboBreak(true)});ch=true;rzHUD();if(real.length){rzFloat(box,'รอคิวไม่ไหวแล้ว!','bad');RZS.sad();if(RZ.V.goal.t==='nolose')rzFail('มีลูกค้ารอคิวจนกลับไป')}}
   /* a seat is free: the first person in line walks over */
   const j=RZ.seats.findIndex(s=>!s);
   if(j>=0&&RZ.queue.length){const c=RZ.queue.shift(),qe=box&&box.firstElementChild,se=rzQ('#rzS'+j);
@@ -1084,21 +1116,22 @@ function rzQueueTick(dt){
 }
 /* customer reached the counter: now the order bubble pops up */
 function rzArrive(j){const c=RZ.seats[j];c.walk=0;c.arr=RZ.T;c.arrive=1;rzSeat(j);RZS.pop();
-  rzEv('cust');c.order.forEach(o=>rzEv('need:'+o.id));if(c.vip)rzEv('vip');if(c.order.some(o=>o.trap))rzEv('trap')}
+  rzEv('cust');c.order.forEach(o=>rzEv('need:'+o.id));if(c.vip)rzEv('vip');if(c.chat)rzEv('chat')}
 const rzMood=c=>{const f=c.pat/c.pm;return f>.6?'calm':f>.3?'worried':'angry'};
 function rzSeat(j){
   const c=RZ.seats[j],el=rzQ('#rzS'+j);if(!el)return;
   if(!c){el.innerHTML='';el.className='rz-seat';return}
   el.className='rz-seat'+(c.vip?' vip':'');
-  if(c.walk>0||c.leave){el.innerHTML=`<div class="rz-who ${c.walk>0?'walking':'leave '+c.leave}" style="--dx:${c.leave?Math.round(rzEl.offsetWidth-rzXY(el).x+20):c.dx}px;--wd:${c.wd}s">${c.vip?RZ_CROWN:''}${czPerson(c.look,c.leave==='happy'?'happy':c.walk>0?'calm':c.mood)}</div>`;return}
-  el.innerHTML=`<div class="rz-bub ${c.order.length>2?'many':''}" style="--n:${c.order.length}" data-r="cust" data-i="${j}">${c.order.map((o,k)=>`<span class="rz-oi ${o.done?'ok':''} ${o.trap&&!o.res?'trap':''}">${o.trap&&!o.res?rzArt('asa','bag'):rzOrderArt(o.res==='ok'?'asa':o.id)}${o.trap&&!o.res?'<i class="q">?</i><i class="badge">บด</i>':''}${RI[o.id].crush?'<i class="badge">บด</i>':''}</span>`).join('')}<div class="rz-pat"><i style="width:${Math.max(0,c.pat/c.pm*100)}%"></i></div></div>
-   <div class="rz-who ${c.arrive?'arrive':''}" data-r="cust" data-i="${j}">${c.vip?RZ_CROWN:''}${czPerson(c.look,c.leave==='happy'?'happy':c.mood)}</div>`;
+  if(c.walk>0||c.leave){el.innerHTML=`<div class="rz-who ${c.walk>0?'walking':'leave '+c.leave}" style="--dx:${c.leave?Math.round(rzEl.offsetWidth-rzXY(el).x+20):c.dx}px;--wd:${c.wd}s">${czPerson(c.vip?{...c.look,vip:1}:c.look,c.leave==='happy'?'happy':c.walk>0?'calm':c.mood)}${c.vip?'<i class="vip-sp"></i>':''}</div>`;return}
+  el.innerHTML=c.chat?`<div class="rz-bub chatty" data-r="cust" data-i="${j}"><span class="rz-talk"><svg viewBox="0 0 40 32" aria-hidden="true"><path d="M6 2h28a5 5 0 0 1 5 5v13a5 5 0 0 1-5 5H17l-8 6v-6H6a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Z" fill="#7FD8B6" stroke="#4FB892" stroke-width="2"/><g fill="#fff"><circle cx="12" cy="13.5" r="2.6"/><circle cx="20" cy="13.5" r="2.6"/><circle cx="28" cy="13.5" r="2.6"/></g></svg><b>แตะคุย</b><span class="rz-pips">${Array.from({length:c.chat.need},(_,k)=>`<i class="${k<c.chat.taps?'on':''}"></i>`).join('')}</span></span><div class="rz-pat"><i style="width:${Math.max(0,c.pat/c.pm*100)}%"></i></div></div>
+   <div class="rz-who ${c.arrive?'arrive':''}" data-r="cust" data-i="${j}">${czPerson(c.vip?{...c.look,vip:1}:c.look,c.leave==='happy'?'happy':c.mood)}${c.vip?'<i class="vip-sp"></i>':''}</div>`:`<div class="rz-bub ${c.order.length>2?'many':''}" style="--n:${c.order.length}" data-r="cust" data-i="${j}">${c.order.map((o,k)=>`<span class="rz-oi ${o.done?'ok':''}">${rzOrderArt(o.id)}${RI[o.id].crush?'<i class="badge">บด</i>':''}</span>`).join('')}<div class="rz-pat"><i style="width:${Math.max(0,c.pat/c.pm*100)}%"></i></div></div>
+   <div class="rz-who ${c.arrive?'arrive':''}" data-r="cust" data-i="${j}">${czPerson(c.vip?{...c.look,vip:1}:c.look,c.leave==='happy'?'happy':c.mood)}${c.vip?'<i class="vip-sp"></i>':''}</div>`;
   c.arrive=0;
 }
 /* route a finished item to the customer who has waited longest and still needs it */
-function rzWho(id){let best=-1,bt=1e9;RZ.seats.forEach((c,j)=>{if(!c||c.leave||c.walk>0)return;if(c.order.some(o=>!o.done&&o.id===id&&(!o.trap||o.res==='ok'))&&c.arr<bt){bt=c.arr;best=j}});return best}
+function rzWho(id){let best=-1,bt=1e9;RZ.seats.forEach((c,j)=>{if(!c||c.leave||c.walk>0||c.chat)return;if(c.order.some(o=>!o.done&&o.id===id)&&c.arr<bt){bt=c.arr;best=j}});return best}
 function rzServe(id,fromEl){
-  const j=rzWho(id);if(j<0)return false;const c=RZ.seats[j],o=c.order.find(o=>!o.done&&o.id===id&&(!o.trap||o.res==='ok'));o.done=true;
+  const j=rzWho(id);if(j<0)return false;const c=RZ.seats[j],o=c.order.find(o=>!o.done&&o.id===id);o.done=true;
   rzFly(fromEl,rzQ(`#rzS${j} .rz-bub`),rzOrderArt(id));RZS.whoosh();rzComboHit();
   const it=RI[id];rzStat(it.z==='cold'?'cold':it.z==='liq'?'liq':'tab');if(it.mix)rzStat('mix');if(it.amber)rzStat('amber');if(it.crush)rzStat('crush');
   setTimeout(()=>{if(!RZ||RZ.seats[j]!==c)return;rzSeat(j);rzCheck(j)},330);rzEv('served');return true;
@@ -1106,13 +1139,12 @@ function rzServe(id,fromEl){
 function rzCheck(j){
   const c=RZ.seats[j];if(!c||c.leave||c.order.some(o=>!o.done))return;
   const f=c.pat/c.pm,base=c.order.reduce((s,o)=>s+(o.bad?0:rzPrice(o.id)),0),tip=Math.round(base*.6*f*rzU('tip')*rzGTip());
-  if(c.order.some(o=>o.bad))rzComboBreak();
-  const bonus=c.order.filter(o=>o.res==='ok').length*(rzG('allergy')?20:10),mult=rzMult();
+  const bonus=c.tipx?Math.round(base*.5)+(rzG('allergy')?20:10):0,mult=rzMult();
   const pay=Math.round((base+tip+bonus)*mult*(c.vip?1.5:1)*(RZ.bst.has('feast')?1.25:1));
   RZ.coins+=pay;RZ.served++;
   rzFloat(rzQ('#rzS'+j),`+${pay}${mult>1?` (×${mult})`:''}`,mult>=2?'good fever':'good');rzCoinFly(rzQ('#rzS'+j),pay);RZS.coin();rzHearts(rzQ('#rzS'+j));
   {const v=c.vip||f>.55?'yay':pick(['yay','mmm']);RZS.voice(v,c.look.kid);rzSay(rzQ('#rzS'+j),v==='yay'?pick(['เย้!','เย้ ได้ยาแล้ว!','ขอบคุณค่า!']):pick(['อื้มม~','อื้มม ขอบคุณนะ~']))}
-  if(c.order.some(o=>o.bad))rzFloat(rzQ('#rzS'+j),'ยาเคลือบลำไส้ห้ามบด!','bad',30);
+  if(c.tipx)rzFloat(rzQ('#rzS'+j),'ทิปคุยถูกคอ 💬','good',30);
   rzStat('cust');if(c.vip)rzStat('vip');
   rzExit(j,'happy');rzHUD();rzEv('paid');rzGoalCheck();
 }
@@ -1120,7 +1152,7 @@ function rzCheck(j){
 function rzExit(j,how){
   const c=RZ.seats[j],w=rzQ(`#rzS${j} .rz-who`);
   if(w){const r=rzXY(w),fx=rzQ('#rzFx'),e=document.createElement('div');e.className='rz-who rz-exit leave '+how;
-    e.innerHTML=(c&&c.vip?RZ_CROWN:'')+czPerson(c.look,how==='happy'?'happy':'angry');
+    e.innerHTML=czPerson(c&&c.vip?{...c.look,vip:1}:c.look,how==='happy'?'happy':'angry');
     Object.assign(e.style,{position:'absolute',left:r.x+'px',top:r.y+'px',width:r.w+'px',height:r.h+'px',margin:0});e.style.setProperty('--dx',Math.round(rzEl.offsetWidth-r.x+20)+'px');
     fx.appendChild(e);setTimeout(()=>e.remove(),2500)}
   RZ.seats[j]=null;rzSeat(j);
@@ -1129,13 +1161,17 @@ function rzExit(j,how){
 /* ---------- stations ---------- */
 const RZ_SLOTS={tray:'#rzTray',amber:'#rzAmber',mortar:'#rzMortar',mix:'#rzMix',pack:'#rzPack'};
 const rzArtS=(id,st)=>rzArt(id,st,24);
+function rzMortarFill(x){const f=Math.min(1,(x.taps||0)/(x.need||1)),c=(RI[(x.id||'aml~c').split('~')[0]]||RI.aml).c,whole=x.ph==='crush'?Math.ceil(3*(1-f)-1e-9):0;
+  const P=[[40,44,-24],[54,41,12],[64,47,-6]];
+  return`<svg class="rz-mfill" viewBox="0 0 100 100" aria-hidden="true"><ellipse cx="50" cy="50" rx="${12+24*f}" ry="${2.5+4.5*f}" fill="${c}" opacity="${x.ph==='crush'?.35+.4*f:.75}"/>
+   ${P.map(([cx,cy,r],i)=>i<whole?`<g transform="translate(${cx} ${cy}) rotate(${r})"><rect x="-8" y="-4.5" width="16" height="9" rx="4.5" fill="${c}" stroke="#5A3E4B" stroke-opacity=".4" stroke-width="1.3"/><path d="M0 -3.5V3.5" stroke="#fff" stroke-opacity=".7" stroke-width="1.2"/></g>`:x.ph==='crush'?`<g fill="${c}" stroke="#5A3E4B" stroke-opacity=".3"><circle cx="${cx-3}" cy="${cy+3}" r="2.6"/><circle cx="${cx+3}" cy="${cy+4}" r="2"/></g>`:'').join('')}</svg>`}
 function rzSlotHTML(kind,k,x){
   const bg=RZ_ST_ART[kind==='tray'?'tray':kind==='mix'?'mix':kind==='mortar'?'mortar':kind==='amber'?'amber':'pack'];
   if(!x)return`<button class="rz-slot empty ${kind}" data-r="slot" data-k="${kind}:${k}">${bg}</button>`;
   let art='',tag='',cls=x.ph;
   if(kind==='tray'){art=x.ph==='count'?`<div class="rz-counting">${[0,1,2,3,4].map(i=>`<i style="--i:${i};background:${RI[x.id].c}"></i>`).join('')}</div><svg class="rz-gb" viewBox="-16 -16 32 32">${rzBadge(x.id,0,0,30)}</svg>`:rzArtS(x.id,RI[x.id].amber?'amberRaw':'bag');if(x.ph==='ready'&&RI[x.id].amber)tag='<em>ซองชา</em>'}
   if(kind==='amber')art=rzArtS(x.id,x.ph==='ready'?'amber':'bag');
-  if(kind==='mortar'){art=x.ph==='ready'?rzArtS('aml~c','packet'):`<div class="rz-powder" style="--n:${x.taps}"></div>`;if(x.ph==='crush')tag=`<em class="tapme">บด! ${x.taps}/${x.need}</em>`;if(x.ph==='divide')tag='<em>แบ่งห่อ</em>'}
+  if(kind==='mortar'){art=x.ph==='ready'?rzArtS('aml~c','packet'):rzMortarFill(x);if(x.ph==='crush')tag=`<em class="tapme">แตะบด! ${x.taps}/${x.need}</em>`;if(x.ph==='divide')tag='<em>แบ่งห่อ</em>'}
   if(kind==='mix'){art=rzArtS(x.id,x.ph==='water'?'raw':x.sed?'sed':'bottle');if(x.ph==='shake')tag='<em class="tapme">เขย่า!</em>';if(x.ph==='water')tag='<em>เติมน้ำ</em>';if(x.ph==='label')tag='<em>ติดฉลาก</em>';if(x.sed&&x.ph==='ready')tag='<em class="tapme">ตกตะกอน</em>'}
   if(kind==='pack'){art=rzArtS(x.id,x.ph==='spoiled'?'spoiled':x.ph==='pack'?'raw':'cold');if(x.ph==='pack')tag='<em>แพ็กไอซ์</em>';if(x.ph==='spoiled')tag='<em class="bad">ยาเสื่อม</em>'}
   return`<button class="rz-slot ${kind} ${cls} ${x.sed?'sedd':''}" data-r="slot" data-k="${kind}:${k}" style="--p:${x.p||0};--cold:${x.cold??1}">${bg}<div class="rz-art">${art}</div><svg class="rz-ring" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17"/></svg>${kind==='pack'&&x.ph==='ready'?'<div class="rz-cold"><i></i></div>':''}${tag}</button>`;
@@ -1298,6 +1334,7 @@ function rzLoop(now){
       RZ.seats.forEach((c,j)=>{if(!c||c.leave||c.walk>0)return;
         if(!RZ.fever)c.pat-=dt*(c.vip?1.1:1)*(RZ.bst.has('calm')?.5:1);const m=rzMood(c);if(m!==c.mood){c.mood=m;rzSeat(j);if(m==='angry')RZS.nope()}
         const bar=rzQ(`#rzS${j} .rz-pat i`);if(bar){const f=c.pat/c.pm;bar.style.width=Math.max(0,f*100)+'%';bar.style.background=f>.6?'#7FD8B6':f>.3?'#FFCF5C':'#FF7F9E'}
+        if(c.pat<=0&&c.chat){rzAnLv().cign++;rzSay(rzQ('#rzS'+j),'ไปละนะ~');c.chat=null;rzExit(j,'happy');rzHUD();return}
         if(c.pat<=0){RZ.missed++;{const a=rzAnLv();c.order.forEach(o=>{if(!o.done)a.walk[o.id]=(a.walk[o.id]||0)+1})}rzComboBreak(true);rzFloat(rzQ('#rzS'+j),'รอไม่ไหวแล้ว!','bad');RZS.sad();c.mood='angry';rzExit(j,'angry');rzHUD();if(RZ.V.goal.t==='nolose')rzFail('มีลูกค้ารอจนกลับไป')}});
       if(!RZ.done&&RZ.qi>=RZ.V.cs.length&&!RZ.queue.length&&RZ.seats.every(s=>!s)){RZ.ending+=dt;if(RZ.ending>.6){if(rzCanRescue())rzRescueAsk();else rzFail('ลูกค้าหมดก่อนถึงเป้า')}}}
     rzStarClock();
@@ -1305,20 +1342,20 @@ function rzLoop(now){
   requestAnimationFrame(rzLoop);
 }
 
-/* ---------- trap: patient asks to crush an enteric-coated tablet ---------- */
-function rzTrap(j){
-  const c=RZ.seats[j];if(!c)return;const o=c.order.find(o=>o.trap&&!o.res);if(!o)return;RZ.hold=3;
-  const box=rzQ('#rzOv');box.hidden=false;
-  box.innerHTML=`<div class="rz-card sm"><div class="rz-chat"><div class="rz-face">${czPerson(c.look,'calm')}</div><p>“ช่วยบดแอสไพรินให้หน่อยได้ไหม กลืนยาเม็ดไม่ค่อยลง”</p></div>
-   <div class="rz-tagline">${rzArt('asa','bag')}<span><b>แอสไพรินเคลือบลำไส้ (EC)</b>เม็ดเคลือบพิเศษ</span></div>
-   <div class="rz-choices"><button class="rz-b ghost" data-r="trap" data-v="crush" data-i="${j}">บดให้เลย</button><button class="rz-b" data-r="trap" data-v="ok" data-i="${j}">อธิบายว่ายานี้ห้ามบด แนะนำให้กลืนทั้งเม็ด</button></div></div>`;
-}
-function rzTrapRes(j,v){if(RZ){const a=rzAnLv();if(v==='ok')a.tok++;else a.tbad++}
-  const c=RZ.seats[j];rzQ('#rzOv').hidden=true;RZ.hold=0;RZ.last=performance.now();if(!c)return;const o=c.order.find(o=>o.trap&&!o.res);if(!o)return;
-  if(v==='ok'){o.res='ok';RZS.ok();rzStat('trap');rzFloat(rzQ('#rzS'+j),'+10 คำแนะนำดีมาก','good');c.pat=Math.min(c.pm,c.pat+c.pm*.25)}
-  else{o.res='crush';o.done=true;o.bad=true;RZS.nope()}
-  rzSeat(j);rzCheck(j);rzEv('trapRes');
-}
+/* ---------- chatty customer: tap them again and again to chat (no popup). When the chat ends they either reveal an
+   order (bonus tip when paid) or just say thanks and leave with a small tip or none. Ignoring them is fine: they leave
+   on their own with no penalty. The player can't tell which kind they are until the chat ends. */
+const RZ_CHATL=['วันนี้ร้อนเนอะ~','หลานเพิ่งสอบติดนะ!','แมวที่บ้านอ้วนอีกแล้ว','ผักที่ตลาดแพงขึ้นอีก','ละครเมื่อคืนดูยัง?','ลูกสาวจะแต่งงานเดือนหน้า','เดินมาเหนื่อยเลย ขอนั่งแป๊บ','ร้านนี้แอร์เย็นดีจัง','ทายสิ ป้าอายุเท่าไหร่~','เมื่อเช้ารถติดมากเลย','ฝนจะตกไหมเนี่ย','ข้างบ้านเปิดร้านกาแฟใหม่','ลุงเพิ่งหัดเล่นมือถือ','หมาที่บ้านชอบกินแตงโม','งานวัดปีนี้คนเยอะมาก'];
+const RZ_CHATBYE=['ขอบใจนะ คุยสนุกดี!','ค่อยยังชั่ว ได้คุยแล้ว','แค่แวะมาทักเฉย ๆ จ้า','ไว้มาคุยใหม่นะ~','ขอบใจที่ฟังนะหลาน'];
+function rzChatTap(j){const c=RZ.seats[j];if(!c||!c.chat||c.leave||c.walk>0)return;const ch=c.chat;ch.taps++;
+  const se=rzQ('#rzS'+j);bounce(se&&se.querySelector('.rz-who'));RZS.t(660+ch.taps*90,.08,.04,'triangle');
+  if(c._say&&c._say.isConnected)c._say.remove();rzSay(se,pick(RZ_CHATL));{const fx=rzQ('#rzFx');c._say=fx&&fx.lastElementChild}c.pat=Math.min(c.pm,c.pat+c.pm*.05);
+  if(ch.taps<ch.need){const pp=se&&se.querySelectorAll('.rz-pips i');if(pp&&pp[ch.taps-1])pp[ch.taps-1].classList.add('on');return}
+  const a=rzAnLv();rzStat('chat');
+  if(ch.buy){c.chat=null;c.tipx=1;a.cbuy++;RZS.ok();rzFloat(se,'อยากได้ยาด้วย! ทิปพิเศษ','good');rzSeat(j);c.order.forEach(o=>rzEv('need:'+o.id));rzEv('chatEnd');return}
+  const tip=pick([0,0,5,10]);a.cbye++;if(tip){RZ.coins+=tip;rzCoinFly(se,tip);RZS.coin()}
+  if(c._say&&c._say.isConnected)c._say.remove();rzSay(se,pick(RZ_CHATBYE));rzFloat(se,tip?`+${tip} ทิปน้ำใจ`:'คุยเฉย ๆ จ้า',tip?'good':'');
+  c.chat=null;rzExit(j,'happy');rzHUD();rzEv('chatEnd');rzGoalCheck()}
 
 /* ---------- input ---------- */
 rzEl.addEventListener('click',e=>{
@@ -1382,14 +1419,25 @@ rzEl.addEventListener('click',e=>{
   if(r==='ppcopy'){rzCopy(RZ_PPID,b);return}
   if(r==='gatei'){RZS.nope();const n=rzGateNeed(+b.dataset.l);rzMapToast(`เก็บดาวรวมให้ครบ ${n} ดวงเพื่อเปิดบทใหม่ ลองเล่นด่านเก่าให้ได้ 3 ดาว`);return}
   if(r==='resume'){RZ.paused=false;RZ.last=performance.now();rzQ('#rzOv').hidden=true;RZS.music(true);requestAnimationFrame(rzLoop);return}
-  if(r==='trap'){rzTrapRes(+b.dataset.i,b.dataset.v);return}
   if(!RZ||!RZ.run||RZ.paused||RZ.hold===2||RZ.hold===3)return;
   if(RZ.tut.cur&&RZ.tut.cur.ok)return;
   if(r==='trash'){RZ.trash=!RZ.trash;rzEl.classList.toggle('trashing',RZ.trash);RZS.tap();if(RZ.trash)rzNope('แตะของที่จะทิ้ง',null);return}
+  if(r==='src'||r==='slot'||r==='cust'){if(b.dataset.tt&&performance.now()-b.dataset.tt<800)return;rzGameTap(r,b);return}
+});
+function rzGameTap(r,b){
   if(r==='src'){if(RZ.trash){RZ.trash=false;rzEl.classList.remove('trashing')}rzTapSrc(b.dataset.id,b);return}
   if(r==='slot'){if(RZ.dragged)return;const [kind,k]=b.dataset.k.split(':');rzTapSlot(kind,+k,b);return}
-  if(r==='cust'){const j=+b.dataset.i,c=RZ.seats[j];if(c&&c.order.some(o=>o.trap&&!o.res))rzTrap(j);return}
-});
+  if(r==='cust'){const j=+b.dataset.i,c=RZ.seats[j];if(c&&c.chat)rzChatTap(j);return}
+}
+/* multi-touch: every finger is its own tap. Browsers only send "click" for a single finger, so touch taps on jars,
+   stations and customers are handled on pointerup per pointer, and the click that may follow is ignored. */
+const rzTp=new Map();
+rzEl.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch'||!RZ||!RZ.run)return;const b=e.target.closest('[data-r="src"],[data-r="slot"],[data-r="cust"]');if(b)rzTp.set(e.pointerId,{b,x:e.clientX,y:e.clientY})});
+addEventListener('pointerup',e=>{const t=rzTp.get(e.pointerId);if(!t)return;rzTp.delete(e.pointerId);
+  if(Math.hypot(e.clientX-t.x,e.clientY-t.y)>14||!t.b.isConnected)return;
+  if(!RZ||!RZ.run||RZ.paused||RZ.hold===2||RZ.hold===3||(RZ.tut.cur&&RZ.tut.cur.ok))return;
+  t.b.dataset.tt=performance.now();SND.init();setTimeout(()=>{if(RZ&&!RZ.dragged)rzGameTap(t.b.dataset.r,t.b)},0)});
+addEventListener('pointercancel',e=>rzTp.delete(e.pointerId));
 document.addEventListener('visibilitychange',()=>{if(document.hidden)rzPause()});
 window.__rz=()=>RZ;
 function rzPause(){if(!RZ||!RZ.run||RZ.paused)return;RZ.paused=true;RZS.music(false);const o=rzQ('#rzOv');o.hidden=false;
@@ -1420,8 +1468,8 @@ const RZ_TUT={
   {on:'ready:aml',at:()=>rzSlotEl('tray','ready'),t:'แตะซองยา ระบบจะส่งเข้าโกร่งบดยาให้เอง',until:'crushIn'},
   {on:'auto',at:()=>rzSlotEl('mortar','crush'),t:'แตะโกร่งรัว ๆ เพื่อบดยาให้ละเอียด!',until:'crushed'},
   {on:'crushReady',at:()=>rzSlotEl('mortar','ready'),t:'แบ่งห่อเสร็จแล้ว แตะเพื่อส่ง',until:'served'}],
- vip:[{on:'vip',at:()=>rzQ('.rz-seat.vip .rz-bub'),t:'ลูกค้า VIP มีมงกุฎ จ่าย 1.5 เท่า แต่รอได้น้อยกว่า ส่งให้ก่อนเลย',ok:1}],
- trap:[{on:'trap',at:()=>rzQ('.rz-oi.trap'),t:'ลูกค้าขอให้บดแอสไพรินเคลือบลำไส้ แตะที่ลูกค้าเพื่อคุยก่อน',until:'trapRes'}],
+ vip:[{on:'vip',at:()=>rzQ('.rz-seat.vip .rz-bub'),t:'คุณนาย VIP จ่าย 1.5 เท่า แต่รอได้น้อยกว่า ส่งให้ก่อนเลย',ok:1}],
+ chat:[{on:'chat',at:()=>rzQ('.rz-bub.chatty'),t:'ลูกค้าคนนี้อยากคุย แตะที่ตัวลูกค้าซ้ำ ๆ เพื่อคุย ไม่แน่อาจซื้อยาเพิ่มพร้อมทิป หรือจะปล่อยไปก็ได้',until:'chatEnd'}],
 };
 function rzEv(ev){if(RZ&&RZ.run){const a=rzAnLv();if(ev==='spoiled')a.spoil++;else if(ev==='trashed')a.trash++}
   if(!RZ)return;const T=RZ.tut;
@@ -1484,7 +1532,7 @@ const RZ_GPP=[
   ic:'<rect x="8" y="5" width="24" height="30" rx="4" fill="#fff" stroke="#9A72F0" stroke-width="2.4"/><text x="20" y="20" text-anchor="middle" font-size="12" font-weight="700" fill="#9A72F0" font-family="Mali,sans-serif">ก</text><circle cx="14" cy="28" r="3" fill="#FFC93C"/><path d="M22 28h6" stroke="#9A72F0" stroke-width="2.2" stroke-linecap="round"/>'},
  {id:'tray',n:'เครื่องนับเม็ดยาอัตโนมัติ',c:180,perk:'นับยาเม็ดเร็วขึ้น 8%',why:'ช่วยนับยาจำนวนมากได้เร็วและแม่นยำ ลดภาระงานและความคลาดเคลื่อน',x:42,y:58,
   ic:'<rect x="6" y="12" width="28" height="22" rx="5" fill="#E8F6FF" stroke="#7FBCEB" stroke-width="2.4"/><rect x="11" y="16" width="18" height="7" rx="2" fill="#fff"/><text x="20" y="22" text-anchor="middle" font-size="6" font-weight="700" fill="#4A90C2">120</text><path d="M16 6h8l-2 6h-4Z" fill="#7FBCEB"/>'},
- {id:'allergy',n:'บัตรแพ้ยาให้ผู้ป่วยพกติดตัว',c:220,perk:'แนะนำยาห้ามบดถูกต้อง ได้โบนัส 2 เท่า',why:'บัตรระบุชื่อยาที่แพ้และอาการ ผู้ป่วยยื่นให้แพทย์หรือเภสัชกรได้ทุกที่ ป้องกันแพ้ยาซ้ำ',x:12,y:24,
+ {id:'allergy',n:'บัตรแพ้ยาให้ผู้ป่วยพกติดตัว',c:220,perk:'คุยกับลูกค้าช่างคุยแล้วซื้อยา ได้ทิปพิเศษเพิ่ม',why:'บัตรระบุชื่อยาที่แพ้และอาการ ผู้ป่วยยื่นให้แพทย์หรือเภสัชกรได้ทุกที่ ป้องกันแพ้ยาซ้ำ',x:12,y:24,
   ic:'<rect x="4" y="10" width="32" height="21" rx="4" fill="#FFF0F3" stroke="#E5536F" stroke-width="2.4"/><circle cx="12" cy="20" r="4" fill="#E5536F"/><path d="M19 17h12M19 23h8" stroke="#E5536F" stroke-width="2.2" stroke-linecap="round"/>'},
  {id:'coat',n:'มุมนั่งรอพร้อมน้ำดื่ม',c:260,perk:'ลูกค้ารอได้นานขึ้น 5%',why:'ที่นั่งสบายและน้ำดื่มทำให้ผู้ป่วย โดยเฉพาะผู้สูงอายุ รอรับยาได้ไม่เหนื่อย',x:70,y:42,
   ic:'<rect x="6" y="18" width="20" height="8" rx="3" fill="#CDB4FF"/><path d="M8 26v8M24 26v8M6 18V10" stroke="#9A72F0" stroke-width="2.4" stroke-linecap="round"/><path d="M28 16h7l-1 14h-5Z" fill="#BFE3FF" stroke="#7FBCEB" stroke-width="1.8"/>'},
@@ -1577,7 +1625,7 @@ const RZ_QP=[
  {k:'cold',t:'ส่งยาเย็นทันเวลา {n} ชิ้น',n:[3,6,10],L:14},
  {k:'crush',t:'บดยาแบ่งห่อ {n} ห่อ',n:[2,4,7],L:17},
  {k:'vip',t:'เสิร์ฟลูกค้า VIP {n} คน',n:[2,4,6],L:23},
- {k:'trap',t:'แนะนำยาห้ามบดถูกต้อง {n} ครั้ง',n:[1,2,3],L:26},
+ {k:'chat',t:'คุยกับลูกค้าช่างคุย {n} คน',n:[2,4,6],L:26},
 ];
 const RZ_MS=[
  {k:'cust',t:'เสิร์ฟลูกค้าครบ {n} คน',n:[20,100,300,1000]},
@@ -1636,7 +1684,6 @@ const RZ_CODEX={
  aml:{cat:'ยาเม็ด',use:'ยาลดความดันโลหิต',f:['ควรกินทุกวันในเวลาใกล้เคียงกัน แม้ไม่มีอาการก็ไม่ควรหยุดยาเอง','ผลข้างเคียงที่พบได้คือข้อเท้าบวม หน้าแดง ปวดศีรษะ ถ้าเป็นมากควรปรึกษาแพทย์หรือเภสัชกร','ยาเดิมอาจเปลี่ยนบริษัทผู้ผลิต ทำให้รูปร่างเม็ดเปลี่ยน แต่ตัวยาและความแรงเท่าเดิม'],how:'แตะขวด → ถาดนับยา → แตะซองส่ง'},
  vitc:{cat:'ยาเม็ด · กันแสง',use:'วิตามินเสริม ป้องกันภาวะขาดวิตามินซี',f:['วิตามินซีเสื่อมได้เมื่อโดนแสงและความชื้น จึงควรเก็บในซองหรือขวดกันแสง ปิดให้สนิท','ส่วนใหญ่ได้วิตามินซีจากผักผลไม้เพียงพออยู่แล้ว','กินขนาดสูงมากอาจทำให้ปวดท้อง ท้องเสีย และเพิ่มความเสี่ยงนิ่วในไตในบางคน'],how:'นับยา → ส่งเข้าซองสีชา → แตะส่ง'},
  ibu:{cat:'ยาเม็ด · NSAIDs',use:'ยาแก้อักเสบ ลดปวด ลดบวม ลดไข้ เช่น ปวดกล้ามเนื้อ ข้ออักเสบ ปวดประจำเดือน',f:['ยาแก้อักเสบ (NSAIDs) ไม่ใช่ยาปฏิชีวนะ ไม่ได้ฆ่าเชื้อ ใช้บรรเทาอาการปวด บวม แดง ร้อน','ควรกินหลังอาหารทันทีและดื่มน้ำตาม เพราะระคายเคืองกระเพาะ ใช้นานหรือขนาดสูงเสี่ยงแผลในกระเพาะ','ผู้ที่เป็นโรคไต โรคกระเพาะ หอบหืดบางราย แพ้แอสไพริน หรือตั้งครรภ์ ควรปรึกษาแพทย์หรือเภสัชกรก่อนใช้','ไม่ควรกินยาแก้อักเสบหลายชนิดพร้อมกัน'],how:'แตะขวด → ถาดนับยา → แตะซองส่ง'},
- asa:{cat:'ยาเม็ดเคลือบลำไส้',use:'แอสไพรินขนาดต่ำ ใช้ป้องกันลิ่มเลือดในผู้ป่วยที่แพทย์สั่ง',f:['เม็ดเคลือบลำไส้ (EC) ห้ามบดหรือเคี้ยว สารเคลือบช่วยไม่ให้ยาแตกตัวในกระเพาะ','เพิ่มความเสี่ยงเลือดออก ถ้าถ่ายดำหรือมีจ้ำเลือดผิดปกติควรรีบพบแพทย์','ไม่ควรใช้แอสไพรินในเด็กและวัยรุ่นที่ติดเชื้อไวรัส เพราะเสี่ยงโรคเรย์ซินโดรม'],how:'ถ้ามีคนขอให้บด แตะคุยกับลูกค้าแล้วแนะนำให้กลืนทั้งเม็ด'},
  'aml~c':{cat:'ยาเตรียมพิเศษ',use:'ยาบดผงสำหรับผู้ที่กลืนยาเม็ดลำบาก',f:['ก่อนบดต้องเช็กเสมอว่ายาตัวนั้นบดได้ ยาเคลือบลำไส้และยาออกฤทธิ์นาน (CR, ER, SR, XL) ห้ามบด','ยาที่บดแล้วควรผสมน้ำเล็กน้อยหรืออาหารอ่อน ๆ แล้วกินทันที','ถ้ามียาหลายตัวที่กลืนลำบาก ถามเภสัชกรเรื่องยารูปแบบน้ำแทนได้'],how:'นับยาความดัน → ส่งเข้าโกร่ง → แตะรัว ๆ บด → แบ่งห่อ'},
  cough:{cat:'ยาน้ำ',use:'บรรเทาอาการไอ',f:['ตวงด้วยถ้วยหรือช้อนตวงที่ให้มา ช้อนกินข้าวแต่ละคันขนาดไม่เท่ากัน','ยาแก้ไอมีหลายแบบ ทั้งกดอาการไอและละลายเสมหะ ควรเลือกให้ตรงกับอาการ','บางสูตรทำให้ง่วง อ่านฉลากก่อนใช้'],how:'พร้อมจ่าย แตะครั้งเดียวส่งถึงลูกค้า'},
  syr:{cat:'อุปกรณ์',use:'ตวงยาน้ำให้เด็กได้แม่นยำ',f:['แม่นยำกว่าช้อน เหมาะกับยาที่ต้องตวงเป็นมิลลิลิตร','<b>เทียบหน่วยตวงยา</b><span class="rz-conv"><span>1 ซีซี (cc)<b>= 1 มล. (mL)</b></span><span>½ ช้อนชา<b>= 2.5 มล.</b></span><span>1 ช้อนชา (tsp)<b>= 5 มล.</b></span><span>1 ช้อนโต๊ะ (tbsp)<b>= 15 มล.</b></span></span>','1 ช้อนโต๊ะ เท่ากับ 3 ช้อนชา อ่านฉลากให้ดีว่าเขียนช้อนชาหรือช้อนโต๊ะ เพราะปริมาณต่างกันถึง 3 เท่า','ช้อนกินข้าวหรือช้อนกาแฟที่บ้านมีขนาดไม่เท่ากัน ไม่ควรใช้แทน "ช้อนชา" บนฉลากยา ให้ใช้ไซริงค์ ถ้วยตวง หรือช้อนตวงที่มากับขวดยา','ค่อย ๆ ป้อนเข้ากระพุ้งแก้ม ไม่ฉีดตรงเข้าคอ เพื่อลดการสำลัก','ล้างให้สะอาดและผึ่งให้แห้งหลังใช้ทุกครั้ง'],how:'พร้อมจ่าย แตะครั้งเดียวส่งถึงลูกค้า'},
@@ -1653,7 +1700,6 @@ const RZ_TOPIC=[
  {id:'t_crush',L:17,n:'บดยาแบ่งห่อ',art:()=>rzArt('aml~c','packet'),f:['ช่วยผู้ป่วยกลืนลำบากหรือให้ยาทางสายให้อาหาร','ไม่ใช่ทุกยาที่บดได้ ต้องเช็กรายการยาห้ามบดก่อนทุกครั้ง']},
  {id:'t_staff',L:9,n:'ใครทำอะไรในร้านยา',art:()=>rzStaffArt('ptph'),f:['ร้านยาแผนปัจจุบันต้องมีเภสัชกรอยู่ปฏิบัติหน้าที่ตลอดเวลาที่เปิดร้าน','ผู้ช่วยเภสัชกรช่วยงานได้ เช่น จัดเตรียมยา นับยา ติดฉลาก และดูแลการจัดเก็บยา ภายใต้การกำกับของเภสัชกร','การส่งมอบยาและให้คำแนะนำการใช้ยาแก่ผู้ป่วยเป็นหน้าที่ของเภสัชกร','ถ้าไม่แน่ใจเรื่องยา ถามเภสัชกรประจำร้านได้เสมอ']},
  {id:'t_gpp',L:13,n:'ร้านยาคุณภาพ (GPP)',art:()=>rzHouse(),f:['GPP คือหลักวิธีปฏิบัติทางเภสัชกรรมชุมชน มาตรฐานที่ร้านยาแผนปัจจุบันต้องทำตาม','ร้านยาต้องผ่านเกณฑ์ GPP ก่อนจึงจะได้รับอนุญาตเปิดให้บริการ','ต้องมีเภสัชกรอยู่ปฏิบัติงาน สวมเสื้อกาวน์ และแสดงป้ายชื่อ เลขใบอนุญาต และรูปถ่าย','มีมุมให้คำปรึกษาแยกสัดส่วน เก็บยาทั่วไปไม่เกิน 30°C และยาเย็นที่ 2–8°C','ยาหมดอายุต้องแยกเก็บ และจ่ายยาตามหลักหมดอายุก่อนออกก่อน (FEFO)','ต้องถามประวัติแพ้ยาก่อนจ่ายยาทุกครั้ง']},
- {id:'t_ec',L:26,n:'ยาห้ามบด',art:()=>rzArt('asa','bag'),f:['ยาเคลือบลำไส้ (EC) ยาออกฤทธิ์นาน (CR, ER, SR, XL) และยาที่ฉลากเขียนว่าห้ามเคี้ยว ไม่ควรบด','ถ้าผู้ป่วยกลืนยาลำบาก ให้ปรึกษาแพทย์หรือเภสัชกรเพื่อเปลี่ยนรูปแบบยา']},
 ];
 const rzCxList=()=>[...Object.keys(RZ_CODEX).map(id=>({id,item:1,L:rzUnlockL(id)})),...RZ_TOPIC.map(t=>({id:t.id,topic:t,L:t.L}))];
 const rzCxOpen=e=>RD.hiStart>=e.L;
@@ -1950,7 +1996,7 @@ function rzRescueAsk(){RZ.paused=true;RZS.music(false);const o=rzQ('#rzOv');o.hi
    <div class="rz-row"><button class="rz-b ghost" data-r="rsc" data-v="no">ยอมแพ้</button>${free?`<button class="rz-b big" data-r="rsc" data-v="free">ทดลองฟรี! เรียกเลย</button>`:own?`<button class="rz-b big" data-r="rsc" data-v="item">ใช้ตัวช่วย (มี ${own})</button>`:`<button class="rz-b big ${RD.gem<cost?'dis':''}" data-r="rsc" data-v="gem">${RZ_GEM} ${cost} เรียกเลย</button>`}</div>
    <p class="rz-sub" style="text-align:right">มีเพชร ${RD.gem}</p></div>`}
 function rzMoreCust(n){const V=RZ.V,src=V.cs.slice(-Math.min(V.cs.length,8));
-  for(let i=0;i<n;i++){const C=pick(src);V.cs.push({at:0,g:i?1.4:.3,order:C.order.map(o=>({id:o.id,...(o.trap?{trap:1}:{})})),vip:false,look:rzLook(rzRng((Math.random()*1e9)|0)),pat:C.pat})}
+  for(let i=0;i<n;i++){const C=pick(src);V.cs.push({at:0,g:i?1.4:.3,order:C.order.map(o=>({id:o.id})),vip:false,look:rzLook(rzRng((Math.random()*1e9)|0)),pat:C.pat})}
   V.n+=n;RZ.lastSp=RZ.T;rzHUD()}
 /* free gift boxes on the map path, after the 4th and 8th level of every chapter */
 const RZ_GIFTI='<svg viewBox="0 0 40 40"><rect x="6" y="17" width="28" height="19" rx="3" fill="#FF8FAB" stroke="#E2456F" stroke-width="1.8"/><rect x="4" y="11" width="32" height="8" rx="3" fill="#FFB3C7" stroke="#E2456F" stroke-width="1.8"/><rect x="17" y="11" width="6" height="25" fill="#FFD84D"/><path d="M20 11q-10-10-12-2t12 2q10-10 12-2t-12 2Z" fill="#FFD84D" stroke="#E7A92B" stroke-width="1.5"/></svg>';
@@ -1977,13 +2023,13 @@ const rzStaffArt=id=>{const L={...rzLook(rzRng(id==='aide'?41:77)),...RZ_STAFF[i
 function rzStaffPop(id,txt){const el=rzQ(id==='aide'?'#rzAide':'#rzPt');if(!el)return;el.classList.remove('act');void el.offsetWidth;el.classList.add('act');if(txt)rzFloat(el,txt,'good staff',-10)}
 function rzHelpTick(dt){
   if(RZ.bst.has('aide')){RZ.ac=(RZ.ac??1)-dt;if(RZ.ac<=0){RZ.ac=.5;
-    const need={};RZ.seats.forEach(c=>{if(!c||c.leave||c.walk>0)return;c.order.forEach(o=>{if(o.done||(o.trap&&o.res!=='ok'))return;const it=RI[o.id];if(it.inst)return;const key=it.crush||o.id;need[key]=(need[key]||0)+1})});
+    const need={};RZ.seats.forEach(c=>{if(!c||c.leave||c.walk>0||c.chat)return;c.order.forEach(o=>{if(o.done)return;const it=RI[o.id];if(it.inst)return;const key=it.crush||o.id;need[key]=(need[key]||0)+1})});
     for(const id in need){const it=RI[id],kind=it.z==='tab'?'tray':it.mix?'mix':'pack',have=RZ.S[kind].filter(x=>x&&x.id===id).length+(kind==='tray'?RZ.S.amber.filter(x=>x&&x.id===id).length+(Object.values(RI).some(r=>r.crush===id)?RZ.S.mortar.filter(Boolean).length:0):0);
       if(need[id]>have&&rzFree(kind)>=0){const jar=rzQ(`.rz-jar[data-id="${id}"]`);if(!jar)continue;rzTapSrc(id,jar);rzStaffPop('aide');RZ.ac=1.6;break}}}}
   if(RZ.bst.has('ptph')){RZ.pt=(RZ.pt??15)-dt;const el=rzQ('#rzPt');if(el)el.style.setProperty('--p',Math.max(0,1-RZ.pt/15));
-    if(RZ.pt<=0){let best=-1,bn=99;RZ.seats.forEach((c,j)=>{if(!c||c.leave||c.walk>0)return;const n=c.order.filter(o=>!o.done).length;if(n&&(n<bn||(n===bn&&c.arr<RZ.seats[best].arr))){bn=n;best=j}});
+    if(RZ.pt<=0){let best=-1,bn=99;RZ.seats.forEach((c,j)=>{if(!c||c.leave||c.walk>0||c.chat)return;const n=c.order.filter(o=>!o.done).length;if(n&&(n<bn||(n===bn&&c.arr<RZ.seats[best].arr))){bn=n;best=j}});
       if(best<0){RZ.pt=1;return}RZ.pt=15;const c=RZ.seats[best];
-      c.order.forEach(o=>{if(o.done)return;if(o.trap&&!o.res){o.res='ok';rzStat('trap')}o.done=true;const it=RI[o.id];rzStat(it.z==='cold'?'cold':it.z==='liq'?'liq':'tab');rzComboHit();
+      c.order.forEach(o=>{if(o.done)return;o.done=true;const it=RI[o.id];rzStat(it.z==='cold'?'cold':it.z==='liq'?'liq':'tab');rzComboHit();
         rzFly(el,rzQ(`#rzS${best} .rz-bub`),rzOrderArt(o.id),true)});
       RZS.whoosh();rzStaffPop('ptph','จัดให้แล้วค่ะ!');setTimeout(()=>{if(!RZ||RZ.seats[best]!==c)return;rzSeat(best);rzCheck(best)},380)}}
 }
