@@ -257,7 +257,7 @@ html.port #app{width:480px;height:900px}
 .rz-who.walking>svg,.rz-who.leave>svg,.rz-qp.qin>svg{animation:rzstep .55s ease-in-out infinite}
 .rz-who.arrive{animation:rzarrive .45s cubic-bezier(.3,1.7,.5,1)}
 .rz-exit{z-index:1}.rz-who.leave.happy{animation:rzwalkout 2.4s ease-in forwards}.rz-who.leave.angry{animation:rzstomp 2.4s ease-in forwards}
-.rz-gb{position:absolute;right:-2px;top:-2px;width:22px;height:22px;z-index:2}
+.rz-gb,.rz-art>svg.rz-gb{position:absolute;right:-2px;top:-2px;width:22px;height:22px;z-index:2}
 @keyframes rzwalkin{from{transform:translateX(var(--dx))}to{transform:none}}
 @keyframes rzstep{50%{transform:translateY(-7px) rotate(2deg)}}
 @keyframes rzarrive{40%{transform:translateY(-10px) scale(1.04,.96)}}
@@ -581,6 +581,9 @@ html.port .rz-talk svg{width:34px;height:27px}html.port .rz-talk b{font-size:11.
 @keyframes rzmglow{0%,100%{filter:drop-shadow(0 0 0 rgba(183,156,255,0))}50%{filter:drop-shadow(0 0 9px rgba(160,120,255,.95))}}
 .rz-slot.mortar.crush .st-bg .pestle{animation:rzpestle .9s ease-in-out infinite}
 @keyframes rzpestle{0%,100%{translate:0 0}50%{translate:-3px 6px}}
+.st-bg .sti{transform-box:fill-box;transform-origin:50% 85%}.rz-slot.mortar.crush .st-bg .sti{animation:rzmwob .9s ease-in-out infinite}.rz-slot.pound .st-bg .sti{animation:rzmsq .2s ease}
+@keyframes rzmwob{0%,100%{rotate:0deg}30%{rotate:-3deg}70%{rotate:3deg}}@keyframes rzmsq{0%,100%{scale:1}40%{scale:1.06 .9}}
+.rz-slot.empty .st-bg.img{opacity:.85}
 .rz-slot.mortar.crush em.tapme{font-size:12.5px;padding:1px 10px}
 /* VIP madam: golden glow + sparkles */
 .rz-seat.vip .rz-who>svg{filter:drop-shadow(0 0 2px #FFD84D) drop-shadow(0 0 10px rgba(255,200,60,.9))!important;animation:rzvip 1.6s ease-in-out infinite}
@@ -787,7 +790,19 @@ const RZ_GLY={
 RZ_GLY['aml~c']=RZ_GLY.aml;
 /* white badge with a dark symbol: tells drugs apart without relying on colour */
 const rzBadge=(id,x=76,y=78,s=38)=>RZ_GLY[id]?`<g transform="translate(${x} ${y})"><circle r="${s/2}" fill="#fff" stroke="#4A3440" stroke-width="2.2"/><g transform="scale(${(s/24).toFixed(2)})">${RZ_GLY[id]}</g></g>`:'';
+/* Canva-made glossy 3D icons (art/*.webp). Code SVG stays for in-progress states (counting, powder, sediment, spoiled). */
+const RZ_IMG={para:'para',cet:'cet',ibu:'ibu',aml:'aml',vitc:'vitc',amox:'amox',cough:'cough',syr:'syr',ins:'ins',lat:'lat','aml~c':'amlc'};
+const rzImgU=n=>`art/${n}.webp`;
+[...new Set(Object.values(RZ_IMG).concat(['tray','mortar','amberbag','coolbox']))].forEach(n=>{const i=new Image();i.src=rzImgU(n)});
+function rzImgArt(id,ov,bs){
+  const b=id==='syr'?'':bs?rzBadge(id,84,84,bs):rzBadge(id,84,84,30);
+  return`<svg viewBox="0 0 100 100" aria-hidden="true" class="ia"><image href="${rzImgU(RZ_IMG[id])}" x="0" y="0" width="100" height="100"/>${ov?`<image href="${rzImgU(ov)}" x="${b?2:56}" y="58" width="42" height="42"/>`:''}${b}</svg>`}
 function rzArt(id,st,bs){
+  if(RZ_IMG[id]){const it0=RI[id]||{};
+    const ok=bs?(st==='bag'||st==='amber'||st==='packet'||st==='bottle'||st==='cold'||(st==='raw'&&it0.cold))
+               :(st!=='sed'&&st!=='spoiled'&&st!=='amberRaw');
+    if(ok&&bs&&(st==='amber'||st==='cold'))return`<svg viewBox="0 0 100 100" aria-hidden="true" class="ia"><image href="${rzImgU(st==='amber'?'amberbag':'coolbox')}" x="0" y="10" width="90" height="90"/><image href="${rzImgU(RZ_IMG[id])}" x="50" y="-2" width="50" height="50"/>${rzBadge(id,84,84,bs)}</svg>`;
+    if(ok)return rzImgArt(id,st==='amber'?'amberbag':st==='cold'?'coolbox':'',bs)}
   const it=RI[id]||RI.para,c=it.c,l=shade(c,.45),d=shade(c,-.28);let g='';
   const pills=(n=5,o=1)=>RZ_PP.slice(0,n).map(([x,y,r])=>`<g opacity="${o}">${rzPill(x,y,13,it.crush?RI[it.crush].c:c,it.sh||'round',r)}</g>`).join('');
   if(st==='jar')g=`<rect x="24" y="10" width="52" height="16" rx="6" fill="${c}"/><rect x="28" y="8" width="44" height="6" rx="3" fill="${l}"/><rect x="18" y="24" width="64" height="68" rx="18" fill="#fff" fill-opacity=".9" stroke="${c}" stroke-width="4"/>${pills(5)}${czMini(50,42,46)}<path d="M26 34q4-6 10-6" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/>`;
@@ -821,11 +836,11 @@ const rzSrcArt=id=>{const it=RI[id];return it.z==='tab'?rzArt(id,'jar'):it.mix?r
 
 /* stations */
 const RZ_ST_ART={
- tray:`<svg class="st-bg" viewBox="0 0 100 100" aria-hidden="true"><path d="M10 34Q10 22 22 22H78Q90 22 90 34V70Q90 82 78 82H22Q10 82 10 70Z" fill="#FFF3E6" stroke="#F3C9A9" stroke-width="3"/><path d="M62 22V82" stroke="#F3C9A9" stroke-width="3" stroke-dasharray="4 4"/><path d="M66 30h18v44H66Z" fill="#FFE7D2"/></svg>`,
+ tray:`<svg class="st-bg img" viewBox="0 0 100 100" aria-hidden="true"><image class="sti" href="art/tray.webp" x="0" y="0" width="100" height="100"/></svg>`,
  mix:`<svg class="st-bg" viewBox="0 0 100 100" aria-hidden="true"><ellipse cx="50" cy="80" rx="40" ry="12" fill="#EBDDFB"/><ellipse cx="50" cy="78" rx="34" ry="9" fill="#F6EEFF"/></svg>`,
- mortar:`<svg class="st-bg" viewBox="0 0 100 100" aria-hidden="true"><path d="M14 50h72Q84 86 50 88Q16 86 14 50Z" fill="#F2E3EC" stroke="#D7B7C6" stroke-width="3"/><ellipse cx="50" cy="50" rx="36" ry="8" fill="#E7D2DD" stroke="#D7B7C6" stroke-width="3"/><rect x="58" y="10" width="12" height="44" rx="6" fill="#E9CFDB" stroke="#D7B7C6" stroke-width="3" transform="rotate(22 64 32)" class="pestle"/></svg>`,
- amber:`<svg class="st-bg" viewBox="0 0 100 100" aria-hidden="true"><rect x="16" y="56" width="68" height="28" rx="8" fill="#F0D2A8"/><rect x="22" y="44" width="56" height="18" rx="5" fill="#D9963F"/><rect x="26" y="36" width="48" height="14" rx="5" fill="#E2A757"/></svg>`,
- pack:`<svg class="st-bg" viewBox="0 0 100 100" aria-hidden="true"><rect x="12" y="40" width="76" height="46" rx="12" fill="#E3F3FF" stroke="#A9D4F5" stroke-width="3"/><rect x="12" y="40" width="76" height="12" rx="6" fill="#A9D4F5"/></svg>`,
+ mortar:`<svg class="st-bg img" viewBox="0 0 100 100" aria-hidden="true"><image class="sti" href="art/mortar.webp" x="0" y="0" width="100" height="100"/></svg>`,
+ amber:`<svg class="st-bg img" viewBox="0 0 100 100" aria-hidden="true"><image class="sti" href="art/amberbag.webp" x="0" y="0" width="100" height="100"/></svg>`,
+ pack:`<svg class="st-bg img" viewBox="0 0 100 100" aria-hidden="true"><image class="sti" href="art/coolbox.webp" x="0" y="0" width="100" height="100"/></svg>`,
 };
 const RZ_FRIDGE=`<svg class="fr-bg" viewBox="0 0 100 160" preserveAspectRatio="none" aria-hidden="true"><rect x="4" y="4" width="92" height="152" rx="16" fill="#E8F6FF" stroke="#9FCDEB" stroke-width="4"/><rect x="12" y="14" width="76" height="134" rx="10" fill="#CFEBFF"/><path d="M12 80h76" stroke="#9FCDEB" stroke-width="3"/><rect x="84" y="40" width="5" height="26" rx="2.5" fill="#9FCDEB"/><g fill="#fff" opacity=".7"><circle cx="24" cy="26" r="3"/><circle cx="76" cy="132" r="3"/></g></svg>`;
 const RZ_TRASH=`<svg viewBox="0 0 60 60" aria-hidden="true"><rect x="14" y="18" width="32" height="36" rx="7" fill="#E9DDE2"/><rect x="10" y="12" width="40" height="8" rx="4" fill="#D6C6CD"/><rect x="24" y="7" width="12" height="6" rx="3" fill="#D6C6CD"/><path d="M24 26v20M36 26v20" stroke="#C7B5BD" stroke-width="3" stroke-linecap="round"/></svg>`;
@@ -859,7 +874,7 @@ const rzSave=()=>{try{localStorage.setItem(RZ_KEY,JSON.stringify(RD))}catch(e){}
 /* ---------- analytics (PostHog) ----------
    Off while RZ_PH_KEY is empty. Anonymous: PostHog keeps a random id per device in localStorage, no cookies, no names,
    no autocapture, no session recording. Players can switch it off in settings (RD.an=0). Events: see rzA(...) calls. */
-const RZ_VER='2026-11-03d';
+const RZ_VER='2026-11-07a';
 const RZ_PH_KEY='phc_rkFR2c2yjDTwaPrVCxRVn3D4aCkxwxJ37TjdZmG8a5WW';/* PostHog project API key (phc_…, public by design) */
 const RZ_PH_HOST='https://us.i.posthog.com';/* EU project: https://eu.i.posthog.com */
 let rzPH=false;
