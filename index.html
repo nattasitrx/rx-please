@@ -730,7 +730,22 @@ function czLook(){
     hs:old?pick(['bun','short']):kid?pick(['pig','short','bob']):pick(['bob','short','cap','pig','long']),
     acc:old?'glasses':pick([null,null,'bow','glasses','mask']),shirt:pick(CZ_SHIRT),cap:pick(CZ_SHIRT),kid};
 }
+/* Canva 3D customers (art/ppl/*.webp, 360×450, drawn into the 120×150 person box). f=[face centre x, y, face width] in that box */
+const CZ_IMG={win1:{f:[61,56,52]},win2:{f:[62,59,46]},aunt1:{f:[59,57,52]},aunt2:{f:[64,54,48]}};
+function czImgPerson(L,mood){const P=CZ_IMG[L.img],[cx,cy,fw]=P.f,k='#4A3440',sc=(fw/80).toFixed(3);
+  const E={happy:`<path d="M37 68Q44 60 51 68M69 68Q76 60 83 68" stroke="${k}" stroke-width="4.5" fill="none" stroke-linecap="round"/>`,
+    calm:`<ellipse cx="44" cy="67" rx="5.5" ry="7" fill="${k}"/><ellipse cx="76" cy="67" rx="5.5" ry="7" fill="${k}"/><circle cx="46" cy="64" r="2.2" fill="#fff"/><circle cx="78" cy="64" r="2.2" fill="#fff"/>`};
+  E.worried=E.calm+`<path d="M35 53L50 49M85 53L70 49" stroke="#4A3440" stroke-width="3.8" stroke-linecap="round"/>`;
+  E.angry=E.calm+`<path d="M35 49L51 57M85 49L69 57" stroke="#4A3440" stroke-width="4.2" stroke-linecap="round"/>`;
+  const M={happy:`<path d="M50 80Q60 95 70 80Z" fill="#C9566B"/><path d="M54 86Q60 90 66 86" stroke="#FF9DB0" stroke-width="3" fill="none" stroke-linecap="round"/>`,calm:`<path d="M53 82Q60 88 67 82" stroke="${k}" stroke-width="3.8" fill="none" stroke-linecap="round"/>`,
+    worried:`<path d="M52 86Q56 81 60 86T68 86" stroke="${k}" stroke-width="3.8" fill="none" stroke-linecap="round"/>`,angry:`<path d="M51 88Q60 78 69 88" stroke="${k}" stroke-width="4.2" fill="none" stroke-linecap="round"/>`};
+  const fx=mood==='worried'?`<path d="M100 40Q106 50 100 54Q94 50 100 40Z" fill="#8FD3FF"/>`:mood==='angry'?`<g fill="#fff" opacity=".9"><circle cx="102" cy="30" r="6"/><circle cx="110" cy="24" r="4"/></g>`:mood==='happy'?`<path d="M104 30l2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" fill="#FFD84D"/>`:'';
+  return`<svg viewBox="0 0 120 150" aria-hidden="true"><image href="art/ppl/${L.img}.webp" x="0" y="0" width="120" height="150"/>
+   <g transform="translate(${cx} ${cy}) scale(${sc}) translate(-60 -64)">${mood==='angry'?'<circle cx="60" cy="64" r="38" fill="#FF6B6B" opacity=".16"/>':''}
+   <ellipse cx="33" cy="80" rx="8" ry="5" fill="#FF8FAB" opacity="${mood==='angry'?.8:.5}"/><ellipse cx="87" cy="80" rx="8" ry="5" fill="#FF8FAB" opacity="${mood==='angry'?.8:.5}"/>
+   ${E[mood]||E.calm}${M[mood]||M.calm}</g>${fx}</svg>`}
 function czPerson(L,mood){
+  if(L.img&&!L.vip&&CZ_IMG[L.img])return czImgPerson(L,mood);
   const s=L.skin,h=L.hair,hd=shade(h,-.18),k='#4A3440',T=L.vip?'':(L.type||'');let back='',front='',acc='',over='',mus='',outfit='';
   let hs=L.hs;if(L.vip&&/^(hard|bald|swoop|spiky)$/.test(hs))hs='bob';
   if(hs==='bob'||hs==='long')back=`<path d="M18 66Q14 16 60 16Q106 16 102 66L${hs==='long'?'108 138Q88 146 84 120':'104 96Q90 102 86 86'}L86 58H34L34 ${hs==='long'?'120Q32 146 12 138':'86Q30 102 16 96'}Z" fill="${h}"/>`;
@@ -904,6 +919,8 @@ function rzLook(R){
   const b={skin:p(CZ_SKIN),hair:p(CZ_HAIR),shirt:p(CZ_SHIRT),cap:p(CZ_SHIRT),acc:null,kid:false,type:t};
   if(t==='kid')return{...b,kid:true,type:'',hs:p(['pig','short','bob']),acc:p([null,null,'bow'])};
   if(t==='granny')return{...b,type:'',hair:p(['#E7E2E6','#CFC8CE']),hs:'bun',acc:'glasses'};
+  if(t==='win'&&R()<.6)return{...b,img:p(['win1','win2'])};
+  if(t==='auntie'&&R()<.6)return{...b,img:p(['aunt1','aunt2'])};
   if(t==='win')return{...b,hs:p(['short','spiky']),shirt:p(['#5B6B8C','#3E4A5E','#7A8899']),num:1+Math.floor(R()*39)};
   if(t==='build')return{...b,hs:'hard',skin:p(['#D69C74','#C68A62','#EBB48E']),shirt:p(['#6A8CAF','#8A7B6B','#5E7A8F'])};
   if(t==='auntie')return{...b,hs:'perm',hair:p(['#2E2328','#5A2E3A','#7A4A3A','#8A4A6A']),shirt:p(['#FF8FB0','#B79CFF','#FFB86B','#7FD4C0']),acc:p([null,null,'glasses'])};
@@ -934,7 +951,7 @@ const rzSave=()=>{try{localStorage.setItem(RZ_KEY,JSON.stringify(RD))}catch(e){}
 /* ---------- analytics (PostHog) ----------
    Off while RZ_PH_KEY is empty. Anonymous: PostHog keeps a random id per device in localStorage, no cookies, no names,
    no autocapture, no session recording. Players can switch it off in settings (RD.an=0). Events: see rzA(...) calls. */
-const RZ_VER='2026-11-07f';
+const RZ_VER='2026-11-07g';
 const RZ_PH_KEY='phc_rkFR2c2yjDTwaPrVCxRVn3D4aCkxwxJ37TjdZmG8a5WW';/* PostHog project API key (phc_…, public by design) */
 const RZ_PH_HOST='https://us.i.posthog.com';/* EU project: https://eu.i.posthog.com */
 let rzPH=false;
@@ -2196,7 +2213,7 @@ const RZ_TRIALTIP={calm:{at:()=>rzQ('.rz-pat'),t:'ทดลองใช้ลู
  more:{at:()=>rzQ('#rzCust'),t:'ด่านนี้ทดลองตัวช่วยเรียกลูกค้าเพิ่มฟรี! ถ้าลูกค้าหมดแต่ยังไม่ถึงเป้า เรียกเพิ่มได้ 3 คนโดยไม่เสียเพชร'}};
 /* ---------- hired staff: pharmacy assistant prepares, part-time pharmacist serves ---------- */
 const RZ_STAFF={aide:{skin:'#FFD9C2',hair:'#5A3E4B',shirt:'#8FDCC0'},ptph:{skin:'#F2C3A0',hair:'#3E2F37',shirt:'#F7FBFF'}};
-const rzStaffArt=id=>{const L={...rzLook(rzRng(id==='aide'?41:77)),...RZ_STAFF[id],type:'',acc:id==='ptph'?'glasses':'',kid:0,hs:id==='aide'?'bun':'short'};return czPerson(L,'happy')};
+const rzStaffArt=id=>{const L={...rzLook(rzRng(id==='aide'?41:77)),...RZ_STAFF[id],type:'',img:'',acc:id==='ptph'?'glasses':'',kid:0,hs:id==='aide'?'bun':'short'};return czPerson(L,'happy')};
 function rzStaffPop(id,txt){const el=rzQ(id==='aide'?'#rzAide':'#rzPt');if(!el)return;el.classList.remove('act');void el.offsetWidth;el.classList.add('act');if(txt)rzFloat(el,txt,'good staff',-10)}
 function rzHelpTick(dt){
   if(RZ.bst.has('aide')){RZ.ac=(RZ.ac??1)-dt;if(RZ.ac<=0){RZ.ac=.5;
