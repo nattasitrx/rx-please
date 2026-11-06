@@ -741,14 +741,14 @@ const RI={
  para:{z:'tab',n:'ยาลดไข้',e:'Paracetamol',c:'#FF9DB8',sh:'oblong',p:10},
  cet:{z:'tab',n:'ยาแก้แพ้',e:'Cetirizine',c:'#8FCBFF',sh:'oval',p:10},
  aml:{z:'tab',n:'ยาความดัน',e:'Amlodipine',c:'#B9A4FF',sh:'oct',p:12},
- vitc:{z:'tab',n:'วิตามินซี',e:'Vitamin C · กันแสง',c:'#FFB547',sh:'round',p:14,amber:1},
+ vitc:{z:'tab',n:'วิตามินซี',e:'Vitamin C · กันแสง',c:'#FFD93D',sh:'round',p:14,amber:1},
  ibu:{z:'tab',n:'ยาแก้อักเสบ',e:'Ibuprofen · NSAIDs',c:'#7ED9A6',sh:'dia',p:12},
  'aml~c':{z:'tab',n:'ยาความดันบดผง',e:'Crushed · แบ่งห่อ',c:'#B9A4FF',p:20,crush:'aml'},
  cough:{z:'liq',n:'ยาน้ำแก้ไอ',e:'Cough syrup',c:'#C3A3FF',p:8,inst:1},
- syr:{z:'liq',n:'ไซริงค์ป้อนยา',e:'Oral syringe',c:'#7FD4FF',p:4,inst:1},
- amox:{z:'liq',n:'ยาน้ำปฏิชีวนะเด็ก',e:'Amoxicillin · ผงผสมน้ำ',c:'#FFAE7F',p:22,mix:1},
+ syr:{z:'liq',n:'ไซริงค์ป้อนยา',e:'Oral syringe',c:'#FF9A3D',p:4,inst:1},
+ amox:{z:'liq',n:'ยาน้ำปฏิชีวนะเด็ก',e:'Amoxicillin · ผงผสมน้ำ',c:'#B8743A',p:22,mix:1},
  ins:{z:'cold',n:'อินซูลินปากกา',e:'Insulin · 2–8°C',c:'#6FD3C0',p:30,cold:1},
- lat:{z:'cold',n:'ยาหยอดตาแช่เย็น',e:'Eye drops · 2–8°C',c:'#8FB2FF',p:26,cold:1},
+ lat:{z:'cold',n:'ยาหยอดตาแช่เย็น',e:'Eye drops · 2–8°C',c:'#FF6F61',p:26,cold:1},
 };
 const RZ_FACT={
  para:'ยาลดไข้พาราเซตามอลควรกินห่างกันอย่างน้อย 4–6 ชั่วโมง และไม่กินเกินขนาดต่อวันที่ฉลากกำหนด',
@@ -793,11 +793,14 @@ const rzBadge=(id,x=76,y=78,s=38)=>RZ_GLY[id]?`<g transform="translate(${x} ${y}
 /* Canva-made glossy 3D icons (art/*.webp). Code SVG stays for in-progress states (counting, powder, sediment, spoiled). */
 const RZ_IMG={para:'para',cet:'cet',ibu:'ibu',aml:'aml',vitc:'vitc',amox:'amox',cough:'cough',syr:'syr',ins:'ins',lat:'lat','aml~c':'amlc'};
 const rzImgU=n=>`art/${n}.webp`;
-[...new Set(Object.values(RZ_IMG).concat(['tray','mortar','amberbag','coolbox','shop','view1']))].forEach(n=>{const i=new Image();i.src=rzImgU(n)});
-function rzImgArt(id,ov,bs){
+/* extra Canva images for in-progress states: dry syrup on the shelf / waiting for water, being mixed, settled */
+const RZ_IMGST={'amox|raw':'amoxpow','amox|mixing':'amoxmix','amox|sed':'amoxsed'};
+[...new Set(Object.values(RZ_IMG).concat(['tray','mortar','amberbag','coolbox','shop','view1','amoxpow','amoxmix','amoxsed']))].forEach(n=>{const i=new Image();i.src=rzImgU(n)});
+function rzImgArt(id,ov,bs,file){
   const b=id==='syr'?'':bs?rzBadge(id,84,84,bs):rzBadge(id,84,84,30);
-  return`<svg viewBox="0 0 100 100" aria-hidden="true" class="ia"><image href="${rzImgU(RZ_IMG[id])}" x="0" y="0" width="100" height="100"/>${ov?`<image href="${rzImgU(ov)}" x="${b?2:56}" y="58" width="42" height="42"/>`:''}${b}</svg>`}
+  return`<svg viewBox="0 0 100 100" aria-hidden="true" class="ia"><image href="${rzImgU(file||RZ_IMG[id])}" x="0" y="0" width="100" height="100"${id==='syr'?' transform="rotate(-16 50 50) translate(50 50) scale(1.16) translate(-50 -50)"':''}/>${ov?`<image href="${rzImgU(ov)}" x="${b?2:56}" y="58" width="42" height="42"/>`:''}${b}</svg>`}
 function rzArt(id,st,bs){
+  if(RZ_IMGST[id+'|'+st])return rzImgArt(id,'',bs,RZ_IMGST[id+'|'+st]);
   if(RZ_IMG[id]){const it0=RI[id]||{};
     const ok=bs?(st==='bag'||st==='amber'||st==='packet'||st==='bottle'||st==='cold'||(st==='raw'&&it0.cold))
                :(st!=='sed'&&st!=='spoiled'&&st!=='amberRaw');
@@ -810,7 +813,7 @@ function rzArt(id,st,bs){
   else if(st==='amber')g=`<rect x="18" y="14" width="64" height="76" rx="12" fill="#D9963F" stroke="#B7772A" stroke-width="3"/><rect x="18" y="14" width="64" height="11" rx="5" fill="${c}"/>${pills(3,.35)}<circle cx="50" cy="62" r="15" fill="#fff" opacity=".9"/><circle cx="50" cy="62" r="6" fill="#FFB020"/><path d="M50 50v4M50 70v4M38 62h4M58 62h4M41 53l3 3M56 68l3 3M41 71l3-3M56 56l3-3" stroke="#FFB020" stroke-width="2.4" stroke-linecap="round"/><path d="M38 74L62 50" stroke="#E5536F" stroke-width="3.6" stroke-linecap="round"/>${RZ_SPARK(80,16)}`;
   else if(st==='packet')g=`<g transform="rotate(-10 36 56)"><rect x="12" y="30" width="48" height="44" rx="6" fill="#F4EEFF" stroke="#C9B6F2" stroke-width="3"/><path d="M12 36l24 18 24-18" fill="none" stroke="#C9B6F2" stroke-width="2.5"/></g><g transform="rotate(8 62 50)"><rect x="38" y="24" width="50" height="46" rx="6" fill="#fff" stroke="#C9B6F2" stroke-width="3"/><path d="M38 30l25 19 25-19" fill="none" stroke="#C9B6F2" stroke-width="2.5"/><path d="M50 62q13-14 26 0Z" fill="${c}"/>${[[54,60],[70,59],[62,55]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="2.6" fill="${shade(c,-.2)}"/>`).join('')}</g><rect x="22" y="76" width="56" height="16" rx="8" fill="${c}"/><text x="50" y="88.5" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="Mali,sans-serif">ผงบด</text>${RZ_SPARK(84,18)}`;
   else if(st==='raw'&&it.mix)g=`<rect x="36" y="6" width="28" height="14" rx="5" fill="${d}"/><rect x="24" y="20" width="52" height="72" rx="17" fill="#FFF6EC" stroke="${c}" stroke-width="4"/><path d="M28 66h44v10a12 12 0 0 1-12 12H40a12 12 0 0 1-12-12Z" fill="${l}"/>${[[36,74],[48,80],[60,72],[44,70],[56,82],[66,78]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="2.6" fill="${c}"/>`).join('')}<rect x="32" y="34" width="36" height="20" rx="6" fill="#fff"/><text x="50" y="48.5" text-anchor="middle" font-size="12" font-weight="700" fill="${d}" font-family="Mali,sans-serif">ผง</text>`;
-  else if(st==='bottle'||st==='sed'){const sed=st==='sed';g=`<rect x="36" y="6" width="28" height="14" rx="5" fill="${d}"/><rect x="24" y="20" width="52" height="72" rx="17" fill="${sed?l:c}"/>${sed?`<path d="M24 70h52v5a17 17 0 0 1-17 17H41a17 17 0 0 1-17-17Z" fill="${d}"/>${[[34,66],[50,64],[64,67]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="2.2" fill="${d}"/>`).join('')}`:`<path d="M24 40q13-7 26 0t26 0V36H24Z" fill="${l}"/>`}<rect x="30" y="44" width="40" height="22" rx="7" fill="#fff" opacity=".95"/>${czMini(50,54,40,sed?'sad':'')}<rect x="58" y="22" width="20" height="9" rx="3" fill="#FFE29A" transform="rotate(14 68 26)"/>${sed?'':RZ_SPARK(82,14)}`}
+  else if(st==='bottle'||st==='sed'||st==='mixing'){const sed=st==='sed';g=`<rect x="36" y="6" width="28" height="14" rx="5" fill="${d}"/><rect x="24" y="20" width="52" height="72" rx="17" fill="${sed?l:c}"/>${sed?`<path d="M24 70h52v5a17 17 0 0 1-17 17H41a17 17 0 0 1-17-17Z" fill="${d}"/>${[[34,66],[50,64],[64,67]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="2.2" fill="${d}"/>`).join('')}`:`<path d="M24 40q13-7 26 0t26 0V36H24Z" fill="${l}"/>`}<rect x="30" y="44" width="40" height="22" rx="7" fill="#fff" opacity=".95"/>${czMini(50,54,40,sed?'sad':'')}<rect x="58" y="22" width="20" height="9" rx="3" fill="#FFE29A" transform="rotate(14 68 26)"/>${sed?'':RZ_SPARK(82,14)}`}
   else if(id==='cough')g=`<rect x="38" y="6" width="24" height="14" rx="5" fill="${d}"/><rect x="41" y="18" width="18" height="10" fill="${l}"/><rect x="24" y="26" width="52" height="66" rx="16" fill="${c}"/><rect x="29" y="44" width="42" height="30" rx="9" fill="#fff" opacity=".92"/>${czMini(50,58,56)}<path d="M30 33q4-3 8 0" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" opacity=".6"/>`;
   else if(id==='syr')g=`<g transform="rotate(-35 50 50)"><rect x="14" y="40" width="58" height="22" rx="8" fill="#fff" stroke="${c}" stroke-width="4"/><rect x="18" y="44" width="30" height="14" rx="5" fill="${c}" opacity=".55"/>${[26,34,42,50,58].map(x=>`<path d="M${x} 40v6" stroke="${d}" stroke-width="2"/>`).join('')}<rect x="72" y="47" width="14" height="8" rx="3" fill="${c}"/><rect x="4" y="44" width="12" height="14" rx="4" fill="${d}"/><rect x="0" y="38" width="6" height="26" rx="3" fill="${d}"/></g>${czMini(54,72,34)}`;
   else if(st==='raw'&&it.cold)g=id==='ins'?`<g transform="rotate(-30 50 50)"><rect x="12" y="38" width="72" height="24" rx="12" fill="${c}"/><rect x="62" y="38" width="22" height="24" rx="10" fill="${d}"/><rect x="22" y="43" width="26" height="14" rx="5" fill="#fff" opacity=".9"/><rect x="84" y="45" width="8" height="10" rx="3" fill="#9AA6B2"/></g>${czMini(36,50,30)}`:`<path d="M45 6Q50 0 55 6L58 24H42Z" fill="#fff" stroke="${d}" stroke-width="3"/><rect x="36" y="22" width="28" height="12" rx="4" fill="${d}"/><rect x="28" y="32" width="44" height="58" rx="15" fill="${c}"/>${czMini(50,60,56)}`;
@@ -874,7 +877,7 @@ const rzSave=()=>{try{localStorage.setItem(RZ_KEY,JSON.stringify(RD))}catch(e){}
 /* ---------- analytics (PostHog) ----------
    Off while RZ_PH_KEY is empty. Anonymous: PostHog keeps a random id per device in localStorage, no cookies, no names,
    no autocapture, no session recording. Players can switch it off in settings (RD.an=0). Events: see rzA(...) calls. */
-const RZ_VER='2026-11-07c';
+const RZ_VER='2026-11-07d';
 const RZ_PH_KEY='phc_rkFR2c2yjDTwaPrVCxRVn3D4aCkxwxJ37TjdZmG8a5WW';/* PostHog project API key (phc_…, public by design) */
 const RZ_PH_HOST='https://us.i.posthog.com';/* EU project: https://eu.i.posthog.com */
 let rzPH=false;
@@ -1210,7 +1213,7 @@ function rzSlotHTML(kind,k,x){
   if(kind==='tray'){art=x.ph==='count'?`<div class="rz-counting">${[0,1,2,3,4].map(i=>`<i style="--i:${i};background:${RI[x.id].c}"></i>`).join('')}</div><svg class="rz-gb" viewBox="-16 -16 32 32">${rzBadge(x.id,0,0,30)}</svg>`:rzArtS(x.id,RI[x.id].amber?'amberRaw':'bag');if(x.ph==='ready'&&RI[x.id].amber)tag='<em>ซองชา</em>'}
   if(kind==='amber')art=rzArtS(x.id,x.ph==='ready'?'amber':'bag');
   if(kind==='mortar'){art=x.ph==='ready'?rzArtS('aml~c','packet'):rzMortarFill(x);if(x.ph==='crush')tag=`<em class="tapme">แตะบด! ${x.taps}/${x.need}</em>`;if(x.ph==='divide')tag='<em>แบ่งห่อ</em>'}
-  if(kind==='mix'){art=rzArtS(x.id,x.ph==='water'?'raw':x.sed?'sed':'bottle');if(x.ph==='shake')tag='<em class="tapme">เขย่า!</em>';if(x.ph==='water')tag='<em>เติมน้ำ</em>';if(x.ph==='label')tag='<em>ติดฉลาก</em>';if(x.sed&&x.ph==='ready')tag='<em class="tapme">ตกตะกอน</em>'}
+  if(kind==='mix'){art=rzArtS(x.id,x.ph==='water'?'raw':x.sed?'sed':x.ph==='ready'?'bottle':'mixing');if(x.ph==='shake')tag='<em class="tapme">เขย่า!</em>';if(x.ph==='water')tag='<em>เติมน้ำ</em>';if(x.ph==='label')tag='<em>ติดฉลาก</em>';if(x.sed&&x.ph==='ready')tag='<em class="tapme">ตกตะกอน</em>'}
   if(kind==='pack'){art=rzArtS(x.id,x.ph==='spoiled'?'spoiled':x.ph==='pack'?'raw':'cold');if(x.ph==='pack')tag='<em>แพ็กไอซ์</em>';if(x.ph==='spoiled')tag='<em class="bad">ยาเสื่อม</em>'}
   return`<button class="rz-slot ${kind} ${cls} ${x.sed?'sedd':''}" data-r="slot" data-k="${kind}:${k}" style="--p:${x.p||0};--cold:${x.cold??1}">${bg}<div class="rz-art">${art}</div><svg class="rz-ring" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17"/></svg>${kind==='pack'&&x.ph==='ready'?'<div class="rz-cold"><i></i></div>':''}${tag}</button>`;
 }
