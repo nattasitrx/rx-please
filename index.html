@@ -793,7 +793,7 @@ const rzBadge=(id,x=76,y=78,s=38)=>RZ_GLY[id]?`<g transform="translate(${x} ${y}
 /* Canva-made glossy 3D icons (art/*.webp). Code SVG stays for in-progress states (counting, powder, sediment, spoiled). */
 const RZ_IMG={para:'para',cet:'cet',ibu:'ibu',aml:'aml',vitc:'vitc',amox:'amox',cough:'cough',syr:'syr',ins:'ins',lat:'lat','aml~c':'amlc'};
 const rzImgU=n=>`art/${n}.webp`;
-[...new Set(Object.values(RZ_IMG).concat(['tray','mortar','amberbag','coolbox']))].forEach(n=>{const i=new Image();i.src=rzImgU(n)});
+[...new Set(Object.values(RZ_IMG).concat(['tray','mortar','amberbag','coolbox','shop','view1']))].forEach(n=>{const i=new Image();i.src=rzImgU(n)});
 function rzImgArt(id,ov,bs){
   const b=id==='syr'?'':bs?rzBadge(id,84,84,bs):rzBadge(id,84,84,30);
   return`<svg viewBox="0 0 100 100" aria-hidden="true" class="ia"><image href="${rzImgU(RZ_IMG[id])}" x="0" y="0" width="100" height="100"/>${ov?`<image href="${rzImgU(ov)}" x="${b?2:56}" y="58" width="42" height="42"/>`:''}${b}</svg>`}
@@ -874,7 +874,7 @@ const rzSave=()=>{try{localStorage.setItem(RZ_KEY,JSON.stringify(RD))}catch(e){}
 /* ---------- analytics (PostHog) ----------
    Off while RZ_PH_KEY is empty. Anonymous: PostHog keeps a random id per device in localStorage, no cookies, no names,
    no autocapture, no session recording. Players can switch it off in settings (RD.an=0). Events: see rzA(...) calls. */
-const RZ_VER='2026-11-07a';
+const RZ_VER='2026-11-07b';
 const RZ_PH_KEY='phc_rkFR2c2yjDTwaPrVCxRVn3D4aCkxwxJ37TjdZmG8a5WW';/* PostHog project API key (phc_…, public by design) */
 const RZ_PH_HOST='https://us.i.posthog.com';/* EU project: https://eu.i.posthog.com */
 let rzPH=false;
@@ -1049,7 +1049,7 @@ function rzBanner(a,b){const fx=rzQ('#rzFx');if(!fx)return;const el=document.cre
   setTimeout(()=>{el.innerHTML=`<b class="go">${b}</b>`;RZS.pop()},650);setTimeout(()=>el.remove(),1300)}
 function rzBuild(){
   const V=RZ.V,has=z=>V.items.some(x=>RI[x].z===z),jars=['para','cet','ibu','aml','vitc'].filter(x=>V.items.includes(x)||(x==='aml'&&V.items.includes('aml~c')));
-  const ch=RZ_CHC[V.ch%RZ_CHC.length];
+  const ch=RZ_CHC[V.ch%RZ_CHC.length];RZ_SCH=V.ch||0;
   const lock=(z,txt)=>`<div class="rz-lock"><div class="ghost">${z==='liq'?rzArt('amox','bottle'):z==='cold'?rzArt('ins','cold'):rzArt('para','jar')}</div><svg viewBox="0 0 20 20" width="22" height="22"><rect x="4" y="9" width="12" height="9" rx="2" fill="currentColor"/><path d="M7 9V6a3 3 0 0 1 6 0v3" stroke="currentColor" stroke-width="2" fill="none"/></svg><span>${txt}</span></div>`;
   const nextL=z=>(RZ_UNL.find(u=>u.L>V.L&&(u.add||[]).some(x=>RI[x].z===z))||{}).L;
   rzEl.style.setProperty('--wall1',ch[0]);rzEl.style.setProperty('--wall2',ch[1]);
@@ -1075,47 +1075,17 @@ function rzBuild(){
   <div class="rz-fx" id="rzFx"></div><div class="rz-hint" id="rzHint" hidden></div><div class="rz-ov" id="rzOv" hidden></div>`;
   RZ.seats.forEach((_,j)=>rzSeat(j));rzStations();
 }
-/* ---------- gameplay backdrop: wooden medicine shelves, arched window with a sunny town view ---------- */
+/* ---------- gameplay backdrop: Canva-made shop wall (art/shop.webp, window glass cut out) + a window view per chapter ---------- */
+let RZ_SCH=0;
+const RZ_SCK=1120/1776,RZ_SCY=7; /* shop.webp (1776 px wide, image rows 0-460) drawn 1120 wide, 7 units down so the arch top clears the HUD */
 function rzScene(noSign){
-  const pal=['#FF8FAB','#7FC6F2','#8FDCC0','#FFC94D','#B79CFF','#FF9D5C','#6FCFC2','#F7A1C4'];
-  const G=rzDecOn('gold'),F1=G?'#E9B949':'#A8663E',F2=G?'#F2C94C':'#C98552',F3=G?'#FFF0A8':'#F0B985',F4=G?'#F7D774':'#E3A877';
-  const shelf=(x0,w,seed)=>{let o=`<rect x="${x0-8}" y="58" width="${w+16}" height="190" rx="10" fill="${F1}"/><rect x="${x0}" y="66" width="${w}" height="176" rx="5" fill="#7A4428"/><rect x="${x0}" y="66" width="${w}" height="176" rx="5" fill="url(#scBack)"/>`;
-    [116,176,236].forEach((by,r)=>{let x=x0+8,i=0;
-      while(x<x0+w-18){const k=(seed+i*5+r*3)%7,c=pal[(seed+i*3+r*5)%pal.length],t=(i+r+seed)%3;let ww;
-        if(t===0){ww=22+k%3*4;const h=28+k%3*5;o+=`<rect x="${x}" y="${by-h}" width="${ww}" height="${h}" rx="3" fill="${c}"/><rect x="${x}" y="${by-h}" width="${ww}" height="6" rx="2" fill="#fff" opacity=".35"/><rect x="${x+3}" y="${by-h+10}" width="${ww-6}" height="${h*.36}" rx="2" fill="#fff" opacity=".9"/><path d="M${x+ww/2} ${by-h+12.5}v${h*.36-5}M${x+ww/2-3.5} ${by-h+10+h*.18}h7" stroke="${c}" stroke-width="2.2"/>`}
-        else if(t===1){ww=18;const h=30+k%2*6;o+=`<rect x="${x+5}" y="${by-h-6}" width="8" height="7" rx="2" fill="#fff"/><rect x="${x}" y="${by-h}" width="18" height="${h}" rx="7" fill="${c}"/><rect x="${x+3}" y="${by-h+12}" width="12" height="11" rx="2" fill="#fff" opacity=".85"/>`}
-        else{ww=26;o+=`<rect x="${x}" y="${by-24}" width="26" height="24" rx="5" fill="${c}"/><rect x="${x-1}" y="${by-29}" width="28" height="7" rx="3" fill="#fff"/><circle cx="${x+13}" cy="${by-11}" r="5" fill="#fff" opacity=".85"/>`}
-        o+=`<rect x="${x+ww*.62}" y="${by-38}" width="${ww*.38}" height="38" fill="url(#scObj)"/>`;x+=ww+5;i++}
-      o+=`<rect x="${x0-2}" y="${by}" width="${w+4}" height="9" rx="2" fill="${F4}"/><rect x="${x0-2}" y="${by}" width="${w+4}" height="3" rx="1.5" fill="#FFD3A8"/><rect x="${x0}" y="${by+9}" width="${w}" height="6" fill="#5A2E18" opacity=".35"/>`});
-    return o+`<rect x="${x0-8}" y="58" width="${w+16}" height="10" rx="5" fill="${F2}"/><rect x="${x0-8}" y="58" width="${w+16}" height="3" rx="1.5" fill="${F3}"/>`};
-  const arch='M430 236V132Q430 62 560 62Q690 62 690 132V236Z';
-  const houses=[[440,186,'#F28C5B'],[478,192,'#FF9DB8'],[512,184,'#F2B63E'],[600,190,'#F28C5B'],[640,185,'#9C7BE8'],[674,192,'#F28C5B']].map(([x,y,c])=>`<rect x="${x}" y="${y}" width="26" height="${236-y}" fill="#FFF7EC"/><path d="M${x-4} ${y+2}L${x+13} ${y-12}L${x+30} ${y+2}Z" fill="${c}"/><rect x="${x+8}" y="${y+10}" width="9" height="9" rx="2" fill="#8FC9F0"/>`).join('');
-  const lamp=x=>`<path d="M${x} 40V78" stroke="#6B4A3A" stroke-width="2.5"/><circle cx="${x}" cy="96" r="34" fill="url(#scGlow)"/><path d="M${x-20} 96Q${x-18} 76 ${x} 76Q${x+18} 76 ${x+20} 96Z" fill="#FFB547"/><path d="M${x-20} 96Q${x-18} 76 ${x} 76" stroke="#FFE3A3" stroke-width="3" fill="none"/><ellipse cx="${x}" cy="97" rx="12" ry="4" fill="#FFF6C9"/>`;
-  const curtain=(x,dir)=>`<path d="M${x} 52Q${x+dir*30} 52 ${x+dir*34} 58Q${x+dir*20} 120 ${x+dir*28} 160Q${x+dir*14} 200 ${x+dir*22} 244H${x}Z" fill="url(#scCurt)"/><path d="M${x+dir*10} 60Q${x+dir*4} 130 ${x+dir*12} 240" stroke="#E8708F" stroke-width="3" fill="none" opacity=".6"/><path d="M${x} 150Q${x+dir*20} 156 ${x+dir*30} 150" stroke="#FFD84D" stroke-width="5" stroke-linecap="round" fill="none"/>`;
-  return`<svg class="rz-scene" viewBox="0 0 1120 290" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><defs>
-   <linearGradient id="scWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--wall1)"/><stop offset="1" style="stop-color:var(--wall2)"/></linearGradient>
-   <pattern id="scStripe" width="36" height="10" patternUnits="userSpaceOnUse"><rect width="18" height="10" fill="#fff" opacity=".28"/></pattern>
-   <linearGradient id="scBack" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity=".25"/><stop offset=".2" stop-color="#000" stop-opacity="0"/></linearGradient>
-   <linearGradient id="scObj" x1="0" x2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#3A1E10" stop-opacity=".22"/></linearGradient>
-   <linearGradient id="scSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6EC3F2"/><stop offset=".55" stop-color="#BFE6FA"/><stop offset="1" stop-color="#FFE2B8"/></linearGradient>
-   <radialGradient id="scSun"><stop offset="0" stop-color="#FFF7C2"/><stop offset=".35" stop-color="#FFE57A" stop-opacity=".9"/><stop offset="1" stop-color="#FFE57A" stop-opacity="0"/></radialGradient>
-   <radialGradient id="scGlow"><stop offset="0" stop-color="#FFF1B8" stop-opacity=".75"/><stop offset="1" stop-color="#FFF1B8" stop-opacity="0"/></radialGradient>
-   <linearGradient id="scCurt" x1="0" x2="1"><stop offset="0" stop-color="#FFB3C7"/><stop offset=".5" stop-color="#FF8FAB"/><stop offset="1" stop-color="#FFB3C7"/></linearGradient>
-   <linearGradient id="scWain" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E9B487"/><stop offset="1" stop-color="#C98552"/></linearGradient>
-   <clipPath id="scArch"><path d="${arch}"/></clipPath></defs>
-   <rect width="1120" height="290" fill="url(#scWall)"/><rect width="1120" height="290" fill="#E8866A" opacity=".16"/><rect width="1120" height="290" fill="url(#scStripe)"/><rect width="1120" height="40" y="46" fill="url(#scBack)"/>
-   <rect y="226" width="1120" height="64" fill="url(#scWain)"/><rect y="224" width="1120" height="6" fill="#F7CFA6"/><rect y="230" width="1120" height="3" fill="#A8663E" opacity=".5"/>
-   ${[60,200,340,780,920].map(x=>`<rect x="${x}" y="240" width="110" height="40" rx="6" fill="none" stroke="#B87447" stroke-width="2.5" opacity=".55"/>`).join('')}
-   ${shelf(24,300,0)}${shelf(796,250,3)}
-   <g clip-path="url(#scArch)"><rect x="420" y="50" width="280" height="200" fill="url(#scSky)"/><circle cx="628" cy="118" r="44" fill="url(#scSun)"/><circle cx="628" cy="118" r="15" fill="#FFF3A8"/>
-    <path d="M420 172Q470 138 520 160Q570 128 630 156Q670 140 700 152V240H420Z" fill="#A9D7C2"/><path d="M420 182Q480 164 540 178Q610 160 700 176V240H420Z" fill="#7EC9A8"/>
-    <rect x="420" y="196" width="280" height="44" fill="#6FB9E0"/><path d="M450 206h30M520 214h40M600 208h24M640 220h30" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".7"/>${houses}
-    <path d="M440 120L470 70M450 150L500 76" stroke="#fff" stroke-width="7" opacity=".22" stroke-linecap="round"/></g>
-   <path d="${arch}" fill="none" stroke="#C98552" stroke-width="14"/><path d="${arch}" fill="none" stroke="#F0B985" stroke-width="4"/><path d="M560 64V236M432 150H688" stroke="#C98552" stroke-width="7"/>
-   ${curtain(410,1)}${curtain(710,-1)}
-   <rect x="424" y="222" width="272" height="18" rx="5" fill="#B9703F"/><rect x="424" y="222" width="272" height="5" rx="2.5" fill="#E3A877"/>
-   ${[440,466,494,522,600,628,656,682].map((x,i)=>`<circle cx="${x}" cy="${216-i%2*4}" r="9" fill="#6CC08F"/><circle cx="${x+(i%2?4:-3)}" cy="${212-i%2*4}" r="5.5" fill="${['#FF7FA3','#FFD84D','#FF9D5C','#B79CFF'][i%4]}"/>`).join('')}
-   ${lamp(366)}${lamp(754)}${rzDecorSVG()}
+  const v=(RZ_SCH%5)+1,ih=Math.round(460*RZ_SCK*100)/100;
+  return`<svg class="rz-scene" viewBox="0 0 1120 290" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+   <rect width="1120" height="290" fill="#F4C7C0"/>
+   <image href="art/view${v}.webp" x="410" y="82" width="292" height="218" preserveAspectRatio="xMidYMin slice"/>
+   <image href="art/shop.webp" x="0" y="${RZ_SCY}" width="1120" height="${ih}"/>
+   ${rzDecOn('gold')?`<image href="art/shopgold.webp" x="0" y="${RZ_SCY}" width="1120" height="${ih}"/>`:''}
+   ${rzDecorSVG()}
    ${noSign?'':`<g transform="translate(560 243)"><rect x="-72" y="-14" width="144" height="30" rx="10" fill="#fff" stroke="#6CC08F" stroke-width="3"/><circle cx="-52" cy="1" r="9" fill="#5CC27A"/><path d="M-52 -5v12M-58 1h12" stroke="#fff" stroke-width="3.4"/><text x="8" y="7" text-anchor="middle" font-family="Mali,sans-serif" font-weight="700" font-size="16" fill="#3E8E5E">ร้านยาทันใจ</text></g>${rzDecOn('marquee')?RZ_DECOR.find(d=>d.id==='marquee').svg():''}`}
   </svg>`;
 }
@@ -1772,7 +1742,7 @@ const rzCxRw=e=>e.topic?20:15;
 /* ---------- splash (main screen) & settings ---------- */
 function rzSplash(){
   if(RZ){RZ.run=false;RZ=null}rzEl.hidden=false;
-  rzEl.style.setProperty('--wall1','#FFE4EC');rzEl.style.setProperty('--wall2','#FFF0F4');
+  RZ_SCH=0;  rzEl.style.setProperty('--wall1','#FFE4EC');rzEl.style.setProperty('--wall2','#FFF0F4');
   const kids=[0,1,2,3,4].map(i=>rzLook(rzRng(i*91+5)));
   rzEl.innerHTML=`<div class="rz-bg">${rzScene(1)}<div class="rz-floor"></div></div><div class="rz-splash" data-r="enter">
    <div class="rz-sp-logo"><small>Rx, Please!</small><b>ร้านยา<span>ทันใจ</span></b></div>
@@ -1995,7 +1965,7 @@ function rzPoint(el,text,btn){
 /* ---------- shop ---------- */
 /* ---------- decor shop: purely cosmetic, a coin sink for the late game. RD.dec[id] = 1 shown, 2 owned but hidden ---------- */
 const RZ_DPAL=['#FF8FAB','#FFD84D','#7FD8B6','#8FC9F0','#B79CFF','#FF9D5C'];
-const rzArchPts=n=>{const P=[];for(let i=0;i<n;i++){const t=i/(n-1);let x,y;if(t<.3){x=430;y=236-(t/.3)*104}else if(t>.7){x=690;y=132+((t-.7)/.3)*104}else{const u=(t-.3)/.4;x=(1-u)*(1-u)*430+2*u*(1-u)*560+u*u*690;y=(1-u)*(1-u)*132+2*u*(1-u)*(-8)+u*u*132}P.push([x,y])}return P};
+const rzArchPts=n=>{const P=[];for(let i=0;i<n;i++){const t=i/(n-1);let x,y;if(t<.3){x=378;y=290-(t/.3)*75}else if(t>.7){x=737;y=215+((t-.7)/.3)*75}else{const u=(t-.3)/.4;x=(1-u)*(1-u)*378+2*u*(1-u)*557.5+u*u*737;y=(1-u)*(1-u)*215+2*u*(1-u)*(-100)+u*u*215}P.push([x,y])}return P};
 const RZ_DECOR=[
  {id:'bunting',n:'ธงราวสีลูกกวาด',d:'ธงสามเหลี่ยมหลากสีขึงทั่วร้าน',c:500,box:[20,56,300,50],
   svg:()=>`<g class="dc-bunting"><path d="M20 66H1100" stroke="#C98552" stroke-width="2"/>${Array.from({length:25},(_,i)=>{const x=28+i*44;return`<path d="M${x} 66h30l-15 24Z" fill="${RZ_DPAL[i%6]}"/>`}).join('')}</g>`},
@@ -2014,7 +1984,9 @@ const RZ_DECOR=[
  {id:'gold',n:'ชั้นวางยาทองคำ',d:'เปลี่ยนชั้นวางยาเป็นสีทองอร่าม สำหรับเภสัชระดับตำนาน',c:4000,box:[16,52,320,200],svg:()=>''},
 ];
 const rzDecOn=id=>(RD.dec||{})[id]===1;
-const rzDecorSVG=()=>RZ_DECOR.filter(d=>rzDecOn(d.id)&&d.id!=='marquee').map(d=>d.svg()).join('');
+/* decor art was drawn for the old SVG shop; these shifts fit it to the Canva shop (cat naps on top of the shop sign) */
+const RZ_DECT={bunting:'translate(0 -16)',plant:'translate(560 0) scale(1.07 1) translate(-560 0)',balloons:'translate(-28 0)',cat:'translate(0 5)',neon:'translate(-2 16)'};
+const rzDecorSVG=()=>RZ_DECOR.filter(d=>rzDecOn(d.id)&&d.id!=='marquee').map(d=>RZ_DECT[d.id]?`<g transform="${RZ_DECT[d.id]}">${d.svg()}</g>`:d.svg()).join('');
 function rzShopDecor(){const D=RD.dec||{};
   return`<p class="rz-sub" style="margin:-2px 0 8px">ของตกแต่งไม่มีผลกับการเล่น แต่ทำให้ร้านของคุณไม่เหมือนใคร แตะซ่อนหรือแสดงได้ตลอด</p><div class="rz-ups">${RZ_DECOR.map(d=>{const own=!!D[d.id],on=D[d.id]===1,[bx,by,bw,bh]=d.box;
     const pv=d.id==='gold'?`<svg viewBox="0 0 40 40"><rect x="4" y="6" width="32" height="30" rx="4" fill="#E9B949"/><rect x="8" y="10" width="24" height="22" rx="2" fill="#7A4428"/><rect x="7" y="19" width="26" height="3" fill="#F7D774"/><rect x="7" y="29" width="26" height="3" fill="#F7D774"/></svg>`:`<svg viewBox="${bx} ${by} ${bw} ${bh}" preserveAspectRatio="xMidYMid meet">${d.id==='marquee'?`<rect x="480" y="222" width="160" height="40" fill="#FFF7EC"/>`:''}${d.svg()}</svg>`;
@@ -2152,7 +2124,7 @@ function rzIntro(L){
   let gift='';if(L>=RZ_BST_L&&!RD.seen.bst){RD.seen.bst=1;rzBstAll.forEach(b=>RD.bst[b.id]=(RD.bst[b.id]||0)+1);RD.gem+=10;rzSave();RD.seen.staff=1;gift=`<div class="rz-new"><span class="rz-newtag">ของขวัญ</span><p>ระบบตัวช่วยเปิดแล้ว! พี่แถมตัวช่วยให้อย่างละ 1 ชิ้น และเพชร 10 เม็ด ลองเลือกใช้ด้านล่างได้เลย</p></div>`}
   {const tr=rzTrialOf(L);if(tr&&L>=RZ_BST_L){const d=rzBstDef(tr);gift+=`<div class="rz-new trial"><span class="rz-newtag">ทดลองใช้ฟรี</span><div class="rz-ni">${d.ic}<div><b>${d.n}</b><small>${d.d}</small></div></div><p>ด่านนี้ใช้ได้ฟรีจนกว่าจะผ่าน ไม่เสียของในกระเป๋า${tr==='more'?' · ตัวช่วยนี้จะเด้งขึ้นมาเองตอนลูกค้าหมด':''}</p></div>`}}
   if(L>=RZ_BST_L&&!RD.seen.staff&&RD.seen.bst===1&&!gift.includes('ระบบตัวช่วยเปิดแล้ว')){RD.seen.staff=1;['aide','ptph'].forEach(id=>RD.bst[id]=(RD.bst[id]||0)+1);rzSave();gift+=`<div class="rz-new"><span class="rz-newtag">ทีมงานใหม่</span><p>จ้างผู้ช่วยเภสัชกรหรือเภสัชกรพาร์ทไทม์มาช่วยในด่านได้แล้ว! พี่แถมให้อย่างละ 1 ครั้ง</p></div>`}
-  const ch=RZ_CHC[V.ch%RZ_CHC.length];rzEl.style.setProperty('--wall1',ch[0]);rzEl.style.setProperty('--wall2',ch[1]);
+  const ch=RZ_CHC[V.ch%RZ_CHC.length];RZ_SCH=V.ch||0;rzEl.style.setProperty('--wall1',ch[0]);rzEl.style.setProperty('--wall2',ch[1]);
   rzEl.innerHTML=`<div class="rz-bg">${rzScene()}<div class="rz-floor"></div></div><div class="rz-ov"><div class="rz-card intro"><div class="rz-ib"><div class="rz-kick">${RZ_CH[V.ch%RZ_CH.length]} · ด่าน ${L}</div>
    <h2>${L%10===0?'ด่านบอส! ':''}${RZ_GOALTXT(V)}</h2>
    ${V.ev.length?`<div class="rz-evts">${V.ev.map(e=>`<span><i>${RZ_EVT[e].ic}</i><b>${RZ_EVT[e].n}</b><small>${RZ_EVT[e].d}</small></span>`).join('')}</div>`:''}
