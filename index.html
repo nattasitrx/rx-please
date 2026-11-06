@@ -731,12 +731,21 @@ function czLook(){
     acc:old?'glasses':pick([null,null,'bow','glasses','mask']),shirt:pick(CZ_SHIRT),cap:pick(CZ_SHIRT),kid};
 }
 function czPerson(L,mood){
-  const s=L.skin,h=L.hair,hd=shade(h,-.18),k='#4A3440';let back='',front='',acc='';
-  if(L.hs==='bob'||L.hs==='long')back=`<path d="M18 66Q14 16 60 16Q106 16 102 66L${L.hs==='long'?'108 138Q88 146 84 120':'104 96Q90 102 86 86'}L86 58H34L34 ${L.hs==='long'?'120Q32 146 12 138':'86Q30 102 16 96'}Z" fill="${h}"/>`;
-  if(L.hs==='bun')back=`<circle cx="60" cy="16" r="15" fill="${h}"/>`;
-  if(L.hs==='pig')back=`<circle cx="14" cy="74" r="13" fill="${h}"/><circle cx="106" cy="74" r="13" fill="${h}"/><circle cx="22" cy="66" r="4" fill="${L.cap}"/><circle cx="98" cy="66" r="4" fill="${L.cap}"/>`;
-  front=L.hs==='short'||L.hs==='cap'?`<path d="M20 62Q18 18 60 18Q102 18 100 62Q92 40 72 38Q60 46 40 42Q26 48 20 62Z" fill="${h}"/>`:`<path d="M20 60Q22 20 60 20Q98 20 100 60Q84 44 64 48Q60 38 52 44Q36 46 20 60Z" fill="${h}"/>`;
-  if(L.hs==='cap')front+=`<path d="M18 50Q20 12 60 12Q100 12 102 50Z" fill="${L.cap}"/><path d="M60 44H112Q116 54 104 55H60Z" fill="${shade(L.cap,-.12)}"/><circle cx="60" cy="14" r="5" fill="${shade(L.cap,-.12)}"/>`;
+  const s=L.skin,h=L.hair,hd=shade(h,-.18),k='#4A3440',T=L.vip?'':(L.type||'');let back='',front='',acc='',over='',mus='',outfit='';
+  let hs=L.hs;if(L.vip&&/^(hard|bald|swoop|spiky)$/.test(hs))hs='bob';
+  if(hs==='bob'||hs==='long')back=`<path d="M18 66Q14 16 60 16Q106 16 102 66L${hs==='long'?'108 138Q88 146 84 120':'104 96Q90 102 86 86'}L86 58H34L34 ${hs==='long'?'120Q32 146 12 138':'86Q30 102 16 96'}Z" fill="${h}"/>`;
+  if(hs==='bun')back=`<circle cx="60" cy="16" r="15" fill="${h}"/>`;
+  if(hs==='pig')back=`<circle cx="14" cy="74" r="13" fill="${h}"/><circle cx="106" cy="74" r="13" fill="${h}"/><circle cx="22" cy="66" r="4" fill="${L.cap}"/><circle cx="98" cy="66" r="4" fill="${L.cap}"/>`;
+  front=hs==='short'||hs==='cap'?`<path d="M20 62Q18 18 60 18Q102 18 100 62Q92 40 72 38Q60 46 40 42Q26 48 20 62Z" fill="${h}"/>`:`<path d="M20 60Q22 20 60 20Q98 20 100 60Q84 44 64 48Q60 38 52 44Q36 46 20 60Z" fill="${h}"/>`;
+  /* Thai archetype hair & hats */
+  if(hs==='perm')back=[[22,42],[33,26],[48,17],[66,15],[83,22],[97,38],[104,56],[16,56],[103,76],[17,76]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="14" fill="${h}"/><circle cx="${x-4}" cy="${y-4}" r="4" fill="#fff" opacity=".18"/>`).join('');
+  if(hs==='perm')front=[30,41,52,63,74,85].map((x,i)=>`<circle cx="${x}" cy="${33+(i%2)*3}" r="9" fill="${h}"/>`).join('');
+  if(hs==='bald')front=`<path d="M21 74Q15 52 28 44Q25 60 32 70Z" fill="${h}"/><path d="M99 74Q105 52 92 44Q95 60 88 70Z" fill="${h}"/><ellipse cx="48" cy="34" rx="11" ry="6" fill="#fff" opacity=".35" transform="rotate(-20 48 34)"/>`;
+  if(hs==='spiky')front=`<path d="M20 62L21 36L30 41L33 20L44 32L51 12L60 30L69 12L76 32L88 20L90 41L100 36L100 62Q86 44 60 46Q34 44 20 62Z" fill="${h}"/>`;
+  if(hs==='swoop'){front=`<path d="M20 62Q18 18 60 18Q102 18 100 58Q92 40 72 38Q60 44 40 42Q26 48 20 62Z" fill="${h}"/>`;
+    over=`<path d="M16 60Q14 12 62 12Q106 14 106 58L104 96L95 82L90 100L82 80L76 94L71 72Q66 56 52 50Q34 46 22 62Q20 66 16 60Z" fill="${h}"/><path d="M104 96L95 82L99 70Z" fill="${L.tip||'#F2B33D'}"/><path d="M90 100L82 80L88 74Z" fill="${L.tip||'#F2B33D'}"/><path d="M76 94L71 72L78 74Z" fill="${L.tip||'#F2B33D'}"/><path d="M34 30Q58 18 84 26M70 34Q90 40 98 60" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round" opacity=".28"/>`}
+  if(hs==='hard')front=`<path d="M20 62Q18 18 60 18Q102 18 100 62Q92 40 72 38Q60 46 40 42Q26 48 20 62Z" fill="${h}"/><path d="M17 50Q19 8 60 8Q101 8 103 50Z" fill="#FFD23F"/><path d="M60 9V48" stroke="#F2B705" stroke-width="7"/><path d="M30 38Q34 20 48 14" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" opacity=".5"/><rect x="8" y="46" width="104" height="10" rx="5" fill="#F2B705"/>`;
+  if(hs==='cap')front+=`<path d="M18 50Q20 12 60 12Q100 12 102 50Z" fill="${L.cap}"/><path d="M60 44H112Q116 54 104 55H60Z" fill="${shade(L.cap,-.12)}"/><circle cx="60" cy="14" r="5" fill="${shade(L.cap,-.12)}"/>`;
   front+=`<path d="M40 30Q52 24 66 27" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" opacity=".35"/>`;
   const E={happy:`<path d="M37 68Q44 60 51 68M69 68Q76 60 83 68" stroke="${k}" stroke-width="4" fill="none" stroke-linecap="round"/>`,
     calm:`<ellipse cx="44" cy="67" rx="5" ry="6.5" fill="${k}"/><ellipse cx="76" cy="67" rx="5" ry="6.5" fill="${k}"/><circle cx="46" cy="64" r="2" fill="#fff"/><circle cx="78" cy="64" r="2" fill="#fff"/>`};
@@ -748,6 +757,16 @@ function czPerson(L,mood){
   if(L.acc==='bow')acc+=`<g transform="translate(88 26) rotate(18)"><path d="M0 0L-14 -9V9ZM0 0L14 -9V9Z" fill="${L.cap}"/><circle r="5" fill="${shade(L.cap,-.15)}"/></g>`;
   const mask=L.acc==='mask'?`<path d="M34 74Q60 70 86 74V92Q60 104 34 92Z" fill="#EAF6FF" stroke="#BFD8EA" stroke-width="2"/><path d="M40 82H80M42 88H78" stroke="#CFE2F0" stroke-width="2"/>`:'';
   const fx=mood==='worried'?`<path d="M98 40Q104 50 98 54Q92 50 98 40Z" fill="#8FD3FF"/>`:mood==='angry'?`<g fill="#fff" opacity=".9"><circle cx="100" cy="30" r="6"/><circle cx="108" cy="24" r="4"/><circle cx="20" cy="30" r="5"/></g>`:mood==='happy'?`<path d="M104 30l2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" fill="#FFD84D"/>`:'';
+  /* Thai archetype outfits */
+  const vest=c=>`<path d="M19 152Q21 116 46 110L54 152Z" fill="${c}"/><path d="M101 152Q99 116 74 110L66 152Z" fill="${c}"/>`;
+  if(T==='win')outfit=vest('#FF7A1A')+`<path d="M24 138H50M70 138H96" stroke="#FFD08A" stroke-width="3"/><rect x="72" y="118" width="24" height="17" rx="4" fill="#fff" stroke="#E2630E" stroke-width="1.5"/><text x="84" y="131" font-family="Chakra Petch,Sarabun,sans-serif" font-weight="700" font-size="12" fill="#333" text-anchor="middle">${L.num||7}</text>`;
+  if(T==='build')outfit=vest('#B8E62E')+`<path d="M22 132H50M70 132H98M21 144H52M68 144H99" stroke="#E9F3F2" stroke-width="4.5"/><path d="M38 110Q60 128 82 110" stroke="#fff" stroke-width="9" fill="none" stroke-linecap="round"/><path d="M40 112Q60 128 80 112" stroke="#7FB7E8" stroke-width="2.5" fill="none"/>`;
+  if(T==='auntie')outfit=[[34,130],[60,142],[86,128],[46,150],[76,150]].map(([x,y],i)=>`<g fill="${['#fff','#FFE066','#FF6F91'][i%3]}" opacity=".9">${[0,72,144,216,288].map(a=>`<circle cx="${(x+Math.cos(a*Math.PI/180)*4).toFixed(1)}" cy="${(y+Math.sin(a*Math.PI/180)*4).toFixed(1)}" r="3"/>`).join('')}</g><circle cx="${x}" cy="${y}" r="2" fill="#E7A92B"/>`).join('')+`<path d="M44 112Q60 126 76 112" stroke="#FFD84D" stroke-width="2.6" fill="none"/><circle cx="20" cy="84" r="4" fill="#FFD84D" stroke="#E7A92B"/><circle cx="100" cy="84" r="4" fill="#FFD84D" stroke="#E7A92B"/>`;
+  if(T==='uncle'){outfit=L.sing?`<path d="M18 152Q20 112 60 108Q100 112 102 152Z" fill="${s}"/><path d="M32 152Q32 124 44 112Q60 124 76 112Q88 124 88 152Z" fill="#F7F7F7"/><path d="M44 112V122M76 112V122" stroke="#E2E2E2" stroke-width="2"/>`:`<path d="M44 110L55 124L60 112L65 124L76 110Z" fill="#fff" opacity=".9"/><circle cx="60" cy="130" r="2" fill="#fff"/><circle cx="60" cy="140" r="2" fill="#fff"/>`;
+    mus=`<path d="M46 80Q53 73 60 78Q67 73 74 80Q67 84 60 81Q53 84 46 80Z" fill="${shade(h,-.25)}"/>`}
+  if(T==='waen')outfit=`<path d="M38 152L50 112M82 152L70 112" stroke="#FF3B5C" stroke-width="5"/><path d="M44 112Q60 132 76 112" stroke="#D7DDE3" stroke-width="2.6" fill="none" stroke-dasharray="3 2"/><circle cx="99" cy="82" r="2.8" fill="#D7DDE3"/>`;
+  if(T==='young'&&!L.fem)outfit=`<circle cx="60" cy="134" r="10" fill="#fff" opacity=".85"/><path d="M60 127l2.2 4.6 5 .6-3.7 3.4 1 5-4.5-2.5-4.5 2.5 1-5-3.7-3.4 5-.6Z" fill="${shade(L.shirt,-.25)}"/>`;
+  if(T==='office')outfit=L.fem?`<path d="M44 110L60 136L76 110" stroke="#3E7BD6" stroke-width="3" fill="none"/><rect x="51" y="133" width="18" height="15" rx="2.5" fill="#fff" stroke="#3E7BD6" stroke-width="1.5"/><rect x="54" y="137" width="7" height="7" rx="1" fill="#A7C7F0"/>`:`<path d="M44 110L56 120L60 112L64 120L76 110Z" fill="#fff"/><path d="M57 113H63L66 121L60 148L54 121Z" fill="${L.tie||'#3E6FD6'}"/><path d="M57 113H63L62 118H58Z" fill="${shade(L.tie||'#3E6FD6',-.2)}"/>`;
   let vipB='',vipF='';
   if(L.vip){/* คุณนาย VIP: feather boa + pearls + pageant sash under the face, huge hat + heart sunglasses on top */
     vipB=`<g>${[24,34,44,56,64,76,86,96].map((x,i)=>`<circle cx="${x}" cy="${112+Math.abs(60-x)*.12}" r="${9+(i%2)*2}" fill="${i%2?'#FF8FC8':'#FFB3DC'}"/>`).join('')}
@@ -761,10 +780,10 @@ function czPerson(L,mood){
       <path d="M53 64h14" stroke="#FFD84D" stroke-width="3"/><path d="M40 60l4 -2M72 60l4 -2" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".8"/></g>
       <circle cx="74" cy="88" r="1.8" fill="${k}"/>`}
   const sc=L.kid?'translate(9 18) scale(.85)':'';
-  return`<svg viewBox="0 0 120 150" aria-hidden="true"><g transform="${sc}">${back}<path d="M18 152Q20 112 60 108Q100 112 102 152Z" fill="${L.shirt}"/><path d="M18 152Q20 112 60 108Q100 112 102 152Z" fill="url(#chCloth)"/><path d="M46 110Q60 122 74 110" stroke="#fff" stroke-width="4" fill="none" opacity=".6"/>${vipB}
+  return`<svg viewBox="0 0 120 150" aria-hidden="true"><g transform="${sc}">${back}<path d="M18 152Q20 112 60 108Q100 112 102 152Z" fill="${L.shirt}"/><path d="M18 152Q20 112 60 108Q100 112 102 152Z" fill="url(#chCloth)"/><path d="M46 110Q60 122 74 110" stroke="#fff" stroke-width="4" fill="none" opacity=".6"/>${outfit}${vipB}
   <rect x="50" y="94" width="20" height="18" rx="8" fill="${shade(s,-.06)}"/><circle cx="60" cy="64" r="40" fill="${s}"/><circle cx="60" cy="64" r="40" fill="url(#chFace)"/><circle cx="60" cy="64" r="40" fill="url(#chShine)"/>${mood==='angry'?`<circle cx="60" cy="64" r="40" fill="#FF6B6B" opacity=".18"/>`:''}
   <ellipse cx="34" cy="80" rx="8" ry="5" fill="#FF8FAB" opacity="${mood==='angry'?.75:.45}"/><ellipse cx="86" cy="80" rx="8" ry="5" fill="#FF8FAB" opacity="${mood==='angry'?.75:.45}"/>
-  ${front}${E[mood]||E.calm}${mask||M[mood]||M.calm}${L.vip?'':acc}${vipF}${fx}</g></svg>`;
+  ${front}${E[mood]||E.calm}${over}${mask||M[mood]||M.calm}${mask?'':mus}${L.vip?'':acc}${vipF}${fx}</g></svg>`;
 }
 /* ================= RUSH MODE · ร้านยาทันใจ ================= */
 /* ---------- catalogue ---------- */
@@ -881,10 +900,17 @@ const RZ_TRASH=`<svg viewBox="0 0 60 60" aria-hidden="true"><rect x="14" y="18" 
 
 /* customers: reuse the chibi from the old casual mode, add crown/blink/bob */
 function rzLook(R){
-  const p=a=>a[Math.floor(R()*a.length)],age=p(['kid','young','young','adult','adult','old']),old=age==='old',kid=age==='kid';
-  return{skin:p(CZ_SKIN),hair:old?p(['#E7E2E6','#CFC8CE']):(age==='young'&&R()<.4?p(CZ_FUN):p(CZ_HAIR)),
-    hs:old?p(['bun','short']):kid?p(['pig','short','bob']):p(['bob','short','cap','pig','long']),
-    acc:old?'glasses':p([null,null,'bow','glasses','mask']),shirt:p(CZ_SHIRT),cap:p(CZ_SHIRT),kid};
+  const p=a=>a[Math.floor(R()*a.length)],t=p(['kid','win','win','build','auntie','auntie','uncle','uncle','granny','waen','waen','young','young','office','office']);
+  const b={skin:p(CZ_SKIN),hair:p(CZ_HAIR),shirt:p(CZ_SHIRT),cap:p(CZ_SHIRT),acc:null,kid:false,type:t};
+  if(t==='kid')return{...b,kid:true,type:'',hs:p(['pig','short','bob']),acc:p([null,null,'bow'])};
+  if(t==='granny')return{...b,type:'',hair:p(['#E7E2E6','#CFC8CE']),hs:'bun',acc:'glasses'};
+  if(t==='win')return{...b,hs:p(['short','spiky']),shirt:p(['#5B6B8C','#3E4A5E','#7A8899']),num:1+Math.floor(R()*39)};
+  if(t==='build')return{...b,hs:'hard',skin:p(['#D69C74','#C68A62','#EBB48E']),shirt:p(['#6A8CAF','#8A7B6B','#5E7A8F'])};
+  if(t==='auntie')return{...b,hs:'perm',hair:p(['#2E2328','#5A2E3A','#7A4A3A','#8A4A6A']),shirt:p(['#FF8FB0','#B79CFF','#FFB86B','#7FD4C0']),acc:p([null,null,'glasses'])};
+  if(t==='uncle')return{...b,hs:'bald',hair:p(['#BDB6BB','#8E8790','#6E6670']),shirt:p(['#A7D8FF','#FFE29A','#A8E6CF','#FFC8A2']),sing:R()<.5,acc:p([null,'glasses','glasses'])};
+  if(t==='waen')return{...b,hs:'swoop',hair:p(['#2E2328','#3A2A2A','#4A2A1A']),tip:p(['#F2B33D','#FF6B6B','#E8E0D0','#7FC8F8']),shirt:p(['#2E2A3A','#C0283A','#1E3A5F'])};
+  if(t==='young'){const f=R()<.5;return{...b,fem:f,hs:f?p(['bob','long','pig']):'spiky',hair:R()<.3?p(CZ_FUN):b.hair,acc:f?p([null,'bow','glasses']):p([null,null,'glasses','mask'])}}
+  const f=R()<.5;return{...b,fem:f,hs:f?p(['bun','bob']):'short',shirt:'#F7FAFF',tie:p(['#3E6FD6','#C0283A','#2E8A5E','#6B4AA0']),acc:p([null,null,'glasses'])};
 }
 const RZ_CROWN=`<svg class="crown" viewBox="0 0 40 26" aria-hidden="true"><path d="M3 22L6 6l9 8 5-12 5 12 9-8 3 16Z" fill="#FFD84D" stroke="#E7A92B" stroke-width="2" stroke-linejoin="round"/><circle cx="20" cy="15" r="3" fill="#FF8FAB"/></svg>`;
 /* ---------- save ---------- */
@@ -908,7 +934,7 @@ const rzSave=()=>{try{localStorage.setItem(RZ_KEY,JSON.stringify(RD))}catch(e){}
 /* ---------- analytics (PostHog) ----------
    Off while RZ_PH_KEY is empty. Anonymous: PostHog keeps a random id per device in localStorage, no cookies, no names,
    no autocapture, no session recording. Players can switch it off in settings (RD.an=0). Events: see rzA(...) calls. */
-const RZ_VER='2026-11-07e';
+const RZ_VER='2026-11-07f';
 const RZ_PH_KEY='phc_rkFR2c2yjDTwaPrVCxRVn3D4aCkxwxJ37TjdZmG8a5WW';/* PostHog project API key (phc_…, public by design) */
 const RZ_PH_HOST='https://us.i.posthog.com';/* EU project: https://eu.i.posthog.com */
 let rzPH=false;
@@ -1572,8 +1598,27 @@ function rzCopy(txt,btn){const done=()=>{RZS.ok();if(btn){const t=btn.textConten
   const fb=()=>{try{const a=document.createElement('textarea');a.value=txt;a.setAttribute('readonly','');a.style.cssText='position:fixed;opacity:0;top:0;left:0';document.body.appendChild(a);a.select();a.setSelectionRange(0,99);document.execCommand('copy');a.remove();done()}catch(e){RZS.nope()}};
   if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(txt).then(done,fb);else fb()}
 /* ---------- map (10 levels per chapter page, endless) ---------- */
-const RZ_NODE_P=[[18,8],[58,13],[84,25],[48,32],[16,43],[50,52],[84,61],[56,71],[20,80],[60,91]].map(([x,y])=>[x,Math.round(19+y*.79)]),RZ_HOME_P=[15,9],RZ_HOME=[8,30];
-const RZ_NODE=[[8,72],[20,46],[33,70],[45,40],[56,66],[66,32],[76,58],[84,28],[90,62],[95,36]];
+/* a different route per chapter (x%, y% of the path area), drawn as a smooth curve that starts at the player's shop:
+   soi = rolling wave, school = U-turn round the lawn, market = loop round the plaza ending in the middle,
+   mall = escalator steps, beach = winding coastline */
+const RZ_HOME=[8,30],RZ_HOME_P=[15,9];
+const RZ_NODES=[
+ [[8,70],[18,50],[30,38],[42,50],[51,70],[63,76],[73,58],[80,38],[88,28],[95,46]],
+ [[8,70],[21,80],[37,82],[53,78],[69,82],[85,72],[89,50],[76,34],[60,30],[42,36]],
+ [[8,68],[19,83],[37,88],[57,86],[75,78],[86,60],[80,40],[63,30],[43,34],[48,58]],
+ [[8,70],[19,82],[29,64],[40,74],[50,54],[61,64],[69,44],[78,56],[84,34],[94,42]],
+ [[8,68],[16,46],[28,32],[43,38],[51,60],[61,80],[76,78],[84,58],[88,38],[96,28]]];
+const RZ_NODES_P=[
+ [[18,25],[58,29],[84,39],[48,44],[16,53],[50,60],[84,67],[56,75],[20,82],[60,91]],
+ [[20,25],[50,22],[78,30],[80,45],[52,51],[24,57],[22,71],[48,79],[76,82],[62,92]],
+ [[20,25],[48,21],[78,27],[86,45],[80,64],[62,80],[36,86],[16,72],[22,53],[48,55]],
+ [[20,25],[44,31],[70,27],[82,40],[57,48],[31,46],[18,61],[40,70],[66,68],[78,86]],
+ [[20,25],[43,33],[67,30],[84,43],[70,57],[42,58],[22,69],[30,83],[56,89],[82,80]]];
+/* Catmull-Rom through the points → cubic Bézier path in the 1000×360 path box */
+const rzCurve=P=>{const Q=P.map(([x,y])=>[x*10,y*3.6]);let d=`M${Q[0][0]} ${Q[0][1]}`;
+  for(let i=0;i<Q.length-1;i++){const a=Q[i-1]||Q[i],b=Q[i],c=Q[i+1],e=Q[i+2]||c;
+    d+=`C${(b[0]+(c[0]-a[0])/6).toFixed(1)} ${(b[1]+(c[1]-a[1])/6).toFixed(1)} ${(c[0]-(e[0]-b[0])/6).toFixed(1)} ${(c[1]-(e[1]-b[1])/6).toFixed(1)} ${c[0]} ${c[1]}`}
+  return d};
 function rzHome(){if(RZ)RZ.run=false;RZ=null;rzEl.hidden=false;SND.init();RZS.music(true);rzMap()}
 /* ================= MY PHARMACY: build the shop up to GPP standard ================= */
 RD.gpp=RD.gpp||{};
@@ -1879,7 +1924,7 @@ function rzMap(page,dir){
   const max=Math.min(rzMaxL(),RZ_LAST),done=rzAllDone(),maxP=Math.floor((max-1)/10);if(page==null)page=maxP;page=Math.max(0,Math.min(maxP,page));
   const ch=RZ_CHC[page%RZ_CHC.length],tot=RD.stars.reduce((a,b)=>a+(b||0),0);
   rzEl.style.setProperty('--wall1',ch[0]);rzEl.style.setProperty('--wall2',ch[1]);
-  const NODES=isPort()?RZ_NODE_P:RZ_NODE,HA=isPort()?RZ_HOME_P:RZ_HOME,pts=[HA,...NODES].map(([x,y])=>`${x*10},${y*3.6}`).join(' ');
+  const NODES=(isPort()?RZ_NODES_P:RZ_NODES)[page%5],HA=isPort()?RZ_HOME_P:RZ_HOME,crv=rzCurve([HA,...NODES]);
   const fb=(id,r,label,icon,dot)=>rzOpen(id)?`<button class="rz-fb ${dot?'dot':''}" data-r="${r}" data-f="${id}">${icon}<span>${label}</span></button>`:`<button class="rz-fb lock" disabled>${RZ_LOCKI}<span>ด่าน ${RZ_FEAT.find(f=>f.id===id).at}</span></button>`;
   rzEl.innerHTML=`<div class="rz-bg ${dir?'slin':''}"><div class="rz-mapbg c${page%5+1}"></div></div><div class="rz-map ${dir?'slin':''}" style="--sd:${dir||1}">
    <div class="rz-maph"><div class="rz-logo">ร้านยา<span>ทันใจ</span></div><span class="rz-pill">${czStars(1).split('</svg>')[0]}</svg> ${tot}</span><span class="rz-pill coin"><i class="rz-coin"></i><b>${RD.wallet}</b></span>${max>=RZ_BST_L||RD.gem?`<span class="rz-pill gem">${RZ_GEM}<b>${RD.gem}</b></span>`:''}
@@ -1887,7 +1932,7 @@ function rzMap(page,dir){
    <div class="rz-chap"><button class="rz-ic" data-r="page" data-p="${page-1}" ${page>0?'':'disabled'}>‹</button><b>บทที่ ${page+1} · ${RZ_CH[page%RZ_CH.length]}</b><button class="rz-ic" data-r="page" data-p="${page+1}" ${page<maxP?'':'disabled'}>›</button></div>
    <div class="rz-dots">${Array.from({length:Math.ceil(RZ_LAST/10)},(_,k)=>`<button class="${k===page?'on':''}" data-r="page" data-p="${k}" ${k<=maxP&&k!==page?'':'disabled'} aria-label="บทที่ ${k+1}"></button>`).join('')}</div>
    ${page===Math.floor((RZ_LAST-1)/10)?`<button class="rz-soonsign" data-r="soon">🚧 บทต่อไปกำลังพัฒนา · ติดตามเวอร์ชันใหม่</button>`:''}
-   <div class="rz-path"><svg viewBox="0 0 1000 360" preserveAspectRatio="none"><g fill="none" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"><polyline points="${pts}" stroke="#7A4A22" stroke-width="40" vector-effect="non-scaling-stroke" opacity=".28" transform="translate(0 5)"/><polyline points="${pts}" stroke="#C99A5C" stroke-width="36" vector-effect="non-scaling-stroke"/><polyline points="${pts}" stroke="#E9C88E" stroke-width="32" vector-effect="non-scaling-stroke"/><polyline points="${pts}" stroke="#FBE8C2" stroke-width="24" vector-effect="non-scaling-stroke"/><polyline points="${pts}" stroke="#fff" stroke-width="4" stroke-dasharray="10 16" vector-effect="non-scaling-stroke" opacity=".9"/></g></svg>
+   <div class="rz-path"><svg viewBox="0 0 1000 360" preserveAspectRatio="none"><g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="${crv}" stroke="#7A4A22" stroke-width="40" vector-effect="non-scaling-stroke" opacity=".28" transform="translate(0 5)"/><path d="${crv}" stroke="#C99A5C" stroke-width="36" vector-effect="non-scaling-stroke"/><path d="${crv}" stroke="#E9C88E" stroke-width="32" vector-effect="non-scaling-stroke"/><path d="${crv}" stroke="#FBE8C2" stroke-width="24" vector-effect="non-scaling-stroke"/><path d="${crv}" stroke="#fff" stroke-width="4" stroke-dasharray="10 16" vector-effect="non-scaling-stroke" opacity=".9"/></g></svg>
    ${rzOpen('gpp')?`<button class="rz-house img" data-r="gpp" data-f="gpp"><img src="art/house.webp" alt="ร้านของฉัน"><span>ร้านของฉัน ${rzGCount()}/${RZ_GPP.length}${rzGCount()>=RZ_GPP.length?' ✓':''}</span></button>`:`<button class="rz-house img lock" disabled><img src="art/house.webp" alt=""><span>ต่อเติมร้าน · ด่าน 13</span></button>`}
    ${[4,8].map(k=>{const L=page*10+k,[x1,y1]=NODES[k-1],[x2,y2]=NODES[k],got=RD.gift[L],ok=(RD.stars[L-1]||0)>0;
      return`<button class="rz-gift ${got?'got':ok?'ready':'lock'}" style="left:${(x1+x2)/2}%;top:${(y1+y2)/2}%" ${ok&&!got?`data-r="gift" data-l="${L}"`:'disabled'} aria-label="ของขวัญ">${RZ_GIFTI}</button>`}).join('')}
@@ -2151,7 +2196,7 @@ const RZ_TRIALTIP={calm:{at:()=>rzQ('.rz-pat'),t:'ทดลองใช้ลู
  more:{at:()=>rzQ('#rzCust'),t:'ด่านนี้ทดลองตัวช่วยเรียกลูกค้าเพิ่มฟรี! ถ้าลูกค้าหมดแต่ยังไม่ถึงเป้า เรียกเพิ่มได้ 3 คนโดยไม่เสียเพชร'}};
 /* ---------- hired staff: pharmacy assistant prepares, part-time pharmacist serves ---------- */
 const RZ_STAFF={aide:{skin:'#FFD9C2',hair:'#5A3E4B',shirt:'#8FDCC0'},ptph:{skin:'#F2C3A0',hair:'#3E2F37',shirt:'#F7FBFF'}};
-const rzStaffArt=id=>{const L={...rzLook(rzRng(id==='aide'?41:77)),...RZ_STAFF[id],acc:id==='ptph'?'glasses':'',kid:0,hs:id==='aide'?'bun':'short'};return czPerson(L,'happy')};
+const rzStaffArt=id=>{const L={...rzLook(rzRng(id==='aide'?41:77)),...RZ_STAFF[id],type:'',acc:id==='ptph'?'glasses':'',kid:0,hs:id==='aide'?'bun':'short'};return czPerson(L,'happy')};
 function rzStaffPop(id,txt){const el=rzQ(id==='aide'?'#rzAide':'#rzPt');if(!el)return;el.classList.remove('act');void el.offsetWidth;el.classList.add('act');if(txt)rzFloat(el,txt,'good staff',-10)}
 function rzHelpTick(dt){
   if(RZ.bst.has('aide')){RZ.ac=(RZ.ac??1)-dt;if(RZ.ac<=0){RZ.ac=.5;
