@@ -674,7 +674,7 @@ const pick=a=>a[Math.floor(Math.random()*a.length)];
 function shade(hex,amt){const n=parseInt(hex.slice(1),16),c=[n>>16,n>>8&255,n&255].map(v=>Math.max(0,Math.min(255,Math.round(amt<0?v*(1+amt):v+(255-v)*amt))));return'#'+c.map(v=>v.toString(16).padStart(2,'0')).join('')}
 /* ================= SOUND: shared audio context ================= */
 const SND={ctx:null,on:true,out:null,nb:null,init(){if(this.ctx){this.ctx.resume&&this.ctx.resume();return}try{const C=window.AudioContext||window.webkitAudioContext;if(C)this.ctx=new C()}catch(e){this.ctx=null}if(this.ctx)setTimeout(()=>rzSfxLoad(),0)},
-  bus(){const c=this.ctx;if(!this.out){try{const k=c.createDynamicsCompressor();k.threshold.value=-14;k.ratio.value=4;k.attack.value=.003;k.release.value=.15;const g=c.createGain();g.gain.value=.9;g.connect(k).connect(c.destination);this.out=g}catch(e){this.out=c.destination}}return this.out},
+  bus(){const c=this.ctx;if(!this.out){try{const k=c.createDynamicsCompressor();k.threshold.value=-14;k.ratio.value=4;k.attack.value=.003;k.release.value=.15;const g=c.createGain();g.gain.value=.72;g.connect(k).connect(c.destination);this.out=g}catch(e){this.out=c.destination}}return this.out},
   noise(){const c=this.ctx;if(!this.nb){const n=c.sampleRate,b=c.createBuffer(1,n,n),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1;this.nb=b}return this.nb}};
 /* recorded sound effects (Kenney.nl packs, CC0) in sfx/: name → number of variants */
 const RZ_SFX={pound:5,crunch:3,shake:3,pills:2,coin:2,door:1,ice:3,book:2,whoosh:3,tap:3,ready:2,nope:2,drop:2};
@@ -990,7 +990,7 @@ const rzSave=()=>{try{localStorage.setItem(RZ_KEY,JSON.stringify(RD))}catch(e){}
 /* ---------- analytics (PostHog) ----------
    Off while RZ_PH_KEY is empty. Anonymous: PostHog keeps a random id per device in localStorage, no cookies, no names,
    no autocapture, no session recording. Players can switch it off in settings (RD.an=0). Events: see rzA(...) calls. */
-const RZ_VER='2026-11-07n';
+const RZ_VER='2026-11-07o';
 const RZ_PH_KEY='phc_rkFR2c2yjDTwaPrVCxRVn3D4aCkxwxJ37TjdZmG8a5WW';/* PostHog project API key (phc_…, public by design) */
 const RZ_PH_HOST='https://us.i.posthog.com';/* EU project: https://eu.i.posthog.com */
 let rzPH=false;
@@ -1132,23 +1132,26 @@ const RZS={
   /* play a random variant of a recorded sound; false when it has not loaded (callers fall back to synth) */
   sfx(k,v=1,rate=1,w=0){const B=SFXB[k];if(!B||!B.length||!SND.ctx||!SND.on)return!!(B&&B.length);try{const c=SND.ctx,t=c.currentTime+w,src=c.createBufferSource(),g=c.createGain();src.buffer=B[Math.floor(Math.random()*B.length)];src.playbackRate.value=rate;g.gain.value=v;
     src.connect(g).connect(SND.bus());src.start(t);src.onended=()=>{try{src.disconnect();g.disconnect()}catch(e){}}}catch(e){}return true},
-  pop(){if(this.sfx('ready',.8,1+Math.random()*.1))return;this.t(420,.1,.12,'sine',0,1100);this.t(1600,.05,.03,'sine',.05)},
-  tap(){if(this.sfx('tap',.85,1+Math.random()*.15))return;this.t(900,.035,.06,'triangle',0,600);this.nz(.025,.09,'highpass',3000)},
-  pills(){if(!this.sfx('pills',.38,1.05+Math.random()*.15))this.tap()},
-  book(){if(!this.sfx('book',.4))this.tap()},
-  drop(){if(!this.sfx('drop',.9))this.thud()},
-  /* pestle in the mortar: woody knock + low thump + tablet crunch, a bit different every hit */
-  pound(n,need){const r=.92+Math.random()*.16;
-    if(this.sfx('pound',.6,r*.9)){this.sfx('crunch',n>=need?.4:.15+.07*n/need,1.25+Math.random()*.2,.02);if(n>=need)[1318,1760,2093].forEach((f,i)=>this.t(f,.22,.028,'sine',.14+i*.06));RZH[n>=need?'mid':'light']();return}
-    this.t(150*r,.14,.22,'sine',0,55);this.t(620*r,.05,.08,'triangle',0,280);this.nz(.09,.42,'bandpass',1700*r,1.4);this.nz(.05,.16,'highpass',4200,0,.006);
-    if(n>=need){this.nz(.32,.3,'bandpass',2400,.8,.05,900);[1318,1760,2093].forEach((f,i)=>this.t(f,.22,.028,'sine',.12+i*.06))}RZH[n>=need?'mid':'light']()},
-  coin(){if(this.sfx('coin',.5,1+Math.random()*.08)){this.t(2637,.35,.012,'sine',.05);return}this.t(988,.1,.04,'square');this.t(1318,.28,.04,'square',.07);[2637,3520].forEach((f,i)=>this.t(f,.4,.012,'sine',.07+i*.01));this.nz(.04,.05,'highpass',5000,0,.07)},
-  /* shop doorbell: two bell tones with inharmonic partials */
-  bell(){this.sfx('door',.2);[[1318,0],[1046,.16]].forEach(([f,w])=>{this.t(f,.6,.035,'sine',w);this.t(f*2.76,.25,.008,'sine',w);this.t(f*5.4,.1,.004,'sine',w)})},
-  /* liquid shake: sloshing band-passed noise wobbling up and down plus a few bottle clinks */
-  slosh(){if(this.sfx('shake',.45,1.1))return;for(let k=0;k<7;k++)this.nz(.09,.34,'bandpass',k%2?650:1100,2.2,k*.07,k%2?1000:600);[0,.2,.38].forEach(w=>this.t(2400+Math.random()*600,.05,.025,'sine',w))},
-  splash(){this.nz(.35,.3,'bandpass',900,1.2,0,2600);this.t(300,.2,.05,'sine',0,700)},
-  freeze(){if(this.sfx('ice',.8,1.1)){[2637,3136].forEach((f,i)=>this.t(f,.16,.015,'sine',.08+i*.05));return}this.nz(.25,.14,'highpass',5200);[2093,2637,3136].forEach((f,i)=>this.t(f,.18,.03,'sine',i*.05))},
+  /* mixing rule (Nov 2026, players found the layered sounds noisy): one sound per event, recorded sample first and a
+     single soft synth only as fallback; the same sound can't repeat within its gap, and at most 3 effects may start
+     inside 250 ms (important cues like nope/fail/win skip the budget) */
+  _l:{},_q:[],
+  ok_(k,gap,prio){if(!SND.ctx||!SND.on)return false;const n=SND.ctx.currentTime;if(n-(this._l[k]||-9)<gap)return false;this._q=this._q.filter(x=>n-x<.25);if(!prio&&this._q.length>=3)return false;this._l[k]=n;this._q.push(n);return true},
+  pop(){if(!this.ok_('pop',.25))return;if(this.sfx('ready',.55,1+Math.random()*.08))return;this.t(520,.09,.06,'sine',0,1000)},
+  tap(){if(!this.ok_('tap',.06))return;if(this.sfx('tap',.6,1+Math.random()*.12))return;this.t(900,.035,.04,'triangle',0,600)},
+  pills(){if(!this.ok_('pills',.08))return;if(!this.sfx('pills',.32,1.05+Math.random()*.15))this.t(900,.035,.04,'triangle',0,600)},
+  book(){if(!this.ok_('book',.2))return;if(!this.sfx('book',.35))this.t(900,.035,.04,'triangle',0,600)},
+  drop(){if(!this.ok_('drop',.1))return;if(!this.sfx('drop',.7))this.thud()},
+  /* pestle in the mortar: one knock per hit, a little higher on the finishing hit */
+  pound(n,need,auto){if(!auto||n>=need)RZH[n>=need?'mid':'light']();if(!this.ok_('pound',.07,1))return;const r=(.92+Math.random()*.12)*(n>=need?1.12:1);
+    if(this.sfx('pound',auto?.28:.5,r*.9))return;this.t(150*r,.12,.16,'sine',0,60);this.nz(.07,.25,'bandpass',1600*r,1.4)},
+  /* payment: one coin clink whose pitch climbs with the combo */
+  coin(rate=1){if(!this.ok_('coin',.12,1))return;if(this.sfx('coin',.42,rate*(1+Math.random()*.04)))return;this.t(1318*rate,.22,.035,'sine')},
+  /* shop doorbell, quiet and at most once every 1.5 s when customers arrive together */
+  bell(){if(!this.ok_('bell',1.5))return;if(this.sfx('door',.16))return;this.t(1318,.4,.022,'sine');this.t(1046,.45,.02,'sine',.15)},
+  slosh(){if(!this.ok_('slosh',.4))return;if(this.sfx('shake',.36,1.1))return;for(let k=0;k<4;k++)this.nz(.09,.2,'bandpass',k%2?650:1100,2.2,k*.08,k%2?1000:600)},
+  splash(){},
+  freeze(){if(!this.ok_('freeze',.3))return;if(this.sfx('ice',.55,1.1))return;[2093,2637].forEach((f,i)=>this.t(f,.16,.02,'sine',i*.05))},
   /* cute synthesized voice: 'yay' = rising chirp with vowel formants, 'mmm' = nasal hum with vibrato */
   voice(kind,hi){if(!SND.ctx||!SND.on)return;try{const c=SND.ctx,t=c.currentTime,o=c.createOscillator(),f1=c.createBiquadFilter(),f2=c.createBiquadFilter(),g=c.createGain(),m=c.createGain(),p=hi?1.35:1;
     o.onended=()=>{[o,f1,f2,g,m].forEach(n=>{try{n.disconnect()}catch(e){}})};f1.type=f2.type='bandpass';o.connect(f1);o.connect(f2);f1.connect(g);f2.connect(m);m.gain.value=.6;m.connect(g);g.connect(SND.bus());g.gain.setValueAtTime(0,t);
@@ -1158,19 +1161,19 @@ const RZS={
     else{o.type='triangle';f1.frequency.value=300;f1.Q.value=2;f2.frequency.value=1100;f2.Q.value=4;o.frequency.setValueAtTime(240*p,t);o.frequency.linearRampToValueAtTime(330*p,t+.2);o.frequency.linearRampToValueAtTime(270*p,t+.52);
       const l=c.createOscillator(),lg=c.createGain();l.frequency.value=6;lg.gain.value=8*p;l.connect(lg).connect(o.frequency);l.onended=()=>{try{l.disconnect();lg.disconnect()}catch(e){}};
       g.gain.linearRampToValueAtTime(.26,t+.08);g.gain.setValueAtTime(.24,t+.36);g.gain.exponentialRampToValueAtTime(.001,t+.56);l.start(t);l.stop(t+.58);o.start(t);o.stop(t+.58)}}catch(e){}},
-  ok(){[523,659,784].forEach((f,i)=>this.t(f,.18,.045,'triangle',i*.07))},
-  nope(){RZH.double();if(this.sfx('nope',.5))return;this.t(300,.12,.045,'square',0,220);this.t(220,.16,.04,'square',.09,170)},whoosh(){if(this.sfx('whoosh',.3,1.1))return;this.nz(.22,.22,'bandpass',500,1.5,0,2600);this.t(300,.18,.02,'sine',0,900)},
+  ok(){if(!this.ok_('ok',.3))return;[523,659,784].forEach((f,i)=>this.t(f,.16,.035,'triangle',i*.07))},
+  nope(){RZH.double();if(!this.ok_('nope',.3,1))return;if(this.sfx('nope',.4))return;this.t(300,.12,.045,'square',0,220);this.t(220,.16,.04,'square',.09,170)},whoosh(){if(!this.ok_('whoosh',.25))return;if(this.sfx('whoosh',.22,1.1))return;this.nz(.22,.22,'bandpass',500,1.5,0,2600);this.t(300,.18,.02,'sine',0,900)},
   shake(){this.slosh();RZH.light()},
   thud(){this.t(140,.12,.09,'sine',0,70)},
   sad(){RZH.strong();this.t(392,.25,.05,'sawtooth',0,370);this.t(349,.35,.04,'sawtooth',.22,300)},
   win(){[523,659,784,1046,784,1046].forEach((f,i)=>this.t(f,.22,.05,'triangle',i*.11));[0,.33,.66].forEach(w=>this.nz(.18,.08,'highpass',6000,0,w));RZH.go([30,60,30,60,80])},
-  fever(){[784,988,1175,1568,1175,1568,1976].forEach((f,i)=>this.t(f,.16,.045,'square',i*.06))},
+  fever(){this.ok_('fever',0,1);[784,988,1175,1568,1976].forEach((f,i)=>this.t(f,.14,.03,'triangle',i*.06))},
   m:{on:false,id:0,step:0,next:0},
   music(on){const M=this.m;if(!SND.ctx){M.on=false;return}M.on=on&&!!RD.music;clearInterval(M.id);if(!M.on)return;M.next=SND.ctx.currentTime+.05;
     const mel=[72,76,79,76,74,77,81,77,72,76,79,84,81,79,76,74],bas=[48,48,55,55,50,50,53,53];
     M.id=setInterval(()=>{if(!SND.on||document.hidden)return;const c=SND.ctx;while(M.next<c.currentTime+.25){const s=M.step%16,b=.2;
-      if(s%2===0||Math.random()<.35)this.t(440*Math.pow(2,(mel[s]-69)/12),.22,.022,'triangle',M.next-c.currentTime);
-      if(s%2===0)this.t(440*Math.pow(2,(bas[(s/2)%8]-69)/12),.3,.03,'sine',M.next-c.currentTime);
+      if(s%2===0)this.t(440*Math.pow(2,(mel[s]-69)/12),.24,.014,'triangle',M.next-c.currentTime);
+      if(s%4===0)this.t(440*Math.pow(2,(bas[(s/2)%8]-69)/12),.45,.018,'sine',M.next-c.currentTime);
       M.next+=M.fast?b*.66:b;M.step++}},90)},
 };
 
@@ -1251,7 +1254,7 @@ function rzSpawn(){
   const pm=C.pat*rzU('sofa')*rzGPat(),se=rzQ('#rzS'+j),r=se?rzXY(se):{x:0,w:200},dx=Math.round(rzEl.offsetWidth-r.x+20),wd=+(1+dx/250).toFixed(2);
   RZ.seats[j]={id:++RZ.uid,arr:RZ.T,look:C.look,vip:C.vip,chat:C.chat?{...C.chat,taps:0}:null,order:C.order.map(o=>({...o,done:false})),pat:pm,pm,mood:'calm',walk:wd,wd,dx,leave:null};
   rzSeat(j);rzHUD();const door=rzQ('.rz-door');if(door){door.classList.remove('open');void door.offsetWidth;door.classList.add('open')}
-  RZS.t(1318,.18,.03,'sine');RZS.t(1046,.3,.03,'sine',.12);
+  RZS.bell();
 }
 const RZ_QMAX=()=>isPort()?3:4;
 function rzDoor(){const door=rzQ('.rz-door');if(door){door.classList.remove('open');void door.offsetWidth;door.classList.add('open')}RZS.bell()}
@@ -1271,7 +1274,7 @@ function rzQueueTick(dt){
   if(ch)rzQueue();
 }
 /* customer reached the counter: now the order bubble pops up */
-function rzArrive(j){const c=RZ.seats[j];c.walk=0;c.arr=RZ.T;c.arrive=1;rzSeat(j);RZS.pop();
+function rzArrive(j){const c=RZ.seats[j];c.walk=0;c.arr=RZ.T;c.arrive=1;rzSeat(j);
   rzEv('cust');c.order.forEach(o=>rzEv('need:'+o.id));if(c.vip)rzEv('vip');if(c.chat)rzEv('chat')}
 const rzMood=c=>{const f=c.pat/c.pm;return f>.6?'calm':f>.3?'worried':'angry'};
 function rzSeat(j){
@@ -1298,8 +1301,8 @@ function rzCheck(j){
   const bonus=c.tipx?Math.round(base*.5)+(rzG('allergy')?20:10):0,mult=rzMult();
   const pay=Math.round((base+tip+bonus)*mult*(c.vip?1.5:1)*(RZ.bst.has('feast')?1.25:1));
   RZ.coins+=pay;RZ.served++;
-  rzFloat(rzQ('#rzS'+j),`+${pay}${mult>1?` (×${mult})`:''}`,mult>=2?'good fever':'good');rzCoinFly(rzQ('#rzS'+j),pay);RZH.light();RZS.coin();rzHearts(rzQ('#rzS'+j));
-  {const v=c.vip||f>.55?'yay':pick(['yay','mmm']);RZS.voice(v,c.look.kid);rzSay(rzQ('#rzS'+j),v==='yay'?pick(['เย้!','เย้ ได้ยาแล้ว!','ขอบคุณค่า!']):pick(['อื้มม~','อื้มม ขอบคุณนะ~']))}
+  rzFloat(rzQ('#rzS'+j),`+${pay}${mult>1?` (×${mult})`:''}`,mult>=2?'good fever':'good');rzCoinFly(rzQ('#rzS'+j),pay);RZH.light();RZS.coin(1+Math.min(RZ.combo,12)*.025);rzHearts(rzQ('#rzS'+j));
+  {const v=c.vip||f>.55?'yay':pick(['yay','mmm']);rzSay(rzQ('#rzS'+j),v==='yay'?pick(['เย้!','เย้ ได้ยาแล้ว!','ขอบคุณค่า!']):pick(['อื้มม~','อื้มม ขอบคุณนะ~']))}
   if(c.tipx)rzFloat(rzQ('#rzS'+j),'ทิปคุยถูกคอ 💬','good',30);
   rzStat('cust');if(c.vip)rzStat('vip');
   rzExit(j,'happy');rzHUD();rzEv('paid');rzGoalCheck();
@@ -1341,7 +1344,6 @@ function rzTapSrc(id,el){
   const kind=it.z==='tab'?'tray':it.mix?'mix':'pack',k=rzFree(kind);
   if(k<0){rzNope(kind==='tray'?'ถาดนับยาเต็ม':kind==='mix'?'โต๊ะผสมยาไม่ว่าง':'กล่องแพ็กไม่ว่าง',el);return}
   RZ.S[kind][k]=kind==='tray'?{id,ph:'count',t:0,p:0}:kind==='mix'?{id,ph:'water',t:0,p:0}:{id,ph:'pack',t:0,p:0};
-  if(kind==='mix')setTimeout(()=>RZS.splash(),180);
   rzFly(el,rzQ(RZ_SLOTS[kind]).children[k],rzSrcArt(id),true);RI[id].z==='tab'?RZS.pills():RZS.tap();
   setTimeout(()=>{if(RZ)rzSlotUpd(kind,k)},200);rzEv('src');rzEv('src:'+id);
 }
@@ -1369,7 +1371,7 @@ function rzTickStations(dt){
   const S=RZ.S,spd=rzU('speed')*(rzG('tray')?.92:1);
   S.tray.forEach((x,k)=>{if(x&&x.ph==='count'){x.t+=dt;x.p=Math.min(1,x.t/(RZT.count*spd));if(x.p>=1){x.ph='ready';x.p=0;rzSlotUpd('tray',k);RZS.pop();rzEv('ready');rzEv('ready:'+x.id)}}});
   S.amber.forEach((x,k)=>{if(x&&x.ph==='wrap'){x.t+=dt;x.p=Math.min(1,x.t/RZT.amber);if(x.p>=1){x.ph='ready';x.p=0;rzSlotUpd('amber',k);RZS.pop();rzEv('amberReady')}}});
-  S.mortar.forEach((x,k)=>{if(x&&x.ph==='crush'&&x.auto){x.t+=dt;const st=Math.min(x.need,Math.floor(x.t/.32));if(st>x.taps){x.taps=st;x.p=x.taps/x.need;RZS.pound(x.taps,x.need);const el=rzQ(RZ_SLOTS.mortar);const b=el&&el.children[k];if(b){b.classList.remove('pound');void b.offsetWidth;b.classList.add('pound')}
+  S.mortar.forEach((x,k)=>{if(x&&x.ph==='crush'&&x.auto){x.t+=dt;const st=Math.min(x.need,Math.floor(x.t/.32));if(st>x.taps){x.taps=st;x.p=x.taps/x.need;RZS.pound(x.taps,x.need,1);const el=rzQ(RZ_SLOTS.mortar);const b=el&&el.children[k];if(b){b.classList.remove('pound');void b.offsetWidth;b.classList.add('pound')}
       if(x.taps>=x.need){x.ph='divide';x.t=0;x.p=0;rzEv('crushed')}rzSlotUpd('mortar',k)}}});
   S.mortar.forEach((x,k)=>{if(x&&x.ph==='divide'){x.t+=dt;x.p=Math.min(1,x.t/(RZT.divide*(RZ.bst.has('grinder')?.5:1)));if(x.p>=1){x.ph='ready';x.p=0;rzSlotUpd('mortar',k);RZS.pop();rzEv('crushReady')}}});
   S.mix.forEach((x,k)=>{if(!x)return;x.t+=dt;
@@ -1378,7 +1380,7 @@ function rzTickStations(dt){
     else if(x.ph==='label'){x.p=Math.min(1,x.t/(RZT.label*(RZ.bst.has('shaker')?.4:1)));if(x.p>=1){x.ph='ready';x.t=0;x.p=0;rzSlotUpd('mix',k);RZS.pop();rzEv('mixReady')}}
     else if(x.ph==='ready'&&!x.sed&&!RZ.bst.has('shaker')&&RZ.V.feats.has('sed')&&x.t>RZT.sed){x.sed=1;rzSlotUpd('mix',k);rzEv('sed')}});
   S.pack.forEach((x,k)=>{if(!x)return;
-    if(x.ph==='pack'){x.t+=dt;x.p=Math.min(1,x.t/(RZT.pack*(RZ.bst.has('ice')?.33:1)));if(x.p>=1){x.ph='ready';x.t=0;x.p=0;x.cold=1;rzSlotUpd('pack',k);RZS.pop();RZS.freeze();rzEv('packReady')}}
+    if(x.ph==='pack'){x.t+=dt;x.p=Math.min(1,x.t/(RZT.pack*(RZ.bst.has('ice')?.33:1)));if(x.p>=1){x.ph='ready';x.t=0;x.p=0;x.cold=1;rzSlotUpd('pack',k);RZS.freeze();rzEv('packReady')}}
     else if(x.ph==='ready'){x.cold=RZ.bst.has('ice')?1:Math.max(0,x.cold-dt/(RZT.cold*(RZ.V.ev.includes('hot')?.7:1)*rzU('ice')*(rzG('fridge')?1.15:1)));if(x.cold<=0){x.ph='spoiled';rzSlotUpd('pack',k);RZS.sad();rzFloat(rzQ(RZ_SLOTS.pack).children[k],'ยาเสื่อมแล้ว!','bad');rzEv('spoiled')}}});
   for(const kind in RZ_SLOTS){const box=rzQ(RZ_SLOTS[kind]);if(!box)continue;RZ.S[kind].forEach((x,k)=>{const b=box.children[k];if(x&&b){b.style.setProperty('--p',x.p||0);if(x.cold!=null)b.style.setProperty('--cold',x.cold)}})}
 }
@@ -1397,7 +1399,6 @@ const rzMult=()=>RZ.fever>0?2:RZ.combo>=6?1.5:RZ.combo>=3?1.2:1;
 function rzComboHit(){
   RZ.combo++;RZ.best=Math.max(RZ.best,RZ.combo);RZ.ct=rzU('bell');
   const n=RZ.combo,st=RZ_PENTA[Math.min(RZ_PENTA.length-1,(n-1)%11)]+12*Math.floor(Math.min(n-1,21)/11);
-  RZS.t(523*Math.pow(2,st/12),.16,.045,'triangle');
   if(n===3)rzCPop('คอมโบ ×3','เงิน ×1.2','t1');
   else if(n===6)rzCPop('คอมโบ ×6 เยี่ยม!','เงิน ×1.5','t2');
   else if(n%10===0){RZ.fever=8;RZ.fevers++;rzStat('fever');rzEl.classList.add('fever');rzCPop(`ไฟลุก! ×${n}`,'8 วิ เงิน ×2 ลูกค้าไม่หงุดหงิด','t3');RZS.fever();RZS.m.fast=1;rzEv('fever')}
@@ -1467,7 +1468,7 @@ function rzCoinFly(from,pay){const to=rzQ('.rz-pill.coin'),fx=rzQ('#rzFx');if(!f
   for(let i=0;i<n;i++)setTimeout(()=>{if(!RZ||!fx.isConnected)return;const el=document.createElement('div');el.className='rz-flycoin';el.innerHTML='<i class="rz-coin big"></i>';fx.appendChild(el);
     const x0=a.x+a.w/2-13+(Math.random()-.5)*60,y0=a.y+a.h*.4+(Math.random()-.5)*30,x1=b.x+12,y1=b.y+b.h/2-13,mx=x0+(Math.random()-.5)*180,my=Math.min(y0,y1)-40-Math.random()*70;
     el.animate([{transform:`translate(${x0}px,${y0}px) scale(.3)`,opacity:0},{transform:`translate(${x0}px,${y0-30}px) scale(1.2)`,opacity:1,offset:.18},{transform:`translate(${mx}px,${my}px) scale(1)`,offset:.55},{transform:`translate(${x1}px,${y1}px) scale(.75)`,opacity:1}],{duration:700+i*35,easing:'cubic-bezier(.45,0,.35,1)'}).onfinish=()=>{el.remove();if(!RZ)return;
-      RZ.cshow=Math.min(RZ.coins,(RZ.cshow||0)+share);const c=rzQ('#rzCoin');if(c)c.textContent=RZ.cshow;to.classList.remove('gain');void to.offsetWidth;to.classList.add('gain');RZS.t(1500+i*70,.06,.022,'square')}},i*60)}
+      RZ.cshow=Math.min(RZ.coins,(RZ.cshow||0)+share);const c=rzQ('#rzCoin');if(c)c.textContent=RZ.cshow;to.classList.remove('gain');void to.offsetWidth;to.classList.add('gain')}},i*60)}
 function rzSay(el,txt){const fx=rzQ('#rzFx');if(!el||!fx)return;const r=rzXY(el),f=document.createElement('div');f.className='rz-say';f.textContent=txt;f.style.left=(r.x+r.w/2)+'px';f.style.top=(r.y+r.h*.34)+'px';fx.appendChild(f);setTimeout(()=>f.remove(),1400)}
 function rzFloat(el,txt,kind,dy=0){const fx=rzQ('#rzFx');if(!el||!fx)return;const r=rzXY(el);const f=document.createElement('div');f.className='rz-float '+(kind||'');f.textContent=txt;f.style.left=(r.x+r.w/2)+'px';f.style.top=(r.y+20+dy)+'px';fx.appendChild(f);setTimeout(()=>f.remove(),1200)}
 function rzHearts(el){if(!el)return;const r=rzXY(el),fx=rzQ('#rzFx');for(let i=0;i<5;i++){const h=document.createElement('div');h.className='rz-heart';h.style.left=(r.x+r.w/2+(Math.random()-.5)*60)+'px';h.style.top=(r.y+r.h*.45)+'px';h.style.animationDelay=(i*.08)+'s';fx.appendChild(h);setTimeout(()=>h.remove(),1300)}}
@@ -1507,7 +1508,7 @@ function rzLoop(now){
 const RZ_CHATL=['วันนี้ร้อนเนอะ~','หลานเพิ่งสอบติดนะ!','แมวที่บ้านอ้วนอีกแล้ว','ผักที่ตลาดแพงขึ้นอีก','ละครเมื่อคืนดูยัง?','ลูกสาวจะแต่งงานเดือนหน้า','เดินมาเหนื่อยเลย ขอนั่งแป๊บ','ร้านนี้แอร์เย็นดีจัง','ทายสิ ป้าอายุเท่าไหร่~','เมื่อเช้ารถติดมากเลย','ฝนจะตกไหมเนี่ย','ข้างบ้านเปิดร้านกาแฟใหม่','ลุงเพิ่งหัดเล่นมือถือ','หมาที่บ้านชอบกินแตงโม','งานวัดปีนี้คนเยอะมาก'];
 const RZ_CHATBYE=['ขอบใจนะ คุยสนุกดี!','ค่อยยังชั่ว ได้คุยแล้ว','แค่แวะมาทักเฉย ๆ จ้า','ไว้มาคุยใหม่นะ~','ขอบใจที่ฟังนะหลาน'];
 function rzChatTap(j){const c=RZ.seats[j];if(!c||!c.chat||c.leave||c.walk>0)return;const ch=c.chat;ch.taps++;
-  const se=rzQ('#rzS'+j);bounce(se&&se.querySelector('.rz-who'));RZS.t(660+ch.taps*90,.08,.04,'triangle');RZH.light();
+  const se=rzQ('#rzS'+j);bounce(se&&se.querySelector('.rz-who'));RZS.t(660+ch.taps*90,.07,.022,'triangle');RZH.light();
   if(c._say&&c._say.isConnected)c._say.remove();rzSay(se,pick(RZ_CHATL));{const fx=rzQ('#rzFx');c._say=fx&&fx.lastElementChild}c.pat=Math.min(c.pm,c.pat+c.pm*.05);
   if(ch.taps<ch.need){const pp=se&&se.querySelectorAll('.rz-pips i');if(pp&&pp[ch.taps-1])pp[ch.taps-1].classList.add('on');return}
   const a=rzAnLv();rzStat('chat');
