@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="th"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>ต้นแบบบท 6 · ร้านยาทันใจ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mali:wght@500;600;700&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#4A3440;--pink:#FF6FA8;--cream:#FFF7EE;--line:#F0D9C8;--gold:#FFC94D}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#2B1E2A;overflow:hidden;font-family:Mali,Sarabun,sans-serif;color:var(--ink)}
+#app{position:absolute;left:50%;top:50%;transform-origin:0 0;overflow:hidden;border-radius:14px;background:#F6D6C8}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+/* scene */
+.scene{position:absolute;left:0;top:0;width:100%;overflow:hidden}
+.scene .view,.scene .shop{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:1120px;height:auto}
+.scene .view{bottom:12px;width:1120px;filter:saturate(.75) brightness(.92)}
+.rain{position:absolute;inset:0;pointer-events:none;opacity:.32;background:repeating-linear-gradient(105deg,transparent 0 14px,rgba(255,255,255,.9) 14px 15.5px,transparent 15.5px 38px);background-size:200px 200px;animation:rain .5s linear infinite;mix-blend-mode:screen}
+@keyframes rain{to{background-position:-40px 200px}}
+.counter{position:absolute;left:0;right:0;background:url(../art/counter.webp) 0 0/auto 100% repeat-x;box-shadow:0 7px 10px rgba(60,25,10,.3);z-index:3}
+.hud{position:absolute;top:8px;left:10px;right:10px;display:flex;gap:8px;align-items:center;z-index:9}
+.pill{background:rgba(255,255,255,.94);border-radius:99px;padding:5px 12px;font-weight:700;font-size:15px;box-shadow:0 3px 0 rgba(0,0,0,.12);white-space:nowrap}
+.pill.lv{background:linear-gradient(#FF8FBC,#FF5E9C);color:#fff}
+.pill.proto{background:#4A3440;color:#FFE08A;font-size:12px;margin-left:auto}
+/* customers */
+.seat{position:absolute;z-index:2;transition:transform .5s,opacity .5s}
+.seat.in{transform:translateY(0)}.seat.out{opacity:0;transform:translateX(60px)}
+.who{position:absolute;left:0;bottom:0;width:100%;height:100%;cursor:pointer}
+.who svg{width:100%;height:100%;display:block}
+.seat.sel .who{filter:drop-shadow(0 0 0 #fff) drop-shadow(0 0 6px #FFD84D)}
+.bub{position:absolute;left:50%;transform:translateX(-50%);background:#fff;border-radius:16px;padding:7px 10px 9px;box-shadow:0 4px 0 rgba(0,0,0,.12),0 0 0 3px #fff;text-align:center;cursor:pointer;z-index:5}
+.bub:after{content:"";position:absolute;left:50%;bottom:-8px;margin-left:-8px;border:8px solid transparent;border-bottom:0;border-top-color:#fff}
+.bub .ico{font-size:22px;line-height:1}
+.bub .t{font-size:14px;line-height:1.25;font-weight:700}
+.bub .t small{display:block;font-weight:600;color:#C0306A}
+.bub.red{box-shadow:0 4px 0 rgba(0,0,0,.12),0 0 0 3px #FF6B6B}
+.bub.ok{box-shadow:0 4px 0 rgba(0,0,0,.12),0 0 0 3px #7FD8B6}
+.seat.sel .bub{box-shadow:0 4px 0 rgba(0,0,0,.12),0 0 0 4px #FFD84D}
+.pat{height:6px;border-radius:9px;background:#F1E3DA;margin-top:6px;overflow:hidden}.pat i{display:block;height:100%;background:#7FD8B6;border-radius:9px;transition:width .25s linear}
+.shake{animation:shake .35s}@keyframes shake{25%{transform:translateX(-50%) rotate(-3deg)}75%{transform:translateX(-50%) rotate(3deg)}}
+/* work area */
+.work{position:absolute;left:0;right:0;bottom:0;padding:12px;display:grid;gap:10px;background:linear-gradient(#FFF1E6,#FFE3D3)}
+.panel{background:rgba(255,255,255,.75);border-radius:18px;padding:9px;box-shadow:0 0 0 3px #fff,0 4px 0 #E6C2A8;position:relative}
+.panel h3{margin:0 0 6px;font-size:14px;color:#B2557A}
+.shelf{display:grid;gap:10px;flex:1;min-height:0;grid-template-rows:repeat(2,1fr)}
+.it{background:#fff;border-radius:16px;padding:6px 4px 8px;text-align:center;box-shadow:0 3px 0 #E8CBB8;position:relative;transition:transform .12s;display:flex;flex-direction:column;justify-content:center;min-height:0}
+.it:active{transform:scale(.94)}
+.it .im{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+.it .im img,.it .im svg{height:100%;max-height:84px;width:auto;max-width:84px}
+.it b{display:block;font-size:14px;line-height:1.15;margin-top:4px}
+.it.hand{box-shadow:0 0 0 4px #FFD84D,0 3px 0 #E8CBB8;transform:translateY(-3px)}
+.it .tag{position:absolute;top:-8px;right:-4px;background:#FFD84D;border-radius:99px;font-size:11px;padding:1px 6px;font-weight:700}
+.st{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.st .ring{position:relative;width:74px;height:74px}
+.st .ring svg{position:absolute;inset:0}
+.st .lbl{font-size:12.5px;font-weight:700;margin-top:4px;line-height:1.2}
+.hint{position:absolute;z-index:8;left:50%;transform:translateX(-50%);background:rgba(74,52,64,.88);color:#fff;border-radius:99px;padding:6px 16px;font-size:14px;font-weight:600;white-space:nowrap;pointer-events:none}
+.toast{position:absolute;z-index:20;left:50%;transform:translateX(-50%);max-width:92%;background:#fff;border-radius:14px;padding:8px 14px;font-size:14.5px;font-weight:600;box-shadow:0 6px 0 rgba(0,0,0,.12),0 0 0 3px #7FD8B6;animation:tin .25s;text-align:center;pointer-events:none}
+.toast.bad{box-shadow:0 6px 0 rgba(0,0,0,.12),0 0 0 3px #FF6B6B}
+@keyframes tin{from{opacity:0;transform:translate(-50%,8px)}}
+.coin{position:absolute;z-index:21;font-weight:700;color:#E89A00;font-size:20px;text-shadow:0 2px 0 #fff;animation:up 1s forwards;pointer-events:none}
+@keyframes up{to{transform:translateY(-40px);opacity:0}}
+/* cards */
+.ov{position:absolute;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;background:rgba(43,30,42,.55);animation:fade .3s}
+@keyframes fade{from{opacity:0}}
+.card{background:var(--cream);border-radius:24px;padding:18px 20px;box-shadow:0 0 0 4px #fff,0 8px 0 #E6C2A8;max-width:94%;max-height:94%;overflow:auto}
+.card h2{margin:0 0 6px;font-size:24px;color:#C0306A}
+.card p{margin:6px 0;font-size:15.5px;line-height:1.45}
+.steps{display:grid;gap:8px;margin:10px 0}
+.steps div{display:flex;gap:10px;align-items:center;background:#fff;border-radius:14px;padding:8px 10px;font-size:15px}
+.steps i{font-style:normal;font-size:24px}
+.btn{display:inline-block;background:linear-gradient(#FF8FBC,#FF5E9C);color:#fff;font-weight:700;font-size:17px;border-radius:99px;padding:10px 26px;box-shadow:0 4px 0 #C93D75}
+.btn.alt{background:#fff;color:var(--ink);box-shadow:0 4px 0 #E6C2A8}
+.row{display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+/* consult scene */
+.cs{position:absolute;inset:0;z-index:25;animation:fade .5s;background:#E9B9A6}
+.cs .bgimg{position:absolute;inset:0;background:url(../art/shop.webp) center 30%/cover;filter:blur(3px) brightness(.85)}
+.cs .ctr{position:absolute;left:0;right:0;background:url(../art/counter.webp) 0 0/auto 100% repeat-x}
+.cs .big{position:absolute}
+.cs .big svg{width:100%;height:100%}
+.cs .say{position:absolute;background:#fff;border-radius:18px;padding:12px 16px;font-size:16.5px;font-weight:600;line-height:1.4;box-shadow:0 5px 0 rgba(0,0,0,.12)}
+.cs .say b{color:#C0306A}
+.cs .pnl{position:absolute;background:var(--cream);border-radius:22px;padding:14px 16px;box-shadow:0 0 0 4px #fff,0 6px 0 #E6C2A8;display:flex;flex-direction:column}
+.cs .stp{font-size:13px;font-weight:700;color:#fff;background:#B2557A;border-radius:99px;padding:3px 12px;align-self:flex-start}
+.cs h4{margin:8px 0 8px;font-size:18px}
+.cs .log{flex:1;overflow:auto;display:flex;flex-direction:column;gap:6px;margin-bottom:8px;min-height:40px}
+.cs .log div{font-size:14.5px;line-height:1.35;padding:6px 10px;border-radius:12px;max-width:92%}
+.cs .log .me{align-self:flex-end;background:#DFF3FF}
+.cs .log .them{align-self:flex-start;background:#fff}
+.cs .log .them.clue{box-shadow:0 0 0 2px #FFD84D}
+.opts{display:grid;gap:8px}
+.opt{background:#fff;border-radius:14px;padding:10px 12px;text-align:left;font-size:15px;font-weight:600;box-shadow:0 3px 0 #E8CBB8;display:flex;gap:10px;align-items:center}
+.opt img{width:34px;height:34px;object-fit:contain}
+.opt.used{opacity:.45}
+.opt.good{box-shadow:0 0 0 3px #7FD8B6,0 3px 0 #E8CBB8}
+.opt.bad{box-shadow:0 0 0 3px #FF8A8A,0 3px 0 #E8CBB8;opacity:.75}
+.why{margin-top:8px;border-radius:14px;padding:9px 12px;font-size:14.5px;line-height:1.4;background:#fff}
+.why.ok{box-shadow:0 0 0 3px #7FD8B6}.why.no{box-shadow:0 0 0 3px #FF8A8A}
+.hearts{font-size:30px;letter-spacing:4px;text-align:center}
+.learn{background:#fff;border-radius:14px;padding:10px 14px;margin:8px 0;font-size:14.5px;line-height:1.45}
+.learn li{margin:3px 0}
+</style></head>
+<body><div id="app"></div>
+<script>
+'use strict';
+/* ===== ต้นแบบบท 6 · ระบบ "อ่านอาการ → เลือกยา" + ส่งต่อ 🏥 + วัดไข้ + เคาน์เตอร์ปรึกษาท้ายด่าน =====
+   หน้าแยกจากเกมจริง ไม่มี analytics ไม่แตะเซฟ ข้อมูลยาทุกข้อรอเภสัชเจ้าของเกมตรวจ */
+const A=document.getElementById('app');let W=1120,H=630,LAND=true;
+function layout(){LAND=innerWidth>=innerHeight;W=LAND?1120:480;H=LAND?630:900;const s=Math.min(innerWidth/W,innerHeight/H);
+  A.style.width=W+'px';A.style.height=H+'px';A.style.transform=`scale(${s}) translate(-50%,-50%)`;A.className=LAND?'land':'port'}
+addEventListener('resize',()=>{const was=LAND;layout();if(was!==LAND)render()});layout();
+
+/* ---------- faces on the Canva busts (same as the game) ---------- */
+const CZ={win1:[61,56,52],aunt1:[59,57,52],aunt2:[64,54,48],build:[60,68,54],uncle1:[60,57,60,31],offm:[57,60,52],offf:[56,60,54],youngm:[62,68,56],youngf:[62,61,58],granny:[60,70,62],waen:[64,76,56],kidm:[62,74,66]};
+function face(img,mood){const [cx,cy,fw,my=0]=CZ[img],k='#4A3440',sc=(fw/80).toFixed(3);
+  const ey={happy:`<path d="M37 68Q44 60 51 68M69 68Q76 60 83 68" stroke="${k}" stroke-width="4.5" fill="none" stroke-linecap="round"/>`,
+    calm:`<ellipse cx="44" cy="67" rx="5.5" ry="7" fill="${k}"/><ellipse cx="76" cy="67" rx="5.5" ry="7" fill="${k}"/><circle cx="46" cy="64" r="2.2" fill="#fff"/><circle cx="78" cy="64" r="2.2" fill="#fff"/>`};
+  ey.sick=ey.calm+`<path d="M35 53L50 49M85 53L70 49" stroke="${k}" stroke-width="3.8" stroke-linecap="round"/>`;
+  const m={happy:`<path d="M50 80Q60 95 70 80Z" fill="#C9566B"/>`,calm:`<path d="M53 82Q60 88 67 82" stroke="${k}" stroke-width="3.8" fill="none" stroke-linecap="round"/>`,
+    sick:`<path d="M52 86Q56 81 60 86T68 86" stroke="${k}" stroke-width="3.8" fill="none" stroke-linecap="round"/>`};
+  const fx=mood==='sick'?`<path d="M100 40Q106 50 100 54Q94 50 100 40Z" fill="#8FD3FF"/>`:mood==='happy'?`<path d="M104 30l2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" fill="#FFD84D"/>`:'';
+  return`<svg viewBox="0 0 120 150"><image href="../art/ppl/${img}.webp" width="120" height="150"/><g transform="translate(${cx} ${cy}) scale(${sc}) translate(-60 -64)">
+   <ellipse cx="33" cy="80" rx="8" ry="5" fill="${mood==='sick'?'#FF6B6B':'#FF8FAB'}" opacity=".55"/><ellipse cx="87" cy="80" rx="8" ry="5" fill="${mood==='sick'?'#FF6B6B':'#FF8FAB'}" opacity=".55"/>${ey[mood]||ey.calm}<g transform="translate(0 ${my})">${m[mood]||m.calm}</g></g>${fx}</svg>`}
+
+/* ---------- items (new ones use temporary drawn icons) ---------- */
+const ico={
+ mask:`<svg viewBox="0 0 60 60"><rect x="6" y="16" width="48" height="34" rx="8" fill="#8FD3FF"/><rect x="6" y="16" width="48" height="10" rx="5" fill="#5DB7EE"/><path d="M14 30q16-8 32 0v10q-16 8-32 0Z" fill="#fff"/><path d="M18 34h24M18 38h24" stroke="#BFE6FF" stroke-width="2"/></svg>`,
+ test:`<svg viewBox="0 0 60 60"><rect x="8" y="20" width="44" height="20" rx="8" fill="#fff" stroke="#C9D3E0" stroke-width="3"/><circle cx="18" cy="30" r="4" fill="#E3EAF2"/><rect x="28" y="25" width="18" height="10" rx="3" fill="#F4F7FB"/><path d="M33 25v10M40 25v10" stroke="#FF5E9C" stroke-width="2.5"/><text x="34" y="51" font-size="8" font-weight="700" fill="#7A8CA3">A/B</text></svg>`,
+ ors:`<svg viewBox="0 0 60 60"><path d="M12 10h36l-3 42H15Z" fill="#FFB060"/><path d="M12 10h36v8H12z" fill="#F08A2C"/><circle cx="30" cy="34" r="9" fill="#fff"/><path d="M30 28v12M24 34h12" stroke="#F08A2C" stroke-width="3"/></svg>`,
+ ref:`<svg viewBox="0 0 60 60"><rect x="10" y="8" width="40" height="46" rx="6" fill="#fff" stroke="#E8CBB8" stroke-width="3"/><path d="M30 18v16M22 26h16" stroke="#FF5A5A" stroke-width="5" stroke-linecap="round"/><path d="M18 42h24M18 48h16" stroke="#D5C2B6" stroke-width="2.5"/></svg>`,
+ therm:`<svg viewBox="0 0 60 60"><rect x="24" y="6" width="12" height="38" rx="6" fill="#FF9DB8"/><rect x="26" y="12" width="8" height="14" rx="2" fill="#DFF7FF"/><circle cx="30" cy="48" r="8" fill="#FF6F9C"/></svg>`};
+const IT={
+ para:{n:'พาราเซตามอล',p:10,img:'para'}, cet:{n:'ยาแก้แพ้',p:10,img:'cet'}, ibu:{n:'ไอบูโพรเฟน',p:12,img:'ibu'}, cough:{n:'ยาน้ำแก้ไอ',p:25,img:'cough'},
+ mask:{n:'หน้ากากอนามัย',p:20}, test:{n:'ชุดตรวจไข้หวัดใหญ่',p:150}, ors:{n:'ผงเกลือแร่ ORS',p:8}, ref:{n:'ใบแนะนำพบแพทย์',p:0}};
+const icon=id=>IT[id]&&IT[id].img?`<img src="../art/${IT[id].img}.webp" alt="">`:ico[id];
+
+/* ---------- symptoms (ร่าง รอเภสัชตรวจ) ---------- */
+const S={
+ fever:{t:'ไข้ ปวดหัว ปวดเมื่อยตัว',e:'🤒',need:'para',ok:'ไข้ ปวดเมื่อย ใช้พาราเซตามอลตามฉลาก'},
+ nose:{t:'น้ำมูกไหล จาม คันจมูก',e:'🤧',need:'cet',ok:'ยาแก้แพ้ช่วยลดน้ำมูกและอาการจาม'},
+ cough:{t:'ไอ ระคายคอ',e:'😮‍💨',need:'cough',ok:'ไอระคายคอ ใช้ยาน้ำแก้ไอ ตวงด้วยช้อนตวงที่ให้มา'},
+ mask:{t:'จามบ่อย กลัวติดคนที่ออฟฟิศ',e:'🏢',need:'mask',ok:'ใส่หน้ากากคลุมจมูกถึงคาง ช่วยลดการแพร่เชื้อ'},
+ test:{t:'ลูกไข้สูง อยากรู้ว่าเป็นไข้หวัดใหญ่ไหม',e:'👶',need:'test',ok:'ชุดตรวจ A/B ตรวจเองได้ อ่านผลตามเวลาบนฉลาก'},
+ diar:{t:'ถ่ายเหลว อ่อนเพลีย',e:'💧',need:'ors',ok:'ถ่ายเหลวเสียน้ำ ให้ค่อย ๆ จิบผงเกลือแร่ ผสมน้ำตามฉลาก'},
+ dengue:{t:'ไข้ 3 วันไม่ลด มีจุดแดงตามแขน',e:'🚩',need:'ref',red:1,ok:'อาการเตือนไข้เลือดออก ต้องไปพบแพทย์'},
+ breath:{t:'ไอ หอบเหนื่อย หายใจไม่ทัน',e:'🚩',need:'ref',red:1,ok:'หอบเหนื่อยเป็นอาการเตือน ต้องพบแพทย์ทันที'},
+ warm:{t:'ตัวรุม ๆ ไม่แน่ใจว่ามีไข้ไหม',e:'🌡️',need:'therm',then:{t:'วัดได้ 38.4°C มีไข้ ปวดหัว',e:'🤒',need:'para',ok:'มีไข้ ใช้พาราเซตามอลตามฉลาก และดื่มน้ำมาก ๆ'}}};
+const FEVER=new Set(['fever','warm']);
+function wrongWhy(c,id){const s=c.s;
+  if(s.red&&id!=='ref')return'🚩 มีอาการเตือน ต้องส่งต่อพบแพทย์ ไม่ควรขายยากินเอง';
+  if(id==='ref')return'อาการไม่รุนแรง ร้านยาดูแลเองได้ ลองอ่านอาการอีกที';
+  if(id==='ibu'&&(FEVER.has(c.k)))return'หน้าฝนไข้อาจเป็นไข้เลือดออก ไม่ควรใช้ยา NSAIDs อย่างไอบูโพรเฟนเอง';
+  if(s.need==='therm')return'ยังไม่รู้ว่ามีไข้ไหม ลองวัดไข้ก่อน 🌡️';
+  return'ยังไม่ตรงกับอาการ ลองอ่านอาการอีกที'}
+
+/* ---------- level ---------- */
+const PPL=['offm','aunt1','youngf','build','aunt2','granny','youngm','offf','win1','waen'];
+const PLAN=['fever','nose','mask','cough','test','dengue','warm','diar','breath'];
+let G;
+function newGame(){G={t:0,next:1.2,q:PLAN.map((k,i)=>({k,s:S[k],img:PPL[i%PPL.length]})),seats:[null,null,null],done:0,coins:0,hand:null,sel:-1,miss:[],learn:new Set(),therm:null,phase:'intro',over:false}}
+newGame();
+
+function geo(){return LAND?{scH:300,ctrT:250,ctrH:50,seatX:[250,560,870],pw:124,ph:155,bubW:210,bubB:142,workT:300}
+                         :{scH:345,ctrT:290,ctrH:50,seatX:[84,240,396],pw:124,ph:155,bubW:148,bubB:142,workT:345}}
+function render(){const g=geo();
+  A.innerHTML=`<div class="scene" style="height:${g.scH}px"><img class="view" src="../art/view1.webp" alt=""><div class="rain"></div><img class="shop" src="../art/shop.webp" alt="" style="bottom:${LAND?-6:-8}px"></div>
+   <div class="counter" style="top:${g.ctrT}px;height:${g.ctrH}px"></div>
+   <div class="hud"><span class="pill lv">51 · ฝนแรกของปี</span><span class="pill" id="left"></span><span class="pill" id="coins"></span><span class="pill proto">ต้นแบบบท 6</span></div>
+   <div id="seats"></div><div class="hint" id="hint" style="top:${g.ctrT+g.ctrH+2}px;display:none"></div>
+   <div class="work" style="top:${g.workT}px;grid-template-columns:${LAND?'150px 1fr':'1fr'};grid-template-rows:${LAND?'1fr':'auto 1fr'}">
+    <div class="panel st" data-a="therm" style="${LAND?'':'flex-direction:row;gap:12px;justify-content:flex-start;padding:8px 14px'}"><div class="ring"><svg viewBox="0 0 74 74"><circle cx="37" cy="37" r="33" fill="#fff" stroke="#F1E3DA" stroke-width="6"/><circle id="tring" cx="37" cy="37" r="33" fill="none" stroke="#FF8FBC" stroke-width="6" stroke-dasharray="207" stroke-dashoffset="207" transform="rotate(-90 37 37)"/></svg><div style="position:absolute;inset:12px">${ico.therm}</div></div>
+     <div class="lbl">จุดวัดไข้<br><small id="tlbl" style="font-weight:600;color:#9A7A88">แตะลูกค้า 🌡️ แล้วแตะที่นี่</small></div></div>
+    <div class="panel" style="display:flex;flex-direction:column"><h3>ชั้นยาและของใช้ · แตะลูกค้า แล้วแตะของที่ตรงอาการ</h3><div class="shelf" style="grid-template-columns:repeat(4,1fr)">
+     ${Object.keys(IT).map(id=>`<button class="it" data-a="it" data-id="${id}"><div class="im">${icon(id)}</div><b>${IT[id].n}</b></button>`).join('')}</div></div></div>`;
+  A.onclick=onTap;drawSeats();hud();
+  if(G.phase==='intro')intro();if(G.phase==='consult')consult(true);if(G.phase==='end')endCard()}
+function hud(){const l=A.querySelector('#left'),c=A.querySelector('#coins');if(l)l.textContent=`👥 ${G.done}/${PLAN.length+1}`;if(c)c.textContent=`🪙 ${G.coins}`;
+  A.querySelectorAll('.it').forEach(b=>b.classList.toggle('hand',b.dataset.id===G.hand))}
+function drawSeats(){const g=geo(),box=A.querySelector('#seats');if(!box)return;
+  box.innerHTML=G.seats.map((c,j)=>{if(!c)return'';const s=c.s,mood=c.mood||(s.red?'sick':'sick');
+    return`<div class="seat ${G.sel===j?'sel':''} ${c.out?'out':''}" data-a="cust" data-j="${j}" style="left:${g.seatX[j]-g.pw/2}px;top:${g.ctrT+28-g.ph}px;width:${g.pw}px;height:${g.ph}px">
+     <div class="who">${face(c.img,c.mood||'sick')}</div>
+     <div class="bub ${s.red?'red':''} ${c.mood==='happy'?'ok':''}" id="b${j}" style="bottom:${g.bubB}px;width:${g.bubW}px">${c.mood==='happy'?`<div class="ico">💖</div><div class="t">ขอบคุณนะ!</div>`:`<div class="ico">${s.e}</div><div class="t">${s.t}</div>
+      <div class="pat"><i id="p${j}" style="width:${Math.max(0,c.pat/c.pm*100)}%"></i></div>`}</div></div>`}).join('')}
+function hint(t){const h=A.querySelector('#hint');if(!h)return;h.style.display=t?'block':'none';h.textContent=t||''}
+function toast(t,bad,j){const g=geo(),d=document.createElement('div');d.className='toast'+(bad?' bad':'');d.innerHTML=t;
+  d.style.top=(g.ctrT+4)+'px';
+  A.appendChild(d);setTimeout(()=>d.remove(),2600)}
+function coin(j,n){const g=geo(),d=document.createElement('div');d.className='coin';d.textContent='+'+n;d.style.left=g.seatX[j]+'px';d.style.top=(g.ctrT-40)+'px';A.appendChild(d);setTimeout(()=>d.remove(),1000)}
+
+/* ---------- input ---------- */
+function onTap(e){const t=e.target.closest('[data-a]');if(!t||G.phase!=='play')return;const a=t.dataset.a;
+  if(a==='cust'){const j=+t.dataset.j,c=G.seats[j];if(!c||c.out||c.mood==='happy')return;
+    if(G.hand){give(G.hand,j);return}G.sel=G.sel===j?-1:j;drawSeats();return}
+  if(a==='it'){const id=t.dataset.id;let j=G.sel;
+    if(j<0){const w=G.seats.map((c,i)=>c&&!c.out&&c.mood!=='happy'?i:-1).filter(i=>i>=0);if(w.length===1)j=w[0]}
+    if(j>=0){give(id,j);return}G.hand=G.hand===id?null:id;hud();hint(G.hand?'แตะลูกค้าที่จะรับ '+IT[id].n:'');return}
+  if(a==='therm'){let j=G.sel;if(j<0){const w=G.seats.map((c,i)=>c&&c.s.need==='therm'?i:-1).filter(i=>i>=0);if(w.length===1)j=w[0]}
+    if(j<0){toast('แตะลูกค้าที่มีป้าย 🌡️ ก่อน แล้วค่อยแตะจุดวัดไข้');return}measure(j)}}
+function measure(j){const c=G.seats[j];if(!c)return;
+  if(c.s.need!=='therm'){toast('ลูกค้าคนนี้บอกอาการชัดแล้ว ไม่ต้องวัดไข้',1,j);return}
+  if(G.therm){toast('กำลังวัดไข้อีกคนอยู่ รอแป๊บนะ');return}
+  G.therm={j,t:0};G.sel=-1;A.querySelector('#tlbl').textContent='กำลังวัด…';drawSeats()}
+function give(id,j){const c=G.seats[j];G.hand=null;G.sel=-1;hint('');hud();if(!c||c.out)return;
+  if(c.s.need==='therm'&&id!=='ref'){toast(wrongWhy(c,id),1,j);c.pat-=c.pm*.15;miss(c,id);drawSeats();shake(j);return}
+  if(id===c.s.need){const tip=Math.round(5+10*c.pat/c.pm),n=IT[id].p+tip;G.coins+=n;coin(j,n);G.learn.add(c.s.ok);
+    c.mood='happy';drawSeats();toast('✅ '+c.s.ok,0,j);setTimeout(()=>leave(j),1300)}
+  else{toast('❌ '+wrongWhy(c,id),1,j);c.pat-=c.pm*.2;miss(c,id);drawSeats();shake(j)}hud()}
+function miss(c,id){G.miss.push({k:c.k,id})}
+function shake(j){const b=A.querySelector('#b'+j);if(b){b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake')}}
+function leave(j){const c=G.seats[j];if(!c)return;c.out=1;drawSeats();setTimeout(()=>{G.seats[j]=null;G.done++;drawSeats();hud();checkEnd()},500)}
+function checkEnd(){if(!G.q.length&&G.seats.every(s=>!s)&&G.phase==='play'){G.phase='last';lastCustomer()}}
+
+/* ---------- loop ---------- */
+let last=performance.now();
+function tick(now){const dt=Math.min(.1,(now-last)/1000);last=now;
+  if(G.phase==='play'){G.t+=dt;G.next-=dt;
+    if(G.next<=0&&G.q.length){const j=G.seats.findIndex(s=>!s);if(j>=0){const c=G.q.shift();c.pm=c.s.red?26:32;c.pat=c.pm;G.seats[j]=c;drawSeats();G.next=LAND?4.2:4.6}}
+    G.seats.forEach((c,j)=>{if(!c||c.out||c.mood==='happy')return;c.pat-=dt;const p=A.querySelector('#p'+j);if(p){p.style.width=Math.max(0,c.pat/c.pm*100)+'%';p.style.background=c.pat/c.pm<.3?'#FF8A8A':'#7FD8B6'}
+      if(c.pat<=0){toast('ลูกค้ารอนานเกินไปเลยกลับไปก่อน 😢',1,j);G.miss.push({k:c.k,id:'wait'});leave(j)}});
+    if(G.therm){const T=G.therm;T.t+=dt;const r=A.querySelector('#tring');if(r)r.style.strokeDashoffset=207*(1-Math.min(1,T.t/1.6));
+      if(T.t>=1.6){const c=G.seats[T.j];G.therm=null;if(r)r.style.strokeDashoffset=207;const l=A.querySelector('#tlbl');if(l)l.textContent='แตะลูกค้า 🌡️ แล้วแตะที่นี่';
+        if(c&&!c.out){c.s=c.s.then;drawSeats();toast('🌡️ '+c.s.t,0,T.j)}}}}
+  requestAnimationFrame(tick)}
+requestAnimationFrame(tick);
+
+/* ---------- cards ---------- */
+function card(html){const o=document.createElement('div');o.className='ov';o.innerHTML=`<div class="card" style="width:${LAND?560:440}px">${html}</div>`;A.appendChild(o);return o}
+function intro(){const o=card(`<h2>ด่าน 51 · ฝนแรกของปี</h2><p>ฝนมาแล้ว! ลูกค้าเริ่มไอจามกันทั้งซอย ระบบใหม่ของบทนี้ ลูกค้าจะบอก <b>อาการ</b> ไม่บอกชื่อยา</p>
+  <div class="steps"><div><i>👆</i>แตะลูกค้า แล้วแตะยาหรือของใช้ที่ตรงกับอาการ</div><div><i>🚩</i>อาการเตือน ให้ส่ง <b>ใบแนะนำพบแพทย์</b> แทนการขายยา</div><div><i>🌡️</i>ไม่แน่ใจว่ามีไข้ไหม ส่งไปจุดวัดไข้ก่อน</div><div><i>💬</i>ลูกค้าคนสุดท้ายจะขอนั่งปรึกษาที่เคาน์เตอร์</div></div>
+  <div class="row"><button class="btn" id="go">เริ่มเลย</button></div>`);
+  o.querySelector('#go').onclick=()=>{o.remove();G.phase='play'}}
+function lastCustomer(){const g=geo();G.seats[1]={k:'consult',s:{t:'ขอปรึกษาหน่อยได้ไหม',e:'💬'},img:'uncle1',pat:99,pm:99,mood:'calm'};drawSeats();
+  hint('ลูกค้าคนสุดท้ายขอปรึกษา…');setTimeout(()=>{G.phase='consult';G.cs={step:0,asked:[],hearts:0,q:0,first:{}};consult()},1800)}
+
+/* ---------- consult case ---------- */
+const CASE={who:'uncle1',name:'ลุงสมชาย',open:'ไข้มา 2 วัน ปวดเมื่อยไปหมด ขอยาแก้อักเสบแรง ๆ หน่อยสิ',
+ q:[{q:'เป็นมากี่วันแล้ว',a:'สองวันแล้ว ไข้ขึ้น ๆ ลง ๆ',g:1},{q:'มีผื่นหรือจุดแดงตามตัวไหม',a:'ไม่มีนะ แต่แถวบ้านยุงเยอะมาก ฝนตกทุกวัน',g:1,clue:1},
+    {q:'กินยาอะไรมาแล้วบ้าง',a:'ยังไม่ได้กินอะไรเลย',g:1},{q:'เชียร์บอลทีมไหน',a:'ทีมชาติไทยสิ! …แต่เกี่ยวกับไข้ไหมเนี่ย 😅',g:0}],
+ d:{h:'ลุงควรได้ยาอะไร',o:[{id:'para',t:'พาราเซตามอล',ok:1,why:'ลดไข้ ลดปวดเมื่อยได้ และปลอดภัยกว่าในช่วงที่ไข้เลือดออกระบาด'},
+    {id:'ibu',t:'ไอบูโพรเฟน (ยาแก้อักเสบ)',why:'ไข้หน้าฝนอาจเป็นไข้เลือดออก ยากลุ่ม NSAIDs อาจทำให้เลือดออกง่ายขึ้น'},
+    {id:'cet',t:'ยาแก้แพ้',why:'ลุงไม่มีน้ำมูกหรือจาม ยาแก้แพ้ไม่ช่วยเรื่องไข้'}]},
+ a:{h:'คำแนะนำที่สำคัญที่สุด',o:[{t:'ถ้าไข้ไม่ลด อาเจียนมาก มีจุดเลือดออก หรือซึมลง ให้ไปโรงพยาบาลทันที',ok:1,why:'เป็นอาการเตือนที่ต้องรีบไปโรงพยาบาล'},
+    {t:'ถ้าไข้ไม่ลด กินยาเพิ่มเป็นสองเท่าได้',why:'ห้ามกินเกินขนาดที่ฉลากกำหนด พาราเซตามอลเกินขนาดเป็นอันตรายต่อตับ'},
+    {t:'ซื้อยาฆ่าเชื้อมากินคู่ จะหายเร็วขึ้น',why:'ไข้จากไวรัส ยาปฏิชีวนะไม่ช่วย และใช้พร่ำเพรื่ออาจทำให้เชื้อดื้อยา'}]},
+ sum:'ไข้หน้าฝนอย่าเพิ่งใช้ยาแก้อักเสบ (NSAIDs) เอง ใช้พาราเซตามอลตามฉลาก และรู้อาการเตือนที่ต้องไปโรงพยาบาล'};
+function consult(re){const C=G.cs;let el=A.querySelector('.cs');if(!el){el=document.createElement('div');el.className='cs';A.appendChild(el)}
+  const L=LAND,mood=C.step>=3?'happy':'sick';
+  const big=L?'left:40px;bottom:120px;width:300px;height:375px':'left:50%;margin-left:-105px;top:96px;width:210px;height:262px';
+  const say=L?'left:330px;top:70px;width:300px':'left:20px;right:20px;top:20px';
+  const pnl=L?'right:24px;top:24px;bottom:24px;width:440px':'left:14px;right:14px;top:400px;bottom:14px';
+  const ctr=L?'top:470px;height:90px':'top:330px;height:80px';
+  const line=C.step===0?CASE.open:C.step===1?'ลุงควรกินยาอะไรดีล่ะ':C.step===2?'มีอะไรต้องระวังอีกไหม':'ขอบคุณมากนะ ลุงจะทำตามที่บอกเลย!';
+  const log=C.asked.map(i=>`<div class="me">${CASE.q[i].q}?</div><div class="them ${CASE.q[i].clue?'clue':''}">${CASE.q[i].a}</div>`).join('');
+  let body='';
+  if(C.step===0){const left=2-C.asked.length;body=`<span class="stp">ขั้น 1/3 · ซักประวัติ</span><h4>เลือกถาม ${left} คำถาม</h4><div class="log">${log}</div><div class="opts">${CASE.q.map((x,i)=>`<button class="opt ${C.asked.includes(i)?'used':''}" data-q="${i}">💬 ${x.q}?</button>`).join('')}</div>`}
+  else if(C.step===1||C.step===2){const S=C.step===1?CASE.d:CASE.a,f=C.first[C.step];
+    body=`<span class="stp">ขั้น ${C.step+1}/3 · ${C.step===1?'เลือกยา':'ให้คำแนะนำ'}</span><h4>${S.h}</h4><div class="log">${log}</div><div class="opts">${S.o.map((x,i)=>`<button class="opt ${C.pick&&C.pick[i]?(x.ok?'good':'bad'):''}" data-o="${i}">${x.id?`<img src="../art/${x.id}.webp" alt="">`:'💡'}<span>${x.t}</span></button>`).join('')}</div>
+     ${C.why?`<div class="why ${C.why.ok?'ok':'no'}">${C.why.ok?'✅':'❌'} ${C.why.t}</div>${C.why.ok?`<div class="row" style="margin-top:8px"><button class="btn" data-next="1">ต่อไป</button></div>`:''}`:''}`}
+  else{body=`<span class="stp">สรุปเคส</span><div class="hearts">${'❤️'.repeat(C.hearts)}${'🤍'.repeat(3-C.hearts)}</div><div class="learn"><b>💡 สิ่งที่ได้เรียนรู้</b><br>${CASE.sum}</div>
+     <p style="font-size:14px;margin:4px 0">📒 เก็บเคส "ลุงสมชาย ไข้หน้าฝน" ลงสมุดเคสแล้ว · ได้โบนัส 🪙 ${C.hearts*20}</p><div class="row"><button class="btn" data-fin="1">ดูผลด่าน</button></div>`}
+  el.innerHTML=`<div class="bgimg"></div><div class="ctr" style="${ctr}"></div><div class="big" style="${big}">${face(CASE.who,mood)}</div>
+   <div class="say" style="${say}"><b>${CASE.name}:</b> ${line}</div><div class="pnl" style="${pnl}">${body}</div>`;
+  el.onclick=e=>{const b=e.target.closest('button');if(!b)return;
+    if(b.dataset.q!=null){const i=+b.dataset.q;if(C.asked.includes(i)||C.asked.length>=2)return;C.asked.push(i);
+      if(C.asked.length===2){C.hearts+=C.asked.every(k=>CASE.q[k].g)?1:0;setTimeout(()=>{C.step=1;C.pick={};C.why=null;consult()},1100)}consult();return}
+    if(b.dataset.o!=null){const S=C.step===1?CASE.d:CASE.a,i=+b.dataset.o,x=S.o[i];if(C.why&&C.why.ok)return;C.pick[i]=1;
+      if(C.first[C.step]==null){C.first[C.step]=!!x.ok;if(x.ok)C.hearts++}C.why={ok:!!x.ok,t:x.why+(x.ok?'':' · ลองเลือกใหม่')};consult();return}
+    if(b.dataset.next){C.step++;C.pick={};C.why=null;consult();return}
+    if(b.dataset.fin){G.coins+=C.hearts*20;el.remove();G.seats[1]=null;drawSeats();G.phase='end';G.done++;hud();endCard()}}}
+
+function endCard(){const wr=G.miss.filter(m=>m.id!=='wait').length,wait=G.miss.filter(m=>m.id==='wait').length,stars=wr+wait<=1?3:wr+wait<=3?2:1;
+  const o=card(`<h2>ผ่านด่าน 51! ${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</h2><p>ได้เงิน 🪙 ${G.coins} · หยิบผิด ${wr} ครั้ง · ลูกค้ากลับก่อน ${wait} คน</p>
+   <div class="learn"><b>💡 วันนี้ได้เรียนรู้</b><ul style="margin:6px 0 0;padding-left:20px">${[...G.learn].slice(0,6).map(t=>`<li>${t}</li>`).join('')}</ul></div>
+   <p style="font-size:13px;color:#9A7A88">ต้นแบบนี้ใช้ทดลองระบบเท่านั้น ไอคอนของใหม่ยังเป็นภาพชั่วคราว ข้อมูลยารอเภสัชตรวจ</p>
+   <div class="row"><button class="btn" id="again">เล่นอีกครั้ง</button></div>`);
+  o.querySelector('#again').onclick=()=>{o.remove();newGame();render()}}
+render();
+</script></body></html>
