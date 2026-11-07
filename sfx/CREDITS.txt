@@ -1,0 +1,3 @@
+Sound effects in this folder come from Kenney (https://kenney.nl), released under CC0 1.0 (public domain):
+Impact Sounds, Interface Sounds, RPG Audio, Casino Audio. Trimmed, loudness-normalised and converted to MP3.
+Thank you Kenney!
