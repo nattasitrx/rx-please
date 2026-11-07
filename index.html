@@ -172,7 +172,9 @@ html.port #app{width:480px;height:900px}
 .rz-bigstars{display:flex;justify-content:center;gap:8px;margin:2px 0 10px}.rz-bigstars svg{width:58px;height:58px;filter:drop-shadow(0 3px 0 rgba(90,62,75,.12))}
 .rz-bigstars svg.on{animation:rzpop .55s cubic-bezier(.3,1.8,.5,1) backwards}.rz-bigstars svg.on:nth-child(2){animation-delay:.18s}.rz-bigstars svg.on:nth-child(3){animation-delay:.36s}
 .rz-res{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:8px}.rz-res div{background:#fff;border-radius:16px;padding:8px 6px;text-align:center}.rz-res b{display:flex;justify-content:center;align-items:center;gap:4px;font-size:22px}.rz-res span{font-size:12px;color:#9A8590}
-.rz-tip{background:#fff;border-radius:16px;padding:8px 12px;font-size:14px;line-height:1.5}.rz-tip b{display:block;color:#5DBE9C;font-size:13px}
+.rz-tip{background:#fff;border-radius:16px;padding:8px 12px;font-size:14px;line-height:1.5}
+.rz-dyk{display:flex;gap:10px;align-items:center;text-align:left;background:#FFFBEA}.rz-dyk b{color:#D98A00}.rz-dyki{flex:none;width:44px;height:44px}.rz-dyki svg{width:100%;height:100%}
+.rz-share{align-self:center;margin:2px auto 0}.rz-tip b{display:block;color:#5DBE9C;font-size:13px}
 .rz-tip.game{background:#F4EFFF}.rz-tip.game>b{color:#9B7BEA}.rz-tipg{display:block;margin-top:2px;font-weight:700}.rz-tipg .rz-coin{vertical-align:-3px}.rz-tip.game small{display:block;font-size:11.5px;color:#9A8590}
 .rz-conv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:6px}.rz-conv>span{background:#EAF7FF;border-radius:12px;padding:6px 10px;font-size:13px;line-height:1.35}.rz-conv>span b{display:block;font-size:15px;color:#2F7DB8}
 .rz-chat{display:flex;gap:10px;align-items:center}.rz-face{width:76px;height:86px;flex:none}.rz-face svg{width:100%;height:100%}
@@ -966,7 +968,7 @@ const rzSave=()=>{try{localStorage.setItem(RZ_KEY,JSON.stringify(RD))}catch(e){}
 /* ---------- analytics (PostHog) ----------
    Off while RZ_PH_KEY is empty. Anonymous: PostHog keeps a random id per device in localStorage, no cookies, no names,
    no autocapture, no session recording. Players can switch it off in settings (RD.an=0). Events: see rzA(...) calls. */
-const RZ_VER='2026-11-07k';
+const RZ_VER='2026-11-07l';
 const RZ_PH_KEY='phc_rkFR2c2yjDTwaPrVCxRVn3D4aCkxwxJ37TjdZmG8a5WW';/* PostHog project API key (phc_…, public by design) */
 const RZ_PH_HOST='https://us.i.posthog.com';/* EU project: https://eu.i.posthog.com */
 let rzPH=false;
@@ -1092,6 +1094,8 @@ function rzLevel(L,seed){
      levels stay as demanding as the middle of the game (combo goals already scale with the goal itself) */
   const km=gt==='combo'?1:L<=10?1.12:L<=28?1:L>=36?.72:1-(L-28)*.035;
   const par=(L<=4?[tFast*1.8+8,tFast*2.6+15]:[tFast*1.35+3,tFast*2+8]).map(t=>Math.round(t*km));
+  /* player survey Nov 2026: experienced players found chapters 3–5 easy, so 3★ asks for a faster finish there */
+  if(gt!=='combo'&&L>20)par[0]=Math.round(par[0]*(L<=30?.9:.85));
   return{L,items,feats,fresh,tut,news,seats,n,need,cs,goal,par,ch:Math.floor((L-1)/10),ev:[...ev]};
 }
 const RZ_GOALTXT=V=>{const v=V.goal.v;return V.goal.t==='coins'?`เก็บเงินให้ได้ ฿${v}`:V.goal.t==='combo'?`ทำคอมโบให้ถึง ×${v}`:V.goal.t==='nolose'?`ส่งยาให้ลูกค้า ${v} คน ห้ามมีใครรอจนกลับ`:`ส่งยาให้ลูกค้าครบ ${v} คน`};
@@ -1551,6 +1555,7 @@ rzEl.addEventListener('click',e=>{
   if(r==='soon'){rzSoon();return}
   if(r==='donate'){rzA('donate_open');rzDonate();return}
   if(r==='fb'){rzA('feedback_click');return}
+  if(r==='share'){rzShare(b);return}
   if(r==='ppcopy'){rzCopy(RZ_PPID,b);return}
   if(r==='gatei'){RZS.nope();const n=rzGateNeed(+b.dataset.l);rzMapToast(`เก็บดาวรวมให้ครบ ${n} ดวงเพื่อเปิดบทใหม่ ลองเล่นด่านเก่าให้ได้ 3 ดาว`);return}
   if(r==='resume'){RZ.paused=false;RZ.last=performance.now();rzQ('#rzOv').hidden=true;RZS.music(true);requestAnimationFrame(rzLoop);return}
@@ -1650,6 +1655,9 @@ function rzDonate(){const o=rzQ('#rzOv');if(!o)return;o.hidden=false;RZS.tap();
    <div class="rz-ppid"><span>พร้อมเพย์ (e-Wallet ID)<b>${RZ_PPID.replace(/(\d{3})(\d{4})(\d{4})(\d{4})/,'$1 $2 $3 $4')}</b></span><button class="rz-b sm big" data-r="ppcopy">คัดลอกเลข</button></div>
    <p class="rz-sub small">เล่นบนมือถือ: กดคัดลอกเลข แล้วเปิดแอปธนาคาร › โอนเงิน › พร้อมเพย์ › e-Wallet ID แล้ววางเลข หรือบันทึกรูป QR แล้วเลือกสแกนจากรูปภาพ · การสนับสนุนไม่ได้ของในเกม เป็นกำลังใจล้วน ๆ</p>
    <div class="rz-row"><a class="rz-b ghost" href="${RZ_QR}" download="ร้านยาทันใจ-สนับสนุน.jpg">บันทึกรูป QR</a>${RZ_FORM?`<a class="rz-b ghost" data-r="fb" href="${RZ_FORM}" target="_blank" rel="noopener">💬 ติชมเกม</a>`:''}<button class="rz-b" data-r="closeov">ปิด</button></div></div>`}
+/* invite friends: native share sheet (LINE, Messenger…) where available, otherwise copy the link */
+function rzShare(btn){const url='https://nattasitrx.github.io/rx-please/',t=`มาเปิดร้านยาด้วยกัน! ฉันเล่นถึงด่าน ${Math.min(rzMaxL(),RZ_LAST)} แล้ว 💊 ร้านยาทันใจ เกมจัดยาน่ารัก ๆ เล่นฟรีในเบราว์เซอร์`;rzA('share_click',{where:btn&&btn.closest('.rz-card.end')?'end':'other'});
+  if(navigator.share)navigator.share({title:'ร้านยาทันใจ',text:t,url}).catch(()=>{});else rzCopy(t+' '+url,btn)}
 function rzCopy(txt,btn){const done=()=>{RZS.ok();if(btn){const t=btn.textContent;btn.textContent='คัดลอกแล้ว ✓';btn.classList.add('copied');setTimeout(()=>{btn.textContent=t;btn.classList.remove('copied')},1800)}};
   const fb=()=>{try{const a=document.createElement('textarea');a.value=txt;a.setAttribute('readonly','');a.style.cssText='position:fixed;opacity:0;top:0;left:0';document.body.appendChild(a);a.select();a.setSelectionRange(0,99);document.execCommand('copy');a.remove();done()}catch(e){RZS.nope()}};
   if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(txt).then(done,fb);else fb()}
@@ -1969,6 +1977,7 @@ function rzSettings(){
    <div class="rz-set"><span>📳 สั่นตอนเล่น <small>สั่นเบา ๆ ตอนบดยา เขย่าขวด เสิร์ฟยา และตอนพลาด</small></span><button class="rz-tg ${RD.vib===0?'':'on'}" data-r="vib"><i></i></button></div>
    ${rzFsCan()&&!rzEnv().inapp?`<div class="rz-set"><span>เล่นเต็มจอ <small>เปิดเต็มจอให้เองทุกครั้งที่แตะเริ่มเกม</small></span><button class="rz-tg ${rzFsEl()?'on':''}" data-r="fs"><i></i></button></div>`:rzStandalone()?'':`<div class="rz-set"><span>📱 เล่นเต็มจอ <small>${rzEnv().inapp?'เปิดในเบราว์เซอร์ก่อน แล้วเพิ่มเกมไว้ที่หน้าจอโฮม':'เพิ่มเกมไว้ที่หน้าจอโฮม แล้วเปิดจากไอคอน'}</small></span><button class="rz-b sm" data-r="a2hs">ดูวิธี</button></div>`}
    ${RZ_PH_KEY?`<div class="rz-set"><span>📊 ส่งสถิติการเล่น <small>ไม่เก็บชื่อ ใช้แค่สถิติการเล่นและจังหวัดโดยประมาณ เพื่อปรับด่านให้สนุกขึ้น</small></span><button class="rz-tg ${RD.an!==0?'on':''}" data-r="an"><i></i></button></div>`:''}
+   <div class="rz-set"><span>📣 ชวนเพื่อน <small>ส่งลิงก์เกมให้เพื่อนผ่าน LINE หรือแอปอื่น</small></span><button class="rz-b sm" data-r="share">แชร์</button></div>
    <div class="rz-set"><span>💾 ย้ายเซฟ <small>คัดลอกรหัสไปเล่นต่อที่ไอคอนหน้าจอโฮมหรือเครื่องอื่น</small></span><button class="rz-b sm" data-r="xfer">เปิด</button></div>
    <div class="rz-set"><span>☕ สนับสนุนผู้พัฒนา <small>เป็นกำลังใจให้ทำเวอร์ชันต่อไป</small></span><button class="rz-b sm" data-r="donate">สนับสนุน</button></div>${RZ_FORM?`<div class="rz-set"><span>💬 ติชม / แนะนำเกม <small>บอกเราได้ว่าชอบอะไร อยากให้ปรับอะไร</small></span><a class="rz-b sm ghost" data-r="fb" href="${RZ_FORM}" target="_blank" rel="noopener">เปิดฟอร์ม</a></div>`:''}
    <p class="rz-sub" style="margin-top:10px">ตัวละคร ร้านยา และภาพยาเป็นเรื่องสมมติ เกร็ดความรู้ในเกมเป็นข้อมูลทั่วไป ไม่ใช่คำแนะนำการรักษา ควรปรึกษาแพทย์หรือเภสัชกรเสมอ</p>
@@ -2286,6 +2295,7 @@ function rzIntro(L){
    ${V.ev.length?`<div class="rz-evts">${V.ev.map(e=>`<span><i>${RZ_EVT[e].ic}</i><b>${RZ_EVT[e].n}</b><small>${RZ_EVT[e].d}</small></span>`).join('')}</div>`:''}
    <div class="rz-goalbox"><b>เป้าหมาย · ทำครบแล้วจบด่านทันที</b>${RZ_GOALTXT(V)}${V.goal.t==='nolose'?'':` · มีลูกค้าทั้งหมด ${V.n} คน`}</div>
    ${V.news.length?`<div class="rz-new"><span class="rz-newtag">ของใหม่</span>${V.fresh.map(x=>`<div class="rz-ni">${rzOrderArt(x)}<div><b>${RI[x].n}</b><small>${RI[x].e}</small></div></div>`).join('')}${V.news.map(u=>u.txt?`<p>${u.txt}</p>`:'').join('')}</div>`:''}
+   ${V.news.length?'':(()=>{const fi=pick(V.items.filter(x=>RZ_FACT[x]));return fi?`<div class="rz-tip rz-dyk"><div class="rz-dyki">${rzOrderArt(fi)}</div><div><b>💡 รู้ไหม · ${RI[fi].n}</b>${RZ_FACT[fi]}</div></div>`:''})()}
    <div class="rz-goal"><span>${czStars(3)} เสร็จภายใน ${rzFmt(V.par[0])}</span><span>${czStars(2)} ภายใน ${rzFmt(V.par[1])}</span><span>${czStars(1)} ทำเป้าหมายสำเร็จ</span></div>
    ${gift}${L>=RZ_BST_L?rzBstPick(V):''}</div>
    <div class="rz-row"><button class="rz-b ghost" data-r="map">แผนที่</button><button class="rz-b big" data-r="go" data-l="${L}">เริ่มเลย!</button></div></div></div>`;
@@ -2303,7 +2313,8 @@ function rzEnd(pass,why){
    <div class="rz-bigstars">${czStars(stars)}</div>${gemGot?`<div class="rz-gemgot">${RZ_GEM} +${gemGot} เพชร · รางวัล 3 ดาวด่านบอส</div>`:''}
    ${pass?`<p class="rz-sub" style="text-align:center">ใช้เวลา ${rzFmt(RZ.T)} · ${stars<3?`3 ดาวต้องเสร็จภายใน ${rzFmt(V.par[0])}`:'เร็วสุด ๆ!'}</p>`:`<div class="rz-goalbox bad"><b>${why||'เป้าหมาย'}</b>${RZ_GOALTXT(V)}</div>`}
    <div class="rz-res"><div><b><i class="rz-coin"></i>${RZ.coins}</b><span>เข้ากระเป๋าแล้ว</span></div><div><b>${RZ.served}</b><span>ลูกค้าได้ยา${RZ.missed?` · พลาด ${RZ.missed}`:''}</span></div><div><b>×${RZ.best}</b><span>คอมโบสูงสุด${RZ.fevers?` · ไฟลุก ${RZ.fevers} ครั้ง`:''}</span></div></div>
-   ${rzRecBox(pass)||`<div class="rz-tip"><b>รู้ไหม</b>${RZ_FACT[fx]||''}</div>`}
+   ${rzRecBox(pass)}${RZ_FACT[fx]?`<div class="rz-tip rz-dyk"><div class="rz-dyki">${rzOrderArt(fx)}</div><div><b>💡 รู้ไหม · ${RI[fx].n}</b>${RZ_FACT[fx]}</div></div>`:''}
+   ${pass&&stars===3?`<button class="rz-b sm ghost rz-share" data-r="share">📣 ชวนเพื่อนมาเปิดร้าน</button>`:''}
    <div class="rz-row"><button class="rz-b ghost" data-r="map">แผนที่</button><button class="rz-b ${pass?'ghost':'big'}" data-r="go" data-l="${L}">เล่นอีกครั้ง</button>${pass?(rzPending()&&rzMaxL()>wasMax?`<button class="rz-b big" data-r="map">ปลดล็อก${rzPending().n}! ไปดูกัน</button>`:(L>=RZ_LAST?`<button class="rz-b big" data-r="soon">🚧 ติดตามเวอร์ชันใหม่</button>`:rzGated(L+1)?`<button class="rz-b big" data-r="map">ดาวยังไม่พอเปิดบทใหม่ (${rzTotStars()}/${rzGateNeed(L+1)} ★)</button>`:`<button class="rz-b big" data-r="lv" data-l="${L+1}">ด่านต่อไป</button>`)):''}</div></div>`;
 }
 
