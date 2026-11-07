@@ -683,7 +683,8 @@ const rzSafe=(()=>{const p=document.createElement('div');p.style.cssText='positi
   document.body.appendChild(p);return()=>{const c=getComputedStyle(p);return{t:parseFloat(c.paddingTop)||0,r:parseFloat(c.paddingRight)||0,b:parseFloat(c.paddingBottom)||0,l:parseFloat(c.paddingLeft)||0}}})();
 function layout(){const S=rzSafe(),W=innerWidth-S.l-S.r,H=innerHeight-S.t-S.b,sL=Math.min(W/1120,H/630),sP=Math.min(W/480,H/900),land=sL>=sP;
   root.classList.add('stage');root.classList.toggle('land',land);root.classList.toggle('port',!land);root.style.setProperty('--s',(land?sL:sP).toFixed(4));
-  root.style.setProperty('--ox',((S.l-S.r)/2)+'px');root.style.setProperty('--oy',((S.t-S.b)/2)+'px')}
+  root.style.setProperty('--ox',((S.l-S.r)/2)+'px');root.style.setProperty('--oy',((S.t-S.b)/2)+'px');
+  if(RZ_LAND!=null&&RZ_LAND!==land)setTimeout(()=>dispatchEvent(new Event('rzorient')));RZ_LAND=land}
 layout();addEventListener('resize',layout);
 /* fullscreen: browsers only allow it from a tap, so the splash tap enters it (touch devices, setting on by default).
    iPhone Safari has no fullscreen for pages, so iPhone players get "add to home screen" instead (opens without browser bars). */
@@ -960,7 +961,7 @@ const rzSave=()=>{try{localStorage.setItem(RZ_KEY,JSON.stringify(RD))}catch(e){}
 /* ---------- analytics (PostHog) ----------
    Off while RZ_PH_KEY is empty. Anonymous: PostHog keeps a random id per device in localStorage, no cookies, no names,
    no autocapture, no session recording. Players can switch it off in settings (RD.an=0). Events: see rzA(...) calls. */
-const RZ_VER='2026-11-07i';
+const RZ_VER='2026-11-07j';
 const RZ_PH_KEY='phc_rkFR2c2yjDTwaPrVCxRVn3D4aCkxwxJ37TjdZmG8a5WW';/* PostHog project API key (phc_…, public by design) */
 const RZ_PH_HOST='https://us.i.posthog.com';/* EU project: https://eu.i.posthog.com */
 let rzPH=false;
@@ -1961,12 +1962,22 @@ function rzSettings(){
 }
 
 /* ---------- map ---------- */
+/* the path, shop and level nodes for one chapter; rebuilt on its own when the phone rotates (portrait and landscape use different routes) */
+function rzPathIn(page){const max=Math.min(rzMaxL(),RZ_LAST),done=rzAllDone();
+  const NODES=(isPort()?RZ_NODES_P:RZ_NODES)[page%5],HA=isPort()?RZ_HOME_P:RZ_HOME,crv=rzCurve([HA,...NODES]);
+  return`<svg viewBox="0 0 1000 360" preserveAspectRatio="none"><g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="${crv}" stroke="#7A4A22" stroke-width="40" vector-effect="non-scaling-stroke" opacity=".28" transform="translate(0 5)"/><path d="${crv}" stroke="#C99A5C" stroke-width="36" vector-effect="non-scaling-stroke"/><path d="${crv}" stroke="#E9C88E" stroke-width="32" vector-effect="non-scaling-stroke"/><path d="${crv}" stroke="#FBE8C2" stroke-width="24" vector-effect="non-scaling-stroke"/><path d="${crv}" stroke="#fff" stroke-width="4" stroke-dasharray="10 16" vector-effect="non-scaling-stroke" opacity=".9"/></g></svg>
+   ${rzOpen('gpp')?`<button class="rz-house img" data-r="gpp" data-f="gpp"><img src="art/house.webp" alt="ร้านของฉัน"><span>ร้านของฉัน ${rzGCount()}/${RZ_GPP.length}${rzGCount()>=RZ_GPP.length?' ✓':''}</span></button>`:`<button class="rz-house img lock" disabled><img src="art/house.webp" alt=""><span>ต่อเติมร้าน · ด่าน 13</span></button>`}
+   ${[4,8].map(k=>{const L=page*10+k,[x1,y1]=NODES[k-1],[x2,y2]=NODES[k],got=RD.gift[L],ok=(RD.stars[L-1]||0)>0;
+     return`<button class="rz-gift ${got?'got':ok?'ready':'lock'}" style="left:${(x1+x2)/2}%;top:${(y1+y2)/2}%" ${ok&&!got?`data-r="gift" data-l="${L}"`:'disabled'} aria-label="ของขวัญ">${RZ_GIFTI}</button>`}).join('')}
+   ${NODES.map(([x,y],i)=>{const L=page*10+i+1,st=RD.stars[L-1]||0,gate=L<=max&&rzGated(L),lock=L>max||gate,cur=L===max&&!gate&&!done;
+     const tr=L>=RZ_BST_L&&!gate&&rzTrialOf(L);return`<button class="rz-node ${lock?'lock':''} ${gate?'gate':''} ${cur?'cur':''} ${st?'done':''} ${L%10===0?'boss':''}" style="left:${x}%;top:${y}%" ${gate?`data-r="gatei" data-l="${L}"`:`data-r="lv" data-l="${L}" ${lock?'disabled':''}`}>${tr?`<i class="rz-trialb" title="ทดลองตัวช่วยฟรี">${rzBstDef(tr).ic}</i>`:''}<b>${gate?RZ_LOCKI:L}</b><span>${gate?`<i class="rz-need">★ ${rzTotStars()}/${gate}</i>`:czStars(st)}</span></button>`}).join('')}`}
+var RZ_MAPPG=0,RZ_LAND;/* RZ_LAND is set by layout() (runs earlier, var is hoisted) */
+addEventListener('rzorient',()=>{const pth=rzQ('.rz-map .rz-path');if(pth)pth.innerHTML=rzPathIn(RZ_MAPPG)});
 function rzMap(page,dir){
   if(RZ){RZ.run=false;RZ=null}rzEl.classList.remove('fever');RZS.m.fast=0;RZS.music(true);rzQEnsure();
   const max=Math.min(rzMaxL(),RZ_LAST),done=rzAllDone(),maxP=Math.floor((max-1)/10);if(page==null)page=maxP;page=Math.max(0,Math.min(maxP,page));
   const ch=RZ_CHC[page%RZ_CHC.length],tot=RD.stars.reduce((a,b)=>a+(b||0),0);
-  rzEl.style.setProperty('--wall1',ch[0]);rzEl.style.setProperty('--wall2',ch[1]);
-  const NODES=(isPort()?RZ_NODES_P:RZ_NODES)[page%5],HA=isPort()?RZ_HOME_P:RZ_HOME,crv=rzCurve([HA,...NODES]);
+  rzEl.style.setProperty('--wall1',ch[0]);rzEl.style.setProperty('--wall2',ch[1]);RZ_MAPPG=page;
   const fb=(id,r,label,icon,dot)=>rzOpen(id)?`<button class="rz-fb ${dot?'dot':''}" data-r="${r}" data-f="${id}">${icon}<span>${label}</span></button>`:`<button class="rz-fb lock" disabled>${RZ_LOCKI}<span>ด่าน ${RZ_FEAT.find(f=>f.id===id).at}</span></button>`;
   rzEl.innerHTML=`<div class="rz-bg ${dir?'slin':''}"><div class="rz-mapbg c${page%5+1}"></div></div><div class="rz-map ${dir?'slin':''}" style="--sd:${dir||1}">
    <div class="rz-maph"><div class="rz-logo">ร้านยา<span>ทันใจ</span></div><span class="rz-pill">${czStars(1).split('</svg>')[0]}</svg> ${tot}</span><span class="rz-pill coin"><i class="rz-coin"></i><b>${RD.wallet}</b></span>${max>=RZ_BST_L||RD.gem?`<span class="rz-pill gem">${RZ_GEM}<b>${RD.gem}</b></span>`:''}
@@ -1974,12 +1985,7 @@ function rzMap(page,dir){
    <div class="rz-chap"><button class="rz-ic" data-r="page" data-p="${page-1}" ${page>0?'':'disabled'}>‹</button><b>บทที่ ${page+1} · ${RZ_CH[page%RZ_CH.length]}</b><button class="rz-ic" data-r="page" data-p="${page+1}" ${page<maxP?'':'disabled'}>›</button></div>
    <div class="rz-dots">${Array.from({length:Math.ceil(RZ_LAST/10)},(_,k)=>`<button class="${k===page?'on':''}" data-r="page" data-p="${k}" ${k<=maxP&&k!==page?'':'disabled'} aria-label="บทที่ ${k+1}"></button>`).join('')}</div>
    ${page===Math.floor((RZ_LAST-1)/10)?`<button class="rz-soonsign" data-r="soon">🚧 บทต่อไปกำลังพัฒนา · ติดตามเวอร์ชันใหม่</button>`:''}
-   <div class="rz-path"><svg viewBox="0 0 1000 360" preserveAspectRatio="none"><g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="${crv}" stroke="#7A4A22" stroke-width="40" vector-effect="non-scaling-stroke" opacity=".28" transform="translate(0 5)"/><path d="${crv}" stroke="#C99A5C" stroke-width="36" vector-effect="non-scaling-stroke"/><path d="${crv}" stroke="#E9C88E" stroke-width="32" vector-effect="non-scaling-stroke"/><path d="${crv}" stroke="#FBE8C2" stroke-width="24" vector-effect="non-scaling-stroke"/><path d="${crv}" stroke="#fff" stroke-width="4" stroke-dasharray="10 16" vector-effect="non-scaling-stroke" opacity=".9"/></g></svg>
-   ${rzOpen('gpp')?`<button class="rz-house img" data-r="gpp" data-f="gpp"><img src="art/house.webp" alt="ร้านของฉัน"><span>ร้านของฉัน ${rzGCount()}/${RZ_GPP.length}${rzGCount()>=RZ_GPP.length?' ✓':''}</span></button>`:`<button class="rz-house img lock" disabled><img src="art/house.webp" alt=""><span>ต่อเติมร้าน · ด่าน 13</span></button>`}
-   ${[4,8].map(k=>{const L=page*10+k,[x1,y1]=NODES[k-1],[x2,y2]=NODES[k],got=RD.gift[L],ok=(RD.stars[L-1]||0)>0;
-     return`<button class="rz-gift ${got?'got':ok?'ready':'lock'}" style="left:${(x1+x2)/2}%;top:${(y1+y2)/2}%" ${ok&&!got?`data-r="gift" data-l="${L}"`:'disabled'} aria-label="ของขวัญ">${RZ_GIFTI}</button>`}).join('')}
-   ${NODES.map(([x,y],i)=>{const L=page*10+i+1,st=RD.stars[L-1]||0,gate=L<=max&&rzGated(L),lock=L>max||gate,cur=L===max&&!gate&&!done;
-     const tr=L>=RZ_BST_L&&!gate&&rzTrialOf(L);return`<button class="rz-node ${lock?'lock':''} ${gate?'gate':''} ${cur?'cur':''} ${st?'done':''} ${L%10===0?'boss':''}" style="left:${x}%;top:${y}%" ${gate?`data-r="gatei" data-l="${L}"`:`data-r="lv" data-l="${L}" ${lock?'disabled':''}`}>${tr?`<i class="rz-trialb" title="ทดลองตัวช่วยฟรี">${rzBstDef(tr).ic}</i>`:''}<b>${gate?RZ_LOCKI:L}</b><span>${gate?`<i class="rz-need">★ ${rzTotStars()}/${gate}</i>`:czStars(st)}</span></button>`}).join('')}</div>
+   <div class="rz-path">${rzPathIn(page)}</div>
    <div class="rz-mapf"><div class="rz-fbs">
      ${fb('shop',RD.seen.shop?'shop':'mhok','ร้านค้า',RZ_UPI.tray.replace('<svg','<svg class="fi"'),rzUpNew()||(rzOpen('dup')&&rzDupAffordable()))}
      ${fb('quest','quests','ภารกิจ',RZ_QI,rzOpen('quest')&&rzQClaimable())}
