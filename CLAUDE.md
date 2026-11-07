@@ -10,7 +10,7 @@
 ## What the game is
 A cute, cooking-game-style pharmacy game in one self-contained file: `index.html` (HTML + CSS + JS, Google Fonts Mali / Sarabun / Pridi / Chakra Petch).
 Customers walk in and order medicines; the player prepares them in three zones and taps to hand them over.
-- **Tablets:** jar → counting tray → (amber bag for vitamin C, or mortar to crush amlodipine for patients who can't swallow; `rzMortarFill` draws the waiting tablets, mortar glows until crushed).
+- **Tablets:** jar → counting tray → (amber bag for vitamin C, or mortar to crush amlodipine for patients who can't swallow — a counted amlodipine tray goes to a free mortar even with no crushed order waiting, so packets can be prepared ahead; plain-tablet orders are still served first; `rzMortarFill` draws the waiting tablets, mortar glows until crushed).
 - **Liquids:** dry syrup → water → shake (sediment returns if left) → label; cough syrup and oral syringe are instant.
 - **Cold chain:** fridge → ice-pack box with a cold gauge that spoils.
 

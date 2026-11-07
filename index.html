@@ -960,7 +960,7 @@ const rzSave=()=>{try{localStorage.setItem(RZ_KEY,JSON.stringify(RD))}catch(e){}
 /* ---------- analytics (PostHog) ----------
    Off while RZ_PH_KEY is empty. Anonymous: PostHog keeps a random id per device in localStorage, no cookies, no names,
    no autocapture, no session recording. Players can switch it off in settings (RD.an=0). Events: see rzA(...) calls. */
-const RZ_VER='2026-11-07h';
+const RZ_VER='2026-11-07i';
 const RZ_PH_KEY='phc_rkFR2c2yjDTwaPrVCxRVn3D4aCkxwxJ37TjdZmG8a5WW';/* PostHog project API key (phc_…, public by design) */
 const RZ_PH_HOST='https://us.i.posthog.com';/* EU project: https://eu.i.posthog.com */
 let rzPH=false;
@@ -1312,7 +1312,7 @@ function rzTapSlot(kind,k,el){
   if(kind==='tray'){if(x.ph!=='ready')return busy('กำลังนับยา…');
     if(RI[x.id].amber){const a=rzFree('amber');if(a<0)return busy('ซองสีชาไม่ว่าง');RZ.S.amber[a]={id:x.id,ph:'wrap',t:0,p:0};RZ.S.tray[k]=null;rzFly(el,rzQ('#rzAmber').children[a],rzArt(x.id,'bag'),true);setTimeout(()=>{if(RZ){rzSlotUpd('tray',k);rzSlotUpd('amber',a)}},200);rzEv('amberIn');return}
     if(rzServe(x.id,el)){RZ.S.tray[k]=null;rzSlotUpd('tray',k);return}
-    if(RI['aml~c']&&x.id==='aml'&&RZ.V.items.includes('aml~c')&&rzWho('aml~c')>=0){const m=rzFree('mortar');if(m<0)return busy('โกร่งบดยาไม่ว่าง');RZ.S.mortar[m]={id:'aml~c',ph:'crush',taps:0,need:RZ.bst.has('grinder')?1:rzU('mortar'),t:0,p:0};RZ.S.tray[k]=null;rzFly(el,rzQ('#rzMortar').children[m],rzArt('aml','bag'),true);setTimeout(()=>{if(RZ){rzSlotUpd('tray',k);rzSlotUpd('mortar',m)}},200);rzEv('crushIn');return}
+    if(RI['aml~c']&&x.id==='aml'&&RZ.V.items.includes('aml~c')){const m=rzFree('mortar');if(m<0)return busy(rzWho('aml~c')>=0?'โกร่งบดยาไม่ว่าง':'ยังไม่มีลูกค้าสั่งยานี้ · โกร่งไม่ว่าง');if(rzWho('aml~c')<0&&!RD.seen.precrush){RD.seen.precrush=1;rzSave();rzFloat(rzQ('#rzMortar'),'บดเตรียมไว้ก่อนได้!','good')}RZ.S.mortar[m]={id:'aml~c',ph:'crush',taps:0,need:RZ.bst.has('grinder')?1:rzU('mortar'),t:0,p:0};RZ.S.tray[k]=null;rzFly(el,rzQ('#rzMortar').children[m],rzArt('aml','bag'),true);setTimeout(()=>{if(RZ){rzSlotUpd('tray',k);rzSlotUpd('mortar',m)}},200);rzEv('crushIn');return}
     return busy('ยังไม่มีลูกค้าสั่งยานี้')}
   if(kind==='amber'){if(x.ph!=='ready')return busy('กำลังใส่ซองชา…');if(rzServe(x.id,el)){RZ.S.amber[k]=null;rzSlotUpd('amber',k)}else busy('ยังไม่มีลูกค้าสั่งยานี้');return}
   if(kind==='mortar'){if(x.ph==='crush'){x.taps++;x.p=x.taps/x.need;RZS.pound(x.taps,x.need);el.classList.remove('pound');void el.offsetWidth;el.classList.add('pound');if(x.taps>=x.need){x.ph='divide';x.t=0;x.p=0;rzEv('crushed')}rzSlotUpd('mortar',k);return}
