@@ -895,9 +895,11 @@ const RZ_IMGST={'amox|raw':'amoxpow','amox|mixing':'amoxmix','amox|sed':'amoxsed
 function rzImgArt(id,ov,bs,file){
   const b=id==='syr'?'':bs?rzBadge(id,84,84,bs):rzBadge(id,84,84,30);
   return`<svg viewBox="0 0 100 100" aria-hidden="true" class="ia"><image href="${rzImgU(file||RZ_IMG[id])}" x="0" y="0" width="100" height="100"${id==='syr'?' transform="rotate(-16 50 50) translate(50 50) scale(1.16) translate(-50 -50)"':''}/>${ov?`<image href="${rzImgU(ov)}" x="${b?2:56}" y="58" width="42" height="42"/>`:''}${b}</svg>`}
+/* icon style: classic code-drawn icons are the default again (players preferred them, Nov 2026);
+   settings toggle data-r="ico3d" → RD.ico3d=1 switches to the Canva 3D images */
 function rzArt(id,st,bs){
-  if(RZ_IMGST[id+'|'+st])return rzImgArt(id,'',bs,RZ_IMGST[id+'|'+st]);
-  if(RZ_IMG[id]){const it0=RI[id]||{};
+  if(RD.ico3d===1&&RZ_IMGST[id+'|'+st])return rzImgArt(id,'',bs,RZ_IMGST[id+'|'+st]);
+  if(RD.ico3d===1&&RZ_IMG[id]){const it0=RI[id]||{};
     const ok=bs?(st==='bag'||st==='amber'||st==='packet'||st==='bottle'||st==='cold'||(st==='raw'&&it0.cold))
                :(st!=='sed'&&st!=='spoiled'&&st!=='amberRaw');
     if(ok&&bs&&(st==='amber'||st==='cold'))return`<svg viewBox="0 0 100 100" aria-hidden="true" class="ia"><image href="${rzImgU(st==='amber'?'amberbag':'coolbox')}" x="0" y="10" width="90" height="90"/><image href="${rzImgU(RZ_IMG[id])}" x="50" y="-2" width="50" height="50"/>${rzBadge(id,84,84,bs)}</svg>`;
@@ -990,7 +992,7 @@ const rzSave=()=>{try{localStorage.setItem(RZ_KEY,JSON.stringify(RD))}catch(e){}
 /* ---------- analytics (PostHog) ----------
    Off while RZ_PH_KEY is empty. Anonymous: PostHog keeps a random id per device in localStorage, no cookies, no names,
    no autocapture, no session recording. Players can switch it off in settings (RD.an=0). Events: see rzA(...) calls. */
-const RZ_VER='2026-11-07o';
+const RZ_VER='2026-11-13a';
 const RZ_PH_KEY='phc_rkFR2c2yjDTwaPrVCxRVn3D4aCkxwxJ37TjdZmG8a5WW';/* PostHog project API key (phc_…, public by design) */
 const RZ_PH_HOST='https://us.i.posthog.com';/* EU project: https://eu.i.posthog.com */
 let rzPH=false;
@@ -999,7 +1001,7 @@ function rzAnInit(){if(!RZ_PH_KEY||RD.an===0||rzPH)return;rzPH=true;try{
   const E=rzEnv();
   posthog.init(RZ_PH_KEY,{api_host:RZ_PH_HOST,persistence:'localStorage',person_profiles:'identified_only',autocapture:false,capture_pageview:true,capture_pageleave:true,
     disable_session_recording:true,disable_surveys:true,advanced_disable_flags:true,enable_heatmaps:false,capture_exceptions:false,capture_dead_clicks:false});
-  posthog.register({game_v:RZ_VER,display:rzStandalone()?'home_screen_app':'browser',inapp:E.inapp||'none',from_line_redirect:!!window.RZ_FROM_LINE});
+  posthog.register({game_v:RZ_VER,display:rzStandalone()?'home_screen_app':'browser',inapp:E.inapp||'none',from_line_redirect:!!window.RZ_FROM_LINE,icons:RD.ico3d===1?'3d':'classic'});
 }catch(e){}}
 function rzA(ev,p,beacon){if(!rzPH||RD.an===0)return;try{const st=(RD.stars||[]);
   posthog.capture(ev,Object.assign({hi_level:RD.hiStart||0,levels_cleared:st.filter(x=>x).length,stars_total:st.reduce((a,b)=>a+(+b||0),0),orient:root.classList.contains('port')?'portrait':'landscape'},p||{}),beacon?{transport:'sendBeacon'}:undefined)}catch(e){}}
@@ -1568,6 +1570,7 @@ rzEl.addEventListener('click',e=>{
   if(r==='upgo'){rzA('upgrade_hint_click',{id:b.dataset.id});rzShop('gear',b.dataset.id);return}
   if(r==='buy'){rzA('shop_buy',{id:b.dataset.id});rzBuy(b.dataset.id);return}
   if(r==='page'){const np=+b.dataset.p,cp=+(rzQ('.rz-dots .on')||{dataset:{}}).dataset.p;rzMap(np,isNaN(cp)?1:np>cp?1:-1);return}
+  if(r==='ico3d'){RD.ico3d=RD.ico3d===1?0:1;rzSave();b.classList.toggle('on',RD.ico3d===1);RZS.tap();rzA('icon_style',{style:RD.ico3d===1?'3d':'classic'});try{posthog.register({icons:RD.ico3d===1?'3d':'classic'})}catch(e){}return}
   if(r==='vib'){RD.vib=RD.vib===0?1:0;rzSave();b.classList.toggle('on',RD.vib!==0);if(RD.vib!==0)RZH.mid();return}
     if(r==='music'){RD.music=RD.music?0:1;rzSave();RZS.music(!!RD.music);b.classList.toggle('off',!RD.music);return}
   if(r==='lv'){RZS.tap();rzIntro(+b.dataset.l);return}
@@ -2004,6 +2007,7 @@ function rzSettings(){
    <div class="rz-set"><span>คำแนะนำจากพี่แอน <small>มือชี้สอนวิธีเล่นและระบบใหม่</small></span><button class="rz-tg ${RD.tutOff?'':'on'}" data-r="tut"><i></i></button></div>
    <div class="rz-set"><span>เสียงประกอบ</span><button class="rz-tg ${SND.on?'on':''}" data-r="snd"><i></i></button></div>
    <div class="rz-set"><span>เพลง</span><button class="rz-tg ${RD.music?'on':''}" data-r="music"><i></i></button></div>
+   <div class="rz-set"><span>🎨 ไอคอนยาแบบ 3D <small>ปิดไว้ = ไอคอนแบบคลาสสิก</small></span><button class="rz-tg ${RD.ico3d===1?'on':''}" data-r="ico3d"><i></i></button></div>
    <div class="rz-set"><span>📳 สั่นตอนเล่น <small>สั่นเบา ๆ ตอนบดยา เขย่าขวด เสิร์ฟยา และตอนพลาด</small></span><button class="rz-tg ${RD.vib===0?'':'on'}" data-r="vib"><i></i></button></div>
    ${rzFsCan()&&!rzEnv().inapp?`<div class="rz-set"><span>เล่นเต็มจอ <small>เปิดเต็มจอให้เองทุกครั้งที่แตะเริ่มเกม</small></span><button class="rz-tg ${rzFsEl()?'on':''}" data-r="fs"><i></i></button></div>`:rzStandalone()?'':`<div class="rz-set"><span>📱 เล่นเต็มจอ <small>${rzEnv().inapp?'เปิดในเบราว์เซอร์ก่อน แล้วเพิ่มเกมไว้ที่หน้าจอโฮม':'เพิ่มเกมไว้ที่หน้าจอโฮม แล้วเปิดจากไอคอน'}</small></span><button class="rz-b sm" data-r="a2hs">ดูวิธี</button></div>`}
    ${RZ_PH_KEY?`<div class="rz-set"><span>📊 ส่งสถิติการเล่น <small>ไม่เก็บชื่อ ใช้แค่สถิติการเล่นและจังหวัดโดยประมาณ เพื่อปรับด่านให้สนุกขึ้น</small></span><button class="rz-tg ${RD.an!==0?'on':''}" data-r="an"><i></i></button></div>`:''}
